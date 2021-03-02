@@ -1,6 +1,7 @@
-from filter.kalmanFilter import KalmanFilter
-from helper.dataHistory import DataHistory
-from helper.dataPlotter import DataPlotter
+from filter.KalmanFilter import KalmanFilter
+from helper.DataHistory import DataHistory
+from helper.DataPlotter import DataPlotter
+from helper.MultiPlot import MultiPlot
 from model.DsgeModelBuilder import DsgeModelBuilder
 import numpy as np
 
@@ -8,7 +9,7 @@ model_builder = DsgeModelBuilder()
 data_plotter = DataPlotter()
 
 
-def test_kalman():
+def test_kalman(data_plotter):
 
     dt = 0.1
 
@@ -39,4 +40,4 @@ def test_kalman():
         data_Y[0][i] = X[1][0]
         data_Y[1][i] = Y[1][0]
 
-    data_plotter.add_multiplot('Kalman plot', data_X, data_Y, 'X', 'Y')
+    data_plotter.add_plot(MultiPlot('Kalman plot', data_X, data_Y, 'X', 'Y'))

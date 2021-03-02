@@ -1,5 +1,6 @@
 from examples.kalmanExample import test_kalman
 from format.JsonFormat import JsonFormat
+from helper.DataPlotter import DataPlotter
 from model.DsgeModelBuilder import DsgeModelBuilder
 
 model_builder = DsgeModelBuilder()
@@ -18,5 +19,7 @@ def run_dsge(file_name, file_format):
 
 
 if __name__ == '__main__':
-    test_kalman()
+    data_plotter = DataPlotter()
+    test_kalman(data_plotter)
+    data_plotter.draw_plots()
 

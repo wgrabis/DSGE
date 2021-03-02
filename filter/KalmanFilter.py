@@ -1,6 +1,6 @@
 from numpy import dot, linalg
 
-from filter.filter import Filter
+from filter.Filter import Filter
 
 
 class KalmanFilter(Filter):
