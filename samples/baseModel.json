@@ -1,0 +1,20 @@
+{
+  "name": "base test model",
+  "parameters": {
+    "e": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 0,
+      "covariance": 0
+    },
+    "x": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0,
+      "covariance": 0
+    }
+  },
+  "equations": [
+    "x = rho*(x-1) + e"
+  ]
+}
