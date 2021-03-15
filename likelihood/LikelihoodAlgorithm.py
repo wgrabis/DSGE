@@ -6,7 +6,7 @@ from model.Wrappers import Distribution
 
 class LikelihoodAlgorithm:
     def get_likelihood_probability(self, model, data, posterior):
-        likelihood_filter = model.filter
+        likelihood_filter = model.likelihood_filter
 
         # setup
         transition_matrix, shock_matrix = model.build_matrices(posterior)

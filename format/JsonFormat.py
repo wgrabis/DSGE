@@ -1,6 +1,7 @@
 from format.Format import Format
 import json
 
+from model.EstimationData import EstimationData
 from model.Wrappers import Distribution
 
 
@@ -26,4 +27,4 @@ class JsonFormat(Format):
             if parameter.type == 'structural':
                 structural.append(key)
 
-        return name, equations, structural, shocks, priors, estimations
+        return name, equations, structural, shocks, priors, EstimationData(estimations)

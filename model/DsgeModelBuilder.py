@@ -19,6 +19,7 @@ class DsgeModelBuilder:
             transition_matrix, shock_matrix,
             measurement_state_matrix, measurement_time_matrix, measurement_base_matrix,
             noise_covariance, measurement_noise_covariance,
+            structural, priors,
             self.build_filter()
         )
 
@@ -41,6 +42,7 @@ class DsgeModelBuilder:
 
     @staticmethod
     def build_measurement_noise_covariance():
+        # todo
         pass
 
     @staticmethod
