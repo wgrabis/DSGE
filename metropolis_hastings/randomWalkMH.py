@@ -11,6 +11,7 @@ class RandomWalkMH(MetropolisHastings):
         super().__init__(rounds, model)
 
     def draw_posterior(self, current_draw):
+        #todo
         pass
 
     def accept(self, current_draw, draw):
@@ -22,5 +23,4 @@ class RandomWalkMH(MetropolisHastings):
         return roll <= min(draw_likelihood/current_likelihood, 1)
 
     def get_starting_posterior(self):
-        # todo build from prior
-        pass
+        return self.model.get_prior_posterior()

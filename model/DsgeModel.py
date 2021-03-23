@@ -1,15 +1,14 @@
 from numpy import dot
 import numpy as np
 
-from model.LikelihoodSequence import LikelihoodSequence
-
 
 class DsgeModel:
     def __init__(self, name,
                  transition_matrix, shock_matrix,
                  measurement_state_matrix, measurement_time_matrix, measurement_base_matrix,
                  noise_covariance, measurement_noise_covariance,
-                 structural, priors,
+                 structural, shocks,
+                 structural_prior,
                  likelihood_filter):
         self.name = name
         self.transition_matrix = transition_matrix
@@ -24,28 +23,25 @@ class DsgeModel:
 
         self.likelihood_filter = likelihood_filter
 
-        self.time = 0
-
         self.structural = structural
-        self.priors = priors
-
-        self.likelihood_sequence = LikelihoodSequence()
+        self.structural_prior = structural_prior
+        # self.priors = priors
 
     def build_matrices(self, posterior):
-        return self.transition_matrix.fill_values(posterior), self.shock_matrix.fill_values(posterior)
+        return self.transition_matrix(posterior), self.shock_matrix(posterior)
 
-    def measurement_function(self, state):
-        return self.measurement_base_matrix + dot(self.measurement_time_matrix, self.time) + \
-               dot(self.measurement_state_matrix, state)
+    def measurement_matrices(self, posterior):
+        m_base_matrix = self.measurement_base_matrix(posterior)
+        m_time_matrix = self.measurement_time_matrix(posterior)
+        m_state_matrix = self.measurement_state_matrix(posterior)
+
+        measurement_function = lambda state, time: \
+            m_base_matrix + dot(m_time_matrix, time) + dot(m_state_matrix, state)
+
+        return measurement_function, m_state_matrix
 
     def prior_probability(self, posterior):
-        #todo
-        pass
+        return self.structural_prior.probability_of(posterior)
 
     def get_prior_posterior(self):
-        prior_vector = []
-
-        for variable in self.structural:
-            prior_vector.append(self.priors[variable].mean)
-
-        return np.array(prior_vector)
+        return np.array(self.structural_prior.get_mean())

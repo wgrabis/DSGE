@@ -8,7 +8,7 @@ class Filter(ABC):
 
     @abstractmethod
     def update(self,
-               prev_distribution,
+               time, prev_distribution,
                measurement_matrix, measurement_function, measurement_noise_covariance,
                measurement_vector):
         pass

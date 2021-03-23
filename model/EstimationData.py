@@ -7,4 +7,4 @@ class EstimationData:
         self.measurements = data
 
     def __getitem__(self, key):
-        return np.array(self.measurements[key])
+        return np.array(self.measurements[key], dtype='float')
