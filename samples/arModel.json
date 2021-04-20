@@ -1,0 +1,32 @@
+{
+  "name": "ar model",
+  "variables": ["x"],
+  "parameters": {
+    "e": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 1
+    },
+    "rho": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0,
+      "variance": 1
+    }
+  },
+  "equations": {
+    "model": [
+      "x = rho*(x-1) + e"
+    ],
+    "observables": [
+      "y = x"
+    ]
+  },
+  "data": [
+    ["1.0"],
+    ["1.0"],
+    ["1.0"],
+    ["2.0"]
+  ]
+}

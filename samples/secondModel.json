@@ -1,0 +1,52 @@
+{
+  "name": "base test model 2",
+  "variables": ["x", "z"],
+  "parameters": {
+    "e": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 1
+    },
+    "w": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 1
+    },
+    "q": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 1
+    },
+    "rho": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0,
+      "variance": 1
+    },
+    "eta": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0,
+      "variance": 1
+    }
+  },
+  "equations": {
+    "model": [
+      "x = rho*(x(-1)) + e + w",
+      "z = rho*(z(-1)) + eta * (z(-1))+ 2*e + q"
+    ],
+    "observables": [
+      "y = x",
+      "tr = x + z"
+    ]
+  },
+  "data": [
+    ["1.0", "1.0"],
+    ["2.0", "1.5"],
+    ["1.0", "1.0"],
+    ["1.5", "1.25"]
+  ]
+}

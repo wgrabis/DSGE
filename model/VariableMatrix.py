@@ -5,6 +5,12 @@ from sympy import symbols, Symbol
 def calculate(scipy_item, parameters, values):
     subs = {}
     expr = scipy_item
+
+    print("calculate")
+    print(scipy_item)
+    print(parameters)
+    print(values)
+
     for i in range(len(parameters)):
         expr = expr.subs(Symbol(parameters[i]), values[i])
         # subs[symbols(parameters[i])] = values[i]
@@ -18,7 +24,12 @@ class VariableMatrix:
         self.parameters = parameters
 
     def __call__(self, values):
-        return np.matrix(calculate(self.matrix, self.parameters, values), dtype='float')
+        valued_matrix = np.array(calculate(self.matrix, self.parameters, values), dtype='float')
+
+        print("Variable-matrix")
+        print(valued_matrix)
+
+        return valued_matrix
 
 
 class VariableVector:
@@ -27,7 +38,14 @@ class VariableVector:
         self.parameters = parameters
 
     def __call__(self, values):
-        return np.array(calculate(self.vector, self.parameters, values), dtype='float')
+        valued_vector = np.array(calculate(self.vector, self.parameters, values), dtype='float')
+
+        # if len(valued_vector.shape) > 1 and valued_vector.shape[1] == 1:
+        #     valued_vector = valued_vector.T
+
+        # assert valued_vector.shape == (len(self.vector), )
+
+        return valued_vector.reshape((valued_vector.shape[0], ))
 
 
 class CompVariableMatrix:
@@ -37,5 +55,8 @@ class CompVariableMatrix:
 
     def __call__(self, values):
         matrix = self.variable_matrix(values)
+        print("comp-matrix")
+        print(matrix)
+        print(matrix.shape)
 
         return self.computation(matrix)

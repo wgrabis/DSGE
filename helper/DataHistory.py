@@ -8,14 +8,15 @@ class DataHistory:
         if iter_end == -1:
             iter_end = self.iterations
 
-        plot_data = []
+        x_plot_data = []
+        y_plot_data = []
 
         for i in range(iter_start, iter_end):
-            plot_data[i].x = i
-            plot_data[i].y = self.data[i][y_value]
+            x_plot_data.append(i)
+            y_plot_data.append(self.data[i][y_value])
 
-        return plot_data
+        return x_plot_data, y_plot_data
 
     def add_record(self, record):
-        self.data[self.iterations] = record
+        self.data.append(record)
         self.iterations += 1

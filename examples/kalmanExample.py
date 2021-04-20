@@ -1,7 +1,7 @@
 from filter.KalmanFilter import KalmanFilter
 from helper.DataHistory import DataHistory
 from helper.DataPlotter import DataPlotter
-from helper.MultiPlot import MultiPlot
+from helper.StackedPlot import StackedPlot
 from model.DsgeModelBuilder import DsgeModelBuilder
 import numpy as np
 
@@ -40,4 +40,4 @@ def test_kalman(data_plotter):
         data_Y[0][i] = X[1][0]
         data_Y[1][i] = Y[1][0]
 
-    data_plotter.add_plot(MultiPlot('Kalman plot', data_X, data_Y, 'X', 'Y'))
+    data_plotter.add_plot(StackedPlot('Kalman plot', data_X, data_Y, 'X', 'Y'))

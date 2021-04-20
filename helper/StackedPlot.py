@@ -1,7 +1,7 @@
 from helper.BasePlot import BasePlot
 
 
-class MultiPlot(BasePlot):
+class StackedPlot(BasePlot):
     def __init__(self, name, data_x, data_y, x_name, y_name):
         self.name = name
         self.data_x = data_x

@@ -22,7 +22,7 @@ class DsgeModelBuilder:
 
         noise_covariance = self.build_noise_covariance(shock_matrix, shock_prior.get_variance())
 
-        measurement_noise_covariance = self.build_measurement_noise_covariance(shocks)
+        measurement_noise_covariance = self.build_measurement_noise_covariance(equations["observables"])
 
         return DsgeModel(
             name,
@@ -36,7 +36,7 @@ class DsgeModelBuilder:
 
 
     @staticmethod
-    def prepare_state_matrices(model_equations, shocks, variables, structural):
+    def prepare_state_matrices(model_equations, variables, shocks, structural):
         lhs, rhs = [], []
         prev_values = [x + x for x in variables]
 
@@ -48,15 +48,27 @@ class DsgeModelBuilder:
             rhs.append(p_rhs - p_lhs)
             lhs.append(p_lhs)
 
+        print(rhs)
+
         left, right = EquationParser.equations_to_matrices(rhs, variables + prev_values + shocks)
 
         left_state_matrix = left[:, :len(variables)] * (-1)
         right_state_matrix = left[:, len(variables):len(variables) * 2]
         shock_matrix = left[:, len(variables) * 2:]
 
+        print("model builder")
+        print(variables + prev_values + shocks)
+        print(left)
+        print(right)
+        print(left_state_matrix)
+        print(right_state_matrix)
+
         inverse_left = left_state_matrix.inv()
 
         transition_matrix, shock_matrix = inverse_left * right_state_matrix, inverse_left * shock_matrix
+
+        print(transition_matrix)
+        print(shock_matrix)
         return VariableMatrix(transition_matrix, structural), VariableMatrix(shock_matrix, structural)
 
     @staticmethod
@@ -81,15 +93,30 @@ class DsgeModelBuilder:
         return measurement_state_matrix, measurement_time_matrix, measurement_base_matrix
 
     @staticmethod
-    def build_noise_covariance(shock_matrix, shock_variances):
-        return CompVariableMatrix(
-            shock_matrix,
-            lambda computed_shock: dot(computed_shock, dot(shock_variances, computed_shock.transpose())))
+    def multiply_noise_covariance(computed_shock, shock_variances):
+        return dot(dot(computed_shock, shock_variances), computed_shock.transpose())
+
 
     @staticmethod
-    def build_measurement_noise_covariance(shocks):
+    def build_noise_covariance(shock_matrix, shock_variances):
+        # todo more options for covariance
+        shock_count = len(shock_variances)
+
+        shock_covariance = np.zeros((shock_count, shock_count))
+
+        for i in range(shock_count):
+            shock_covariance[i, i] = shock_variances[i]
+
+        return CompVariableMatrix(
+            shock_matrix,
+            lambda computed_shock: DsgeModelBuilder.multiply_noise_covariance(computed_shock, shock_covariance))
+
+    @staticmethod
+    def build_measurement_noise_covariance(observables):
         # todo load from model data
-        return np.zeros((len(shocks), 1))
+        observable_size = len(observables)
+
+        return np.zeros((observable_size, observable_size))
 
     @staticmethod
     def build_filter():
@@ -114,4 +141,5 @@ class DsgeModelBuilder:
             means.append(parameters[variable]["mean"])
             variances.append(parameters[variable]["variance"])
 
+        print("distribution-prior")
         return NormalVectorDistribution(means, variances)

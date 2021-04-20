@@ -1,5 +1,6 @@
 from numpy import dot
 import numpy as np
+import math
 
 from model.Distribution import NormalVectorDistribution
 from model.Wrappers import TDistribution
@@ -16,13 +17,18 @@ class LikelihoodAlgorithm:
 
         measurement_function, measurement_matrix = model.measurement_matrices(posterior)
 
-        distribution = self.get_invariant_distribution(transition_matrix, shock_matrix)
+        distribution = self.get_invariant_distribution(transition_matrix, noise_covariance)
+
+        print("Likelihood-start")
+        print(distribution)
 
         # run algorithm
         control_input_matrix = np.eye(transition_matrix.shape[0])
-        control_input = np.zeros((transition_matrix.shape[0], 1))
+        control_input = np.zeros(transition_matrix.shape[0])
 
         distributions_history = []
+
+        likelihood = 0.0
 
         for t in range(data.estimation_time):
             next_distribution = likelihood_filter.predict(
@@ -33,10 +39,13 @@ class LikelihoodAlgorithm:
                 noise_covariance
             )
 
+            print("Likelihood-update")
+            print(next_distribution)
+
             distributions_history.append(next_distribution)
             measurement = data[t]
 
-            updated_distribution = likelihood_filter.update(
+            updated_distribution, point_likelihood = likelihood_filter.update(
                 t,
                 next_distribution.get_vectors(),
                 measurement_matrix,
@@ -45,26 +54,45 @@ class LikelihoodAlgorithm:
                 measurement
             )
 
+            likelihood += point_likelihood
+
+            print("likelihood")
+            print(likelihood)
+
             distribution = updated_distribution
 
         # distribution(posterior) * distribution(data)
         # (distribution(data)  = distribution1(y1)*distribution2(y2)*... )
 
-        posterior_probability = model.prior_probability(posterior)
+        posterior_probability = 1.0#todo fix prior probability
 
-        for t in range(1, data.estimation_time):
-            posterior_probability *= distributions_history[t - 1].probability_of(data.measurements[t - 1])
+        model.prior_probability(posterior)
+
+        print("posterior")
+        print(posterior)
+        print(posterior_probability)
+        print(likelihood)
+        print(np.exp(-likelihood))
+        print(math.exp(-likelihood))
+        posterior_probability *= np.exp(-likelihood)
+
+        # for t in range(1, data.estimation_time):
+        #     posterior_probability *= distributions_history[t - 1].probability_of(data.measurements[t - 1])
+
+        print(posterior_probability)
+        print()
 
         return posterior_probability
 
-    def get_invariant_distribution(self, transition_matrix, shock_matrix):
+    def get_invariant_distribution(self, transition_matrix, noise_covariance):
         A = transition_matrix - np.eye(transition_matrix.shape[0])
         B = np.zeros(transition_matrix.shape[0], dtype='float')
 
-        # np.zeros(transition_matrix.shape[0])
-        print("---")
-        print(A)
-        print(B)
+        print("get invariant distribution")
+        print(transition_matrix)
+        print(noise_covariance)
+
         s_0 = np.linalg.solve(A, B)
-        p_0 = scipy.solve_discrete_lyapunov(transition_matrix, shock_matrix)
-        return NormalVectorDistribution(s_0, p_0)
+        p_0 = scipy.solve_discrete_lyapunov(transition_matrix, noise_covariance)
+
+        return NormalVectorDistribution(s_0, np.asarray(p_0, dtype=float))

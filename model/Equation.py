@@ -6,6 +6,10 @@ class EquationParser:
     def build_equation(equation):
         lhs, rhs = equation.split("=")
 
+        print("parsing")
+        print(lhs)
+        print(rhs)
+
         p_lhs = sympify(lhs)
         p_rhs = sympify(rhs)
 
@@ -23,6 +27,11 @@ class EquationParser:
 
     @staticmethod
     def equations_to_matrices(equations, variables):
+        print("Eq to matrice")
+        print(equations)
+        print(variables)
         left, right = linear_eq_to_matrix(equations, symbols(" ".join(variables)))
+        print(left)
+        print(right)
 
         return left, right

@@ -24,6 +24,12 @@ class NormalDistribution(Distribution):
         self.variance = variance
 
     def probability_of(self, value):
+        print("probability_of")
+        print(value)
+        print(self.distribution)
+        print(self.mean)
+        print(self.variance)
+        print(self.distribution.pdf(value))
         return self.distribution.pdf(value)
 
     def get_mean(self):
@@ -35,15 +41,24 @@ class NormalDistribution(Distribution):
 
 class NormalVectorDistribution(Distribution):
     def __init__(self, mean_vector, variance_vector):
+        print("NormalVector - distribution")
+        print(mean_vector)
+        print(variance_vector)
         self.distributions = []
         for i in range(len(mean_vector)):
             self.distributions.append(NormalDistribution(mean_vector[i], variance_vector[i]))
 
     def probability_of(self, value):
-        probability = 1
+        probability = 1.0
+
+        print("probability_of[]start")
+        print(value)
 
         for i in range(len(self.distributions)):
             probability *= self.distributions[i].probability_of(value[i])
+
+        print("probability_of[]")
+        print(probability)
 
         return probability
 
@@ -53,7 +68,7 @@ class NormalVectorDistribution(Distribution):
         for distribution in self.distributions:
             mean.append(distribution.get_mean())
 
-        return mean
+        return np.array(mean)
 
     def get_variance(self):
         variance = []
@@ -61,7 +76,7 @@ class NormalVectorDistribution(Distribution):
         for distribution in self.distributions:
             variance.append(distribution.get_variance())
 
-        return variance
+        return np.array(variance)
 
     def get_vectors(self):
         return np.array(self.get_mean()), np.array(self.get_variance())

@@ -1,0 +1,65 @@
+{
+  "name": "philip curve",
+  "variables": ["y", "infz", "r"],
+  "parameters": {
+    "er": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 1
+    },
+    "ephi": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 1
+    },
+    "exi": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 1
+    },
+    "tau": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 0.25
+    },
+    "psi": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 1.5,
+      "variance": 0.25
+    },
+    "betaz": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0.99,
+      "variance": 0.25
+    },
+    "kapz": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0.2,
+      "variance": 0.25
+    }
+  },
+  "equations": {
+    "model": [
+      "y(-1) = y - tau*(r-inf) + ephi",
+      "r = psi*infz + er",
+      "infz(-1) = betaz*infz + kapz*y + exi"
+    ],
+    "observables": [
+      "obs1 = y",
+      "obs2 = r"
+    ]
+  },
+  "data": [
+    ["1.0", "1.0"],
+    ["2.0", "1.5"],
+    ["1.0", "1.0"],
+    ["1.5", "1.25"]
+  ]
+}

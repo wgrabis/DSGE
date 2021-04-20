@@ -1,6 +1,8 @@
 from numpy import dot
 import numpy as np
 
+from model.MeasurementFunction import MeasurementFunction
+
 
 class DsgeModel:
     def __init__(self, name,
@@ -35,10 +37,7 @@ class DsgeModel:
         m_time_matrix = self.measurement_time_matrix(posterior)
         m_state_matrix = self.measurement_state_matrix(posterior)
 
-        measurement_function = lambda state, time: \
-            m_base_matrix + dot(m_time_matrix, time) + dot(m_state_matrix, state)
-
-        return measurement_function, m_state_matrix
+        return MeasurementFunction(m_base_matrix, m_time_matrix, m_state_matrix), m_state_matrix
 
     def prior_probability(self, posterior):
         return self.structural_prior.probability_of(posterior)
