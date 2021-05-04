@@ -11,6 +11,7 @@ class DsgeModel:
                  noise_covariance, measurement_noise_covariance,
                  structural, shocks,
                  structural_prior,
+                 shock_prior,
                  likelihood_filter):
         self.name = name
         self.transition_matrix = transition_matrix
@@ -27,6 +28,7 @@ class DsgeModel:
 
         self.structural = structural
         self.structural_prior = structural_prior
+        self.shock_prior = shock_prior
         # self.priors = priors
 
     def build_matrices(self, posterior):

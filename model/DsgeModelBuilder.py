@@ -20,7 +20,7 @@ class DsgeModelBuilder:
 
         transition_matrix, shock_matrix = self.prepare_state_matrices(equations["model"], variables, shocks, structural)
 
-        noise_covariance = self.build_noise_covariance(shock_matrix, shock_prior.get_variance())
+        noise_covariance = self.build_noise_covariance(shock_matrix, shock_prior.get_covariance())
 
         measurement_noise_covariance = self.build_measurement_noise_covariance(equations["observables"])
 
@@ -31,6 +31,7 @@ class DsgeModelBuilder:
             noise_covariance, measurement_noise_covariance,
             structural, shocks,
             structural_prior,
+            shock_prior,
             self.build_filter()
         )
 
@@ -98,15 +99,7 @@ class DsgeModelBuilder:
 
 
     @staticmethod
-    def build_noise_covariance(shock_matrix, shock_variances):
-        # todo more options for covariance
-        shock_count = len(shock_variances)
-
-        shock_covariance = np.zeros((shock_count, shock_count))
-
-        for i in range(shock_count):
-            shock_covariance[i, i] = shock_variances[i]
-
+    def build_noise_covariance(shock_matrix, shock_covariance):
         return CompVariableMatrix(
             shock_matrix,
             lambda computed_shock: DsgeModelBuilder.multiply_noise_covariance(computed_shock, shock_covariance))
@@ -136,10 +129,19 @@ class DsgeModelBuilder:
 
     @staticmethod
     def build_prior_distribution(variables, parameters):
-        means, variances = [], []
-        for variable in variables:
+        means = []
+
+        # todo more options for covariance
+        count = len(variables)
+
+        covariance = np.zeros((count, count))
+
+        for i in range(count):
+            variable = variables[i]
             means.append(parameters[variable]["mean"])
-            variances.append(parameters[variable]["variance"])
+
+            variance = parameters[variable]["variance"]
+            covariance[i, i] = variance
 
         print("distribution-prior")
-        return NormalVectorDistribution(means, variances)
+        return NormalVectorDistribution(means, covariance)

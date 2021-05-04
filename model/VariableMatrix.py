@@ -15,6 +15,8 @@ def calculate(scipy_item, parameters, values):
         expr = expr.subs(Symbol(parameters[i]), values[i])
         # subs[symbols(parameters[i])] = values[i]
 
+    print(expr)
+
     return expr
 
 
@@ -24,9 +26,11 @@ class VariableMatrix:
         self.parameters = parameters
 
     def __call__(self, values):
+        print("Variable-matrix")
+        print(self.matrix)
+        print(values)
         valued_matrix = np.array(calculate(self.matrix, self.parameters, values), dtype='float')
 
-        print("Variable-matrix")
         print(valued_matrix)
 
         return valued_matrix

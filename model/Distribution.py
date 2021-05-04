@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import scipy.stats as stats
 import numpy as np
+from numpy import dot, linalg
 
 
 class Distribution(ABC):
@@ -13,73 +14,67 @@ class Distribution(ABC):
         pass
 
     @abstractmethod
-    def get_variance(self):
+    def get_covariance(self):
         pass
 
 
 class NormalDistribution(Distribution):
-    def __init__(self, mean, variance):
-        self.distribution = stats.norm(mean, variance)
+    def __init__(self, mean, covariance):
         self.mean = mean
-        self.variance = variance
+        self.covariance = covariance
 
     def probability_of(self, value):
         print("probability_of")
-        print(value)
-        print(self.distribution)
-        print(self.mean)
-        print(self.variance)
-        print(self.distribution.pdf(value))
+        # todo fix
         return self.distribution.pdf(value)
 
     def get_mean(self):
         return self.mean
 
-    def get_variance(self):
-        return self.variance
+    def get_covariance(self):
+        return self.covariance
 
 
 class NormalVectorDistribution(Distribution):
-    def __init__(self, mean_vector, variance_vector):
+    def __init__(self, mean_vector, covariance):
         print("NormalVector - distribution")
         print(mean_vector)
-        print(variance_vector)
-        self.distributions = []
-        for i in range(len(mean_vector)):
-            self.distributions.append(NormalDistribution(mean_vector[i], variance_vector[i]))
+        # print(variance_vector)
+        # self.distributions = []
+        self.covariance = covariance
+        self.mean = mean_vector
 
+        # for i in range(len(mean_vector)):
+        #     self.distributions.append(NormalDistribution(mean_vector[i], variance_vector[i]))
+
+    # log value
     def probability_of(self, value):
-        probability = 1.0
+        # probability = 1.0
 
         print("probability_of[]start")
         print(value)
 
-        for i in range(len(self.distributions)):
-            probability *= self.distributions[i].probability_of(value[i])
+        # for i in range(len(self.distributions)):
+        #     probability *= self.distributions[i].probability_of(value[i])
 
-        print("probability_of[]")
+        residual = value - self.mean
+
+        probability = 0.5 * dot(residual.T, dot(linalg.inv(self.covariance), residual))
+        probability += 0.5 * value.shape[0] * np.log(2 * np.pi)
+        probability += 0.5 * np.log(linalg.det(self.covariance))
+
         print(probability)
 
         return probability
 
     def get_mean(self):
-        mean = []
+        return np.array(self.mean)
 
-        for distribution in self.distributions:
-            mean.append(distribution.get_mean())
-
-        return np.array(mean)
-
-    def get_variance(self):
-        variance = []
-
-        for distribution in self.distributions:
-            variance.append(distribution.get_variance())
-
-        return np.array(variance)
+    def get_covariance(self):
+        return np.array(self.covariance)
 
     def get_vectors(self):
-        return np.array(self.get_mean()), np.array(self.get_variance())
+        return np.array(self.get_mean()), np.array(self.get_covariance())
 
 
 

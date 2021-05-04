@@ -61,13 +61,16 @@ def run_dsge(file_name, file_format):
     # probability = likelihood_algorithm.get_likelihood_probability(model, estimations, model.get_prior_posterior())
 
     mh_algorithm = RandomWalkMH(rounds, model, estimations)
-    posterior, history = mh_algorithm.calculate_posterior()
+    posterior, history, observables = mh_algorithm.calculate_posterior()
     histories = [history]
 
     for i in range(retries):
         mh_algorithm = RandomWalkMH(rounds, model, estimations, posterior)
-        posterior, data_history = mh_algorithm.calculate_posterior()
+        posterior, data_history, observables = mh_algorithm.calculate_posterior()
         histories.append(data_history)
+
+    print("calculated observables")
+    print(observables)
 
     print("calculated posterior")
     print(posterior)
@@ -96,6 +99,6 @@ if __name__ == '__main__':
     # data_plotter.draw_plots()
     # test_equations2()
     test2()
-    run_dsge("samples/philipCurve.json", "json")
+    run_dsge("samples/baseModel.json", "json")
     # test()
 

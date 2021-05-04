@@ -12,8 +12,15 @@ class KalmanFilter(Filter):
         # P(k_ = FP(k-1)Ft + Q
         x_k, p_k = prev_distribution
 
+        print("kalman-predict");
+        print(x_k)
+        print(p_k)
+
         x_next = dot(transition, x_k) + dot(control_input_matrix, control_input)
         p_next = dot(dot(transition, p_k), transition.T) + noise_covariance
+
+        print(x_next)
+        print(p_next)
 
         assert x_next.shape == x_k.shape
         assert p_k.shape == p_next.shape
@@ -35,6 +42,7 @@ class KalmanFilter(Filter):
 
         print("Measurement")
         print(x_k)
+        print(p_k)
         print(measurement_predict)
         print(measurement_vector)
         assert measurement_predict.shape == measurement_vector.shape
