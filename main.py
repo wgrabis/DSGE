@@ -96,6 +96,6 @@ if __name__ == '__main__':
     # data_plotter.draw_plots()
     # test_equations2()
     test2()
-    run_dsge("samples/philipCurve.json", "json")
+    run_dsge("samples/baseModel.json", "json")
     # test()
 

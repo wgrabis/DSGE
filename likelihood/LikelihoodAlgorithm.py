@@ -66,9 +66,10 @@ class LikelihoodAlgorithm:
 
         posterior_probability = 1.0#todo fix prior probability
 
-        model.prior_probability(posterior)
+        prior_probability = model.prior_probability(posterior)
 
         print("posterior")
+        print(prior_probability)
         print(posterior)
         print(posterior_probability)
         print(likelihood)
@@ -84,6 +85,7 @@ class LikelihoodAlgorithm:
 
         return posterior_probability
 
+
     def get_invariant_distribution(self, transition_matrix, noise_covariance):
         A = transition_matrix - np.eye(transition_matrix.shape[0])
         B = np.zeros(transition_matrix.shape[0], dtype='float')
@@ -95,4 +97,4 @@ class LikelihoodAlgorithm:
         s_0 = np.linalg.solve(A, B)
         p_0 = scipy.solve_discrete_lyapunov(transition_matrix, noise_covariance)
 
-        return NormalVectorDistribution(s_0, np.asarray(p_0, dtype=float))
+        return NormalVectorDistribution(s_0, np.matrix(p_0, dtype=float))

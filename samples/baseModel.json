@@ -17,7 +17,7 @@
   },
   "equations": {
     "model": [
-      "x = rho*(x-1) + e"
+      "x = exp(rho + 1)*(x-1) + e"
     ],
     "observables": [
       "y = x"

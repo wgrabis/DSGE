@@ -15,6 +15,8 @@ def calculate(scipy_item, parameters, values):
         expr = expr.subs(Symbol(parameters[i]), values[i])
         # subs[symbols(parameters[i])] = values[i]
 
+    print(expr)
+
     return expr
 
 
