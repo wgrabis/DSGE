@@ -3,6 +3,7 @@ import scipy.stats as stats
 from numpy import dot, linalg
 import numpy as np
 from math import log, pi, exp
+from numpy import dot, linalg
 
 
 class Distribution(ABC):
@@ -20,25 +21,21 @@ class Distribution(ABC):
 
 
 class NormalDistribution(Distribution):
-    def __init__(self, mean, variance):
-        self.distribution = stats.norm(mean, variance)
+    def __init__(self, mean, covariance):
         self.mean = mean
-        self.variance = variance
+        self.covariance = covariance
 
     def probability_of(self, value):
         print("probability_of")
-        print(value)
-        print(self.distribution)
-        print(self.mean)
-        print(self.variance)
-        print(self.distribution.pdf(value))
-        return self.distribution.pdf(value)
+        # todo fix
+        pass
+        # return self.distribution.pdf(value)
 
     def get_mean(self):
         return self.mean
 
     def get_covariance(self):
-        return self.variance
+        return self.covariance
 
 
 class NormalVectorDistribution(Distribution):
@@ -49,25 +46,13 @@ class NormalVectorDistribution(Distribution):
         self.mean_vector = mean_vector
         self.covariance_matrix = covariance_matrix
 
-        # self.distributions = []
-        # for i in range(len(mean_vector)):
-        #     self.distributions.append(NormalDistribution(mean_vector[i], variance_vector[i]))
-
+    # log value
     def probability_of(self, value):
         residual = value - self.mean_vector
 
         probability = 0.5 * dot(residual.T, dot(linalg.inv(self.covariance_matrix), residual))
         probability += 0.5 * residual.shape[0] * log(2 * np.pi)
         probability += 0.5 * log(linalg.det(self.covariance_matrix))
-
-        # print("probability_of[]start")
-        # print(value)
-        #
-        # for i in range(len(self.distributions)):
-        #     probability *= self.distributions[i].probability_of(value[i])
-        #
-        # print("probability_of[]")
-        # print(probability)
 
         return probability
 

@@ -26,9 +26,11 @@ class VariableMatrix:
         self.parameters = parameters
 
     def __call__(self, values):
+        print("Variable-matrix")
+        print(self.matrix)
+        print(values)
         valued_matrix = np.array(calculate(self.matrix, self.parameters, values), dtype='float')
 
-        print("Variable-matrix")
         print(valued_matrix)
 
         return valued_matrix

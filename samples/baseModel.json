@@ -5,28 +5,31 @@
     "e": {
       "type": "shock",
       "distribution": "normal",
-      "mean": 1,
-      "variance": 1
+      "mean": 5,
+      "variance": 0.5
     },
     "rho": {
       "type": "structural",
       "distribution": "normal",
-      "mean": 0,
-      "variance": 1
+      "mean": 2,
+      "variance": 2
     }
   },
   "equations": {
     "model": [
-      "x = exp(rho + 1)*(x-1) + e"
+      "x = rho*x(-1) + e"
     ],
     "observables": [
       "y = x"
     ]
   },
-  "data": [
-    ["1.0"],
-    ["1.0"],
-    ["1.0"],
-    ["2.0"]
-  ]
+  "estimations": {
+    "data":[
+      ["5.0"],
+      ["12.0"],
+      ["18.0"],
+      ["23.0"],
+      ["27.0"],
+      ["31.0"]
+    ]}
 }

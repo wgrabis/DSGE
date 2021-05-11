@@ -7,18 +7,17 @@ from metropolis_hastings.metropolisHastings import MetropolisHastings
 
 
 class RandomWalkMH(MetropolisHastings):
-    def __init__(self, rounds, model, data, with_start=None):
-        self.data = data
+    def __init__(self, rounds, model, data, with_covariance=None):
         self.likelihood_algorithm = LikelihoodAlgorithm()
 
         self.c = 0.234
 
-        self.walk_covariance = with_start
+        self.walk_covariance = with_covariance
 
-        if with_start is None:
+        if with_covariance is None:
             self.walk_covariance = np.identity(len(model.structural))
 
-        super().__init__(rounds, model)
+        super().__init__(rounds, model, data)
 
     def draw_posterior(self, current_draw):
 
@@ -33,12 +32,12 @@ class RandomWalkMH(MetropolisHastings):
         print("accept")
         print(current_draw)
         print(draw)
-        draw_likelihood = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, draw)
-        current_likelihood = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, current_draw)
+        draw_likelihood, distribution = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, draw)
+        current_likelihood, _ = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, current_draw)
 
         roll = random()
 
-        return roll <= draw_likelihood/current_likelihood
+        return roll <= draw_likelihood/current_likelihood, distribution
 
     def get_starting_posterior(self):
         return self.model.get_prior_posterior()

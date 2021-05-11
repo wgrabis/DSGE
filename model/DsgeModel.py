@@ -11,6 +11,7 @@ class DsgeModel:
                  noise_covariance, measurement_noise_covariance,
                  structural, shocks,
                  structural_prior,
+                 shock_prior,
                  likelihood_filter):
         self.name = name
         self.transition_matrix = transition_matrix
@@ -27,6 +28,7 @@ class DsgeModel:
 
         self.structural = structural
         self.structural_prior = structural_prior
+        self.shock_prior = shock_prior
         # self.priors = priors
 
     def build_matrices(self, posterior):
@@ -41,6 +43,9 @@ class DsgeModel:
 
     def prior_probability(self, posterior):
         return self.structural_prior.probability_of(posterior)
+
+    def posterior_covariance(self):
+        return self.structural_prior.get_covariance()
 
     def get_prior_posterior(self):
         return np.array(self.structural_prior.get_mean())

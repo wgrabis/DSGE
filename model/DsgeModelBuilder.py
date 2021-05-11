@@ -31,6 +31,7 @@ class DsgeModelBuilder:
             noise_covariance, measurement_noise_covariance,
             structural, shocks,
             structural_prior,
+            shock_prior,
             self.build_filter()
         )
 
@@ -105,7 +106,6 @@ class DsgeModelBuilder:
         #
         # for i in range(shock_count):
         #     shock_covariance[i, i] = shock_variances[i]
-
         return CompVariableMatrix(
             shock_matrix,
             lambda computed_shock: DsgeModelBuilder.multiply_noise_covariance(computed_shock, shock_covariance))
@@ -135,17 +135,20 @@ class DsgeModelBuilder:
 
     @staticmethod
     def build_prior_distribution(variables, parameters):
-        means, variances = [], []
-        for variable in variables:
+        means = []
+
+        # todo more options for covariance
+        count = len(variables)
+
+        covariance = np.zeros((count, count))
+
+        for i in range(count):
+            variable = variables[i]
             means.append(parameters[variable]["mean"])
-            variances.append(parameters[variable]["variance"])
 
-        variable_count = len(variables)
-
-        covariance_matrix = np.zeros((variable_count, variable_count))
-
-        for i in range(variable_count):
-            covariance_matrix[i, i] = variances[i]
+            variance = parameters[variable]["variance"]
+            covariance[i, i] = variance
 
         print("distribution-prior")
-        return NormalVectorDistribution(means, covariance_matrix)
+
+        return NormalVectorDistribution(means, covariance)

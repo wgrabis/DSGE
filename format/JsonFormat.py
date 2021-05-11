@@ -12,7 +12,7 @@ class JsonFormat(Format):
         name = model['name']
         parameters = model['parameters']
         equations = model['equations']
-        estimations = model['data']
+        estimations = model['estimations']
         variables = model['variables']
 
         # shocks, structural = [], []
@@ -28,4 +28,4 @@ class JsonFormat(Format):
         #     if parameter.type == 'structural':
         #         structural.append(key)
 
-        return name, equations, parameters, variables, EstimationData(estimations)
+        return name, equations, parameters, variables, estimations

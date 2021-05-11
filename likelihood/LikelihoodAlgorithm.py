@@ -64,12 +64,9 @@ class LikelihoodAlgorithm:
         # distribution(posterior) * distribution(data)
         # (distribution(data)  = distribution1(y1)*distribution2(y2)*... )
 
-        posterior_probability = 1.0#todo fix prior probability
-
-        prior_probability = model.prior_probability(posterior)
+        posterior_probability = model.prior_probability(posterior)
 
         print("posterior")
-        print(prior_probability)
         print(posterior)
         print(posterior_probability)
         print(likelihood)
@@ -83,8 +80,7 @@ class LikelihoodAlgorithm:
         print(posterior_probability)
         print()
 
-        return posterior_probability
-
+        return posterior_probability, distribution
 
     def get_invariant_distribution(self, transition_matrix, noise_covariance):
         A = transition_matrix - np.eye(transition_matrix.shape[0])

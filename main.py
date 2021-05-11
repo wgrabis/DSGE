@@ -1,6 +1,8 @@
 from examples.equationParsingExample import test_equations, test_equations2
 from examples.kalmanExample import test_kalman
+from forecast.ForecastAlgorithm import ForecastAlgorithm
 from format.JsonFormat import JsonFormat
+from format.ParseFile import parse_model_file
 from helper.DataPlotter import DataPlotter
 from helper.StackedPlot import StackedPlot
 from likelihood.LikelihoodAlgorithm import LikelihoodAlgorithm
@@ -33,20 +35,10 @@ def test2():
     print(np.dot(a, b))
 
 
-def run_dsge(file_name, file_format):
-    formatter = None
+def run_dsge(file_name):
     data_plotter = DataPlotter()
 
-    if file_format == 'json':
-        formatter = JsonFormat()
-
-    rounds = 1000
-
-    name, equations, parameters, estimations = None, None, None, None
-
-    with open(file_name, "r") as data:
-        print(data)
-        name, equations, parameters, variables, estimations = formatter.parse_format(data)
+    name, equations, parameters, variables, estimations = parse_model_file(file_name)
 
     model = model_builder.build(name, equations, parameters, variables)
 
@@ -55,19 +47,28 @@ def run_dsge(file_name, file_format):
     print("Posterior")
     print(model.get_prior_posterior())
 
-    retries = 0
+    # retries = 0
     rounds = 100
 
     # probability = likelihood_algorithm.get_likelihood_probability(model, estimations, model.get_prior_posterior())
 
-    mh_algorithm = RandomWalkMH(rounds, model, estimations)
-    posterior, history = mh_algorithm.calculate_posterior()
+    mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=model.posterior_covariance())
+    posteriors, history = mh_algorithm.calculate_posterior()
     histories = [history]
 
-    for i in range(retries):
-        mh_algorithm = RandomWalkMH(rounds, model, estimations, posterior)
-        posterior, data_history = mh_algorithm.calculate_posterior()
-        histories.append(data_history)
+    # for i in range(retries):
+    #     mh_algorithm = RandomWalkMH(rounds, model, estimations, posterior)
+    #     posterior, data_history, observables = mh_algorithm.calculate_posterior()
+    #     histories.append(data_history)
+
+    forecast_alg = ForecastAlgorithm(model)
+
+    observables = forecast_alg.calculate(posteriors.get_post_burnout(), 50, 10, estimations.estimation_time, estimations)
+
+    print("calculated observables")
+    print(observables)
+
+    posterior, _ = posteriors.last()
 
     print("calculated posterior")
     print(posterior)
@@ -96,6 +97,6 @@ if __name__ == '__main__':
     # data_plotter.draw_plots()
     # test_equations2()
     test2()
-    run_dsge("samples/baseModel.json", "json")
+    run_dsge("samples/baseModel.json")
     # test()
 

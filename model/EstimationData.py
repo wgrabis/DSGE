@@ -8,3 +8,6 @@ class EstimationData:
 
     def __getitem__(self, key):
         return np.array(self.measurements[key], dtype='float')
+
+    def size(self):
+        return len(self.measurements[0]), len(self.measurements)
