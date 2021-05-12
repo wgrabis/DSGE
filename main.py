@@ -73,15 +73,17 @@ def run_dsge(file_name):
     print("calculated posterior")
     print(posterior)
 
-    for i in range(len(histories)):
-        name = "calculated posterior"
-        for j in range(posterior.shape[0]):
-            data_x, data_y = histories[i].prepare_plot(j)
-            print("data")
-            print(data_x)
-            print(data_y)
-            data_plotter.add_plot(StackedPlot(name, [data_x], [data_y], 'iter', 'post'))
-            name = ''
+    # for i in range(len(histories)):
+    #     name = "calculated posterior"
+    #     for j in range(posterior.shape[0]):
+    #         data_x, data_y = histories[i].prepare_plot(j)
+    #         print("data")
+    #         print(data_x)
+    #         print(data_y)
+    #         data_plotter.add_plot(StackedPlot(name, [data_x], [data_y], 'iter', 'post'))
+    #         name = ''
+
+    data_plotter.add_plots(observables.prepare_plots())
 
     data_plotter.draw_plots()
 

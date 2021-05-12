@@ -10,6 +10,11 @@ class DataPlotter:
         self.sets.append(plot)
         self.setCount += 1
 
+    def add_plots(self, plots):
+        for plot in plots:
+            self.sets.append(plot)
+        self.setCount += len(plots)
+
     def draw_plots(self):
         fig, axs = pyplot.subplots(self.setCount)
 

@@ -1,6 +1,7 @@
 import numpy as np
 
 from likelihood.LikelihoodAlgorithm import LikelihoodAlgorithm
+from model.ForecastData import ForecastData
 from model.StateTransition import StateTransition
 
 
@@ -53,6 +54,8 @@ class ForecastAlgorithm:
     def calculate(self, posteriors, rounds, time, starting_time, data):
         measure_len, _ = data.size()
 
+        forecast_data = ForecastData(data)
+
         average_sum = [np.zeros(measure_len) for _ in range(time)]
 
         # todo refactor for matrix average sum
@@ -69,7 +72,11 @@ class ForecastAlgorithm:
                 for i in range(time):
                     average_sum[i] += observables[i]
 
+                forecast_data.add_posterior_forecast(observables)
+
         for i in range(time):
             average_sum[i] /= rounds * posterior_count
-        return average_sum
+
+        forecast_data.add_main_forecast(average_sum)
+        return forecast_data
 
