@@ -5,9 +5,9 @@ from format.JsonFormat import JsonFormat
 from model.EstimationData import EstimationData
 
 
-def parse_estimation_data(data_description):
+def parse_estimation_data(data_description, observable_len):
     if 'data' in data_description:
-        return EstimationData(data_description['data'])
+        return EstimationData(data_description['data'], observable_len)
     if 'name' in data_description:
         data_filename = data_description['name']
         _, file_extension = os.path.splitext(data_filename)
@@ -16,7 +16,7 @@ def parse_estimation_data(data_description):
             data = []
             for row in csv_reader:
                 data.append(row)
-            return EstimationData(data)
+            return EstimationData(data, observable_len)
 
 
 def parse_model_file(file_name):
@@ -33,6 +33,8 @@ def parse_model_file(file_name):
         print(data)
         name, equations, parameters, variables, estimations_info = formatter.parse_format(data)
 
-    estimations = parse_estimation_data(estimations_info)
+    observable_len = len(equations["observables"])
+
+    estimations = parse_estimation_data(estimations_info, observable_len)
 
     return name, equations, parameters, variables, estimations

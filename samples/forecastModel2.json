@@ -1,0 +1,96 @@
+{
+  "name": "base test model",
+  "parameters": {
+    "e": {
+      "type": "shock",
+      "distribution": "normal",
+      "mean": 0.01,
+      "variance": 0.001e-3
+    },
+    "sigm": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 2,
+      "variance": 0.1
+    },
+    "phia": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 1.5,
+      "variance": 0.2
+    },
+    "alpha": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0.35,
+      "variance": 0.05
+    },
+    "rhoa": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 1.5,
+      "variance": 0.07
+    },
+    "phiCss": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0.77,
+      "variance": 0.65
+    },
+    "phiIss": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0.23,
+      "variance": 0.45
+    },
+    "phiKss": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 2.7,
+      "variance": 0.39
+    },
+    "Rss": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 1.002,
+      "variance": 0.48
+    },
+    "Pss": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 0.12
+    },
+    "Yss": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 2.05,
+      "variance": 0.08
+    }
+  },
+  "variables": ["CS", "L", "W", "R", "K", "Y", "A", "INVEST"],
+  "equations": {
+    "model": [
+      "sigm*CS + phia*L = W",
+      "(sigm/(1/((1-phiIss/phiKss)+(Rss/Pss))))*(CS-CS(-1))=Rss*R",
+      "K = (1-(phiIss/phiKss))*K(-1)+(phiIss/phiKss)*INVEST",
+      "Y = A + alpha*K(-1) + (1-alpha)*L",
+      "R = Y - K(-1)",
+      "W = Y - L",
+      "Yss*Y = (phiCss*Yss)*CS + (phiIss*Yss)*INVEST",
+      "A = rhoa*A(-1) + e"
+    ],
+    "observables": [
+      "y1 = 1000*CS",
+      "y2 = INVEST",
+      "y3 = 1000*K"
+
+    ]
+  },
+  "estimations": {
+    "data":[
+      [4, 0.058, 4.6],
+      [4.14, 0.0495, 4.9],
+      [4.2, 0.0553, 4.75]
+    ]}
+}

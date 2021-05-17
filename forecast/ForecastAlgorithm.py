@@ -62,6 +62,9 @@ class ForecastAlgorithm:
 
         posterior_count = len(posteriors)
 
+        print("Forecasting")
+        print(posteriors)
+
         for posterior, distribution in posteriors:
             x_mean, p_cov = distribution.get_vectors()
             for j in range(rounds):

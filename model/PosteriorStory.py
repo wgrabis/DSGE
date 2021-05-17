@@ -11,6 +11,11 @@ class PosteriorStory:
         self.posteriors.append((posterior, distribution))
 
     def get_post_burnout(self):
+        print(self.posteriors)
+
+        if self.len == 1:
+            return self.posteriors
+
         return self.posteriors[int(self.len * self.burnout):]
 
     def last(self):

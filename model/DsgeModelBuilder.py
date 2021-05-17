@@ -36,6 +36,39 @@ class DsgeModelBuilder:
         )
 
     @staticmethod
+    def prepare_transtition_matrix(equation_matrix, variables):
+
+        print("prepare transition matrix")
+        print(equation_matrix)
+        print(variables)
+
+        left_state_matrix = equation_matrix[:, :len(variables)] * (-1)
+        right_state_matrix = equation_matrix[:, len(variables):len(variables) * 2]
+
+        inverse_left = np.linalg.inv(left_state_matrix) #.inv()
+
+        transition_matrix = inverse_left * right_state_matrix
+
+        return transition_matrix
+
+    @staticmethod
+    def prepare_shock_matrix(equation_matrix, variables):
+        left_state_matrix = equation_matrix[:, :len(variables)] * (-1)
+        shock_matrix = equation_matrix[:, len(variables) * 2:]
+
+        print("prepare shock matrix")
+        print(shock_matrix)
+
+        inverse_left = np.linalg.inv(left_state_matrix)
+
+        shock_matrix = dot(inverse_left, shock_matrix)
+
+        print(inverse_left)
+        print(shock_matrix)
+
+        return shock_matrix
+
+    @staticmethod
     def prepare_state_matrices(model_equations, variables, shocks, structural):
         lhs, rhs = [], []
         prev_values = [x + x for x in variables]
@@ -52,24 +85,39 @@ class DsgeModelBuilder:
 
         left, right = EquationParser.equations_to_matrices(rhs, variables + prev_values + shocks)
 
-        left_state_matrix = left[:, :len(variables)] * (-1)
-        right_state_matrix = left[:, len(variables):len(variables) * 2]
-        shock_matrix = left[:, len(variables) * 2:]
-
-        print("model builder")
-        print(variables + prev_values + shocks)
+        print("Equation matrix")
         print(left)
-        print(right)
-        print(left_state_matrix)
-        print(right_state_matrix)
 
-        inverse_left = left_state_matrix.inv()
+        # left_state_matrix = left[:, :len(variables)] * (-1)
+        # right_state_matrix = left[:, len(variables):len(variables) * 2]
+        # shock_matrix = left[:, len(variables) * 2:]
+        #
+        # print("model builder")
+        # print(variables + prev_values + shocks)
+        # print(left)
+        # print(right)
+        # print(left_state_matrix)
+        # print(right_state_matrix)
+        #
+        # inverse_left = left_state_matrix.inv()
+        #
+        # transition_matrix, shock_matrix = inverse_left * right_state_matrix, inverse_left * shock_matrix
 
-        transition_matrix, shock_matrix = inverse_left * right_state_matrix, inverse_left * shock_matrix
+        # print(transition_matrix)
+        # print(shock_matrix)
+        left_variable = VariableMatrix(left, structural)
 
-        print(transition_matrix)
-        print(shock_matrix)
-        return VariableMatrix(transition_matrix, structural), VariableMatrix(shock_matrix, structural)
+        return (
+            CompVariableMatrix(
+                left_variable,
+                lambda equations: DsgeModelBuilder.prepare_transtition_matrix(equations, variables)
+            ),
+            CompVariableMatrix(
+                left_variable,
+                lambda equations: DsgeModelBuilder.prepare_shock_matrix(equations, variables)
+            )
+        )
+        # return VariableMatrix(transition_matrix, structural), VariableMatrix(shock_matrix, structural)
 
     @staticmethod
     def prepare_measurement_matrices(observable_equations, variables, structural):
@@ -94,6 +142,10 @@ class DsgeModelBuilder:
 
     @staticmethod
     def multiply_noise_covariance(computed_shock, shock_variances):
+        print("multiply noise cov")
+        print(computed_shock)
+        print(shock_variances)
+
         return dot(dot(computed_shock, shock_variances), computed_shock.transpose())
 
 

@@ -34,6 +34,29 @@ def test2():
     print(b.shape)
     print(np.dot(a, b))
 
+def forecast_dsge(file_name):
+    data_plotter = DataPlotter()
+
+    name, equations, parameters, variables, estimations = parse_model_file(file_name)
+
+    model = model_builder.build(name, equations, parameters, variables)
+
+    forecast_alg = ForecastAlgorithm(model)
+
+    likelihood_algorithm = LikelihoodAlgorithm()
+
+    posterior = model.get_prior_posterior()
+
+    _, distribution = likelihood_algorithm.get_likelihood_probability(model, estimations, posterior)
+
+    posteriors = [(posterior, distribution)]
+
+    observables = forecast_alg.calculate(posteriors, 50, 10, estimations.estimation_time,
+                                         estimations)
+    data_plotter.add_plots(observables.prepare_plots())
+
+    data_plotter.draw_plots()
+
 
 def run_dsge(file_name):
     data_plotter = DataPlotter()
@@ -48,13 +71,15 @@ def run_dsge(file_name):
     print(model.get_prior_posterior())
 
     # retries = 0
-    rounds = 100
+    rounds = 3
 
     # probability = likelihood_algorithm.get_likelihood_probability(model, estimations, model.get_prior_posterior())
 
     mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=model.posterior_covariance())
     posteriors, history = mh_algorithm.calculate_posterior()
     histories = [history]
+
+    # print(posteriors.get_post_burnout()[0])
 
     # for i in range(retries):
     #     mh_algorithm = RandomWalkMH(rounds, model, estimations, posterior)
@@ -63,10 +88,10 @@ def run_dsge(file_name):
 
     forecast_alg = ForecastAlgorithm(model)
 
-    observables = forecast_alg.calculate(posteriors.get_post_burnout(), 50, 10, estimations.estimation_time, estimations)
+    observables = forecast_alg.calculate([posteriors.get_post_burnout()[0]], 50, 10, estimations.estimation_time, estimations)
 
     print("calculated observables")
-    print(observables)
+    # print(observables)
 
     posterior, _ = posteriors.last()
 
@@ -99,6 +124,7 @@ if __name__ == '__main__':
     # data_plotter.draw_plots()
     # test_equations2()
     test2()
-    run_dsge("samples/baseModel.json")
+    run_dsge("samples/forecastModel2.json")
+    # forecast_dsge(".json")
     # test()
 

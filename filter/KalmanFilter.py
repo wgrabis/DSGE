@@ -53,6 +53,8 @@ class KalmanFilter(Filter):
 
         # todo if matrix is singular
 
+        print(measurement_prediction_covariance)
+
         kalman_gain = dot(p_k, dot(measurement_matrix.transpose(), linalg.inv(measurement_prediction_covariance)))
 
         x_updated_k = x_k + dot(kalman_gain, measurement_residual)

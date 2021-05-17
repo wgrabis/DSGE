@@ -71,7 +71,7 @@ class LikelihoodAlgorithm:
         print(posterior_probability)
         print(likelihood)
         print(np.exp(-likelihood))
-        print(math.exp(-likelihood))
+        # print(math.exp(-likelihood))
         posterior_probability *= np.exp(-likelihood)
 
         # for t in range(1, data.estimation_time):

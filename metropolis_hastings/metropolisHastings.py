@@ -30,6 +30,7 @@ class MetropolisHastings(ABC):
         print("mh-start")
         print(current_posterior)
         data_history.add_record(current_posterior)
+        any_accepted = False
 
         posteriors = PosteriorStory()
 
@@ -48,5 +49,13 @@ class MetropolisHastings(ABC):
                 current_posterior = draw
 
                 posteriors.add(draw, distribution)
+
+            if not any_accepted:
+                if not accepted:
+                    data_history.add_record(draw)
+                    current_posterior = draw
+
+                    posteriors.add(draw, distribution)
+                any_accepted = False
 
         return posteriors, data_history
