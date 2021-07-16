@@ -55,7 +55,7 @@ class KalmanFilter(Filter):
 
         print(measurement_prediction_covariance)
 
-        kalman_gain = dot(p_k, dot(measurement_matrix.transpose(), linalg.inv(measurement_prediction_covariance)))
+        kalman_gain = dot(p_k, dot(measurement_matrix.transpose(), linalg.pinv(measurement_prediction_covariance)))
 
         x_updated_k = x_k + dot(kalman_gain, measurement_residual)
         p_updated_k = p_k - dot(kalman_gain, dot(measurement_matrix, p_k))
@@ -66,14 +66,17 @@ class KalmanFilter(Filter):
         # todo rework into separate object
 
         likelihood = 0.5 * dot(measurement_residual.T,
-                               dot(linalg.inv(measurement_prediction_covariance), measurement_residual))
+                               dot(linalg.pinv(measurement_prediction_covariance), measurement_residual))
 
         likelihood += 0.5 * measurement_predict.shape[0] * log(2 * np.pi)
 
         print(linalg.det)
 
+        print("Likelihood-status")
+        print(measurement_prediction_covariance)
+        print(linalg.det(measurement_prediction_covariance))
         # todo rework
-        if linalg.det(measurement_prediction_covariance) < 0:
+        if linalg.det(measurement_prediction_covariance) <= 0:
             print("Likelihood-error")
             print(measurement_prediction_covariance)
             print(linalg.det(measurement_prediction_covariance))

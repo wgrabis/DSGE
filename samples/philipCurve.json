@@ -1,11 +1,21 @@
 {
   "name": "philip curve",
-  "variables": [
-    "y",
-    "infz",
-    "r"
-  ],
-  "parameters": {
+  "variables": ["r", "y", "infz"],
+  "structural": ["tau", "psi", "betaz", "kapz"],
+  "shocks": ["er", "ephi", "exi"],
+  "model": {
+    "definitions": [],
+    "equations": [
+      "y(-1) = y - tau*(r-inf) + ephi",
+      "r = psi*infz + er",
+      "infz(-1) = betaz*infz + kapz*y + exi"
+    ],
+    "observables": [
+      "obs1 = y",
+      "obs2 = r"
+    ]
+  },
+  "priors": {
     "er": {
       "type": "shock",
       "distribution": "normal",
@@ -49,17 +59,7 @@
       "variance": 0.25
     }
   },
-  "equations": {
-    "model": [
-      "y(-1) = y - tau*(r-inf) + ephi",
-      "r = psi*infz + er",
-      "infz(-1) = betaz*infz + kapz*y + exi"
-    ],
-    "observables": [
-      "obs1 = y",
-      "obs2 = r"
-    ]
-  },
+
   "estimations": {
     "data": [
       [

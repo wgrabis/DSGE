@@ -4,20 +4,20 @@
     "e": {
       "type": "shock",
       "distribution": "normal",
-      "mean": 0.01,
-      "variance": 0.001e-3
+      "mean": 0.1,
+      "variance": 0.1e-3
     },
     "sigm": {
       "type": "structural",
       "distribution": "normal",
       "mean": 2,
-      "variance": 0.1
+      "variance": 0.01
     },
     "phia": {
       "type": "structural",
       "distribution": "normal",
       "mean": 1.5,
-      "variance": 0.2
+      "variance": 0.01
     },
     "alpha": {
       "type": "structural",
@@ -29,46 +29,46 @@
       "type": "structural",
       "distribution": "normal",
       "mean": 1.5,
-      "variance": 0.07
+      "variance": 0.01
     },
     "phiCss": {
       "type": "structural",
       "distribution": "normal",
       "mean": 0.77,
-      "variance": 0.65
+      "variance": 0.01
     },
     "phiIss": {
       "type": "structural",
       "distribution": "normal",
       "mean": 0.23,
-      "variance": 0.45
+      "variance": 0.01
     },
     "phiKss": {
       "type": "structural",
       "distribution": "normal",
       "mean": 2.7,
-      "variance": 0.39
+      "variance": 0.01
     },
     "Rss": {
       "type": "structural",
       "distribution": "normal",
       "mean": 1.002,
-      "variance": 0.48
+      "variance": 0.01
     },
     "Pss": {
       "type": "structural",
       "distribution": "normal",
       "mean": 1,
-      "variance": 0.12
+      "variance": 0.01
     },
     "Yss": {
       "type": "structural",
       "distribution": "normal",
       "mean": 2.05,
-      "variance": 0.08
+      "variance": 0.01
     }
   },
-  "variables": ["CS", "L", "W", "R", "K", "Y", "A", "INVEST"],
+  "variables": ["L", "W", "K", "Y", "A", "INVEST", "CS", "R"],
   "equations": {
     "model": [
       "sigm*CS + phia*L = W",
@@ -84,13 +84,18 @@
       "y1 = 1000*CS",
       "y2 = INVEST",
       "y3 = 1000*K"
-
     ]
   },
   "estimations": {
     "data":[
       [4, 0.058, 4.6],
-      [4.14, 0.0495, 4.9],
-      [4.2, 0.0553, 4.75]
-    ]}
+      [4.1, 0.059, 4.62],
+      [0.61, 0.0283, 2.35]
+    ],
+  "pre": [
+          [4.2, 0.058, 4.6],
+      [3.78, 0.0435, 4.25],
+      [3.61, 0.0383, 3.65],
+    [3.61, 0.0383, 3.65]
+      ]}
 }

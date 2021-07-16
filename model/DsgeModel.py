@@ -12,7 +12,9 @@ class DsgeModel:
                  structural, shocks,
                  structural_prior,
                  shock_prior,
-                 likelihood_filter):
+                 variables,
+                 likelihood_filter,
+                 ):
         self.name = name
         self.transition_matrix = transition_matrix
         self.shock_matrix = shock_matrix
@@ -30,6 +32,8 @@ class DsgeModel:
         self.structural_prior = structural_prior
         self.shock_prior = shock_prior
         # self.priors = priors
+        self.variables = variables
+        self.shocks = shocks
 
     def build_matrices(self, posterior):
         return self.transition_matrix(posterior), self.shock_matrix(posterior)
@@ -49,3 +53,6 @@ class DsgeModel:
 
     def get_prior_posterior(self):
         return np.array(self.structural_prior.get_mean())
+
+    def split_variables(self):
+        return self.variables

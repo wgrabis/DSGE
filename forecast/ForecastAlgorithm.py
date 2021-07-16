@@ -73,6 +73,7 @@ class ForecastAlgorithm:
                 observables = self.walk_measurements(x_s, posterior, time, starting_time)
 
                 for i in range(time):
+                    # todo fix?
                     average_sum[i] += observables[i]
 
                 forecast_data.add_posterior_forecast(observables)

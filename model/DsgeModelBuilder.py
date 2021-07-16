@@ -1,4 +1,5 @@
 from filter.KalmanFilter import KalmanFilter
+from model.DefinitionSet import DefinitionSet
 from model.Distribution import NormalVectorDistribution
 from model.DsgeModel import DsgeModel
 from numpy import dot
@@ -8,35 +9,69 @@ from model.Equation import EquationParser
 from model.VariableMatrix import VariableMatrix, VariableVector, CompVariableMatrix
 
 
-class DsgeModelBuilder:
-    def build(self, name, equations, parameters, variables):
-        structural, shocks = self.split_parameters(parameters)
+class PrintArray:
+    def __init__(self, **kwargs):
+        self._kwargs = kwargs
 
-        structural_prior = self.build_prior_distribution(structural, parameters)
-        shock_prior = self.build_prior_distribution(shocks, parameters)
+    def __repr__(self):
+        rpr = ('PrintArray(' +
+               ', '.join([f'{name}={value}' for name, value in self._kwargs.items()]) +
+               ')')
+        return rpr
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        if ufunc != np.floor_divide:
+            return NotImplemented
+        a = inputs[0]
+        with np.printoptions(**self._kwargs):
+            print(a)
+
+
+printer = PrintArray(precision=4, linewidth=150, suppress=True)
+
+
+class DsgeModelBuilder:
+    def build(self, raw_model):
+        # structural, shocks = self.split_parameters(parameters)
+        #
+        # structural_prior = self.build_prior_distribution(structural, parameters)
+        # shock_prior = self.build_prior_distribution(shocks, parameters)
+        #
+        # measurement_state_matrix, measurement_time_matrix, measurement_base_matrix \
+        #     = self.prepare_measurement_matrices(equations["observables"], variables, structural)
+        #
+        variables, structural, shocks = raw_model.entities()
+        priors = raw_model.priors
+
+        definition_set = self.build_definition_set(raw_model.definitions, structural)
+
+        structural_prior = self.build_prior_distribution(structural, priors)
+        shock_prior = self.build_prior_distribution(shocks, priors)
 
         measurement_state_matrix, measurement_time_matrix, measurement_base_matrix \
-            = self.prepare_measurement_matrices(equations["observables"], variables, structural)
+            = self.prepare_measurement_matrices(raw_model.observables, variables, structural, definition_set)
 
-        transition_matrix, shock_matrix = self.prepare_state_matrices(equations["model"], variables, shocks, structural)
+        transition_matrix, shock_matrix = self.prepare_state_matrices(
+            raw_model.equations, variables, shocks, structural, definition_set)
 
         noise_covariance = self.build_noise_covariance(shock_matrix, shock_prior.get_covariance())
 
-        measurement_noise_covariance = self.build_measurement_noise_covariance(equations["observables"])
+        measurement_noise_covariance = self.build_measurement_noise_covariance(raw_model.observables)
 
         return DsgeModel(
-            name,
+            raw_model.name,
             transition_matrix, shock_matrix,
             measurement_state_matrix, measurement_time_matrix, measurement_base_matrix,
             noise_covariance, measurement_noise_covariance,
             structural, shocks,
             structural_prior,
             shock_prior,
+            variables,
             self.build_filter()
         )
 
     @staticmethod
-    def prepare_transtition_matrix(equation_matrix, variables):
+    def prepare_transition_matrix(equation_matrix, variables):
 
         print("prepare transition matrix")
         print(equation_matrix)
@@ -45,7 +80,14 @@ class DsgeModelBuilder:
         left_state_matrix = equation_matrix[:, :len(variables)] * (-1)
         right_state_matrix = equation_matrix[:, len(variables):len(variables) * 2]
 
-        inverse_left = np.linalg.inv(left_state_matrix) #.inv()
+        print("Left:")
+        left_state_matrix // printer
+        # print(left_state_matrix)
+        print("Right:")
+        # print(right_state_matrix)
+        right_state_matrix // printer
+
+        inverse_left = np.linalg.pinv(left_state_matrix) #.pinv()
 
         transition_matrix = inverse_left * right_state_matrix
 
@@ -59,17 +101,21 @@ class DsgeModelBuilder:
         print("prepare shock matrix")
         print(shock_matrix)
 
-        inverse_left = np.linalg.inv(left_state_matrix)
+        inverse_left = np.linalg.pinv(left_state_matrix)
+
+        print("shock-inverse-check")
+        (left_state_matrix * inverse_left) // printer
+        (inverse_left * left_state_matrix) // printer
 
         shock_matrix = dot(inverse_left, shock_matrix)
 
-        print(inverse_left)
+        inverse_left // printer
         print(shock_matrix)
 
         return shock_matrix
 
     @staticmethod
-    def prepare_state_matrices(model_equations, variables, shocks, structural):
+    def prepare_state_matrices(model_equations, variables, shocks, structural, definition_set):
         lhs, rhs = [], []
         prev_values = [x + x for x in variables]
 
@@ -105,12 +151,12 @@ class DsgeModelBuilder:
 
         # print(transition_matrix)
         # print(shock_matrix)
-        left_variable = VariableMatrix(left, structural)
+        left_variable = VariableMatrix(left, structural, definition_set)
 
         return (
             CompVariableMatrix(
                 left_variable,
-                lambda equations: DsgeModelBuilder.prepare_transtition_matrix(equations, variables)
+                lambda equations: DsgeModelBuilder.prepare_transition_matrix(equations, variables)
             ),
             CompVariableMatrix(
                 left_variable,
@@ -120,7 +166,7 @@ class DsgeModelBuilder:
         # return VariableMatrix(transition_matrix, structural), VariableMatrix(shock_matrix, structural)
 
     @staticmethod
-    def prepare_measurement_matrices(observable_equations, variables, structural):
+    def prepare_measurement_matrices(observable_equations, variables, structural, definition_set):
         parameters = variables.copy()
         parameters.append("t")
 
@@ -132,12 +178,12 @@ class DsgeModelBuilder:
 
         base_left, base_right = EquationParser.equations_to_matrices(rhs, parameters)
 
-        measurement_time_matrix = VariableVector(base_left.col(-1), structural)
+        measurement_time_matrix = VariableVector(base_left.col(-1), structural, definition_set)
         base_left.col_del(-1)
 
-        measurement_base_matrix = VariableVector(base_right * -1, structural)
+        measurement_base_matrix = VariableVector(base_right * -1, structural, definition_set)
 
-        measurement_state_matrix = VariableMatrix(base_left, structural)
+        measurement_state_matrix = VariableMatrix(base_left, structural, definition_set)
         return measurement_state_matrix, measurement_time_matrix, measurement_base_matrix
 
     @staticmethod
@@ -148,6 +194,14 @@ class DsgeModelBuilder:
 
         return dot(dot(computed_shock, shock_variances), computed_shock.transpose())
 
+    @staticmethod
+    def build_definition_set(definitions, structural):
+        parsed_definitions = []
+        for equation in definitions:
+            p_lhs, p_rhs = EquationParser.build_equation(equation)
+            parsed_definitions.append((p_lhs, p_rhs))
+
+        return DefinitionSet(structural, parsed_definitions)
 
     @staticmethod
     def build_noise_covariance(shock_matrix, shock_covariance):

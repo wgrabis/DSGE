@@ -2,6 +2,7 @@ from format.Format import Format
 import json
 
 from model.EstimationData import EstimationData
+from model.RawModel import RawModel
 from model.Wrappers import TDistribution
 
 
@@ -10,10 +11,18 @@ class JsonFormat(Format):
         model = json.load(file)
 
         name = model['name']
-        parameters = model['parameters']
-        equations = model['equations']
-        estimations = model['estimations']
         variables = model['variables']
+        structural = model['structural']
+        shocks = model['shocks']
+
+        model_equations = model['model']
+
+        definitions = model_equations['definitions']
+        equations = model_equations['equations']
+        observables = model_equations['observables']
+
+        priors = model['priors']
+        estimations = model['estimations']
 
         # shocks, structural = [], []
         #
@@ -28,4 +37,4 @@ class JsonFormat(Format):
         #     if parameter.type == 'structural':
         #         structural.append(key)
 
-        return name, equations, parameters, variables, estimations
+        return RawModel(name, variables, structural, shocks, definitions, equations, observables, priors), estimations

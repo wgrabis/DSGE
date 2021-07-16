@@ -70,16 +70,29 @@ class ForecastData:
 
         forecast_time = self.time_len
 
+        print(self.main_forecast)
+
         for i in range(forecast_time):
             data_x.append(estimation_time + i)
             for j in range(self.observable_len):
-                top_plot[j].append(self.top_observables[j][i])
-                bottom_plot[j].append(self.bottom_observables[j][i])
+                if self.top_observables[j][i] == np.NINF:
+                    top_plot[j].append(self.main_forecast[i][j])
+                else:
+                    top_plot[j].append(self.top_observables[j][i])
+
+                if self.top_observables[j][i] == np.inf:
+                    bottom_plot[j].append(self.main_forecast[i][j])
+                else:
+                    bottom_plot[j].append(self.bottom_observables[j][i])
                 average_plot[j].append(self.main_forecast[i][j])
 
         plots = []
 
+        print(average_plot)
+
         for i in range(self.observable_len):
-            plots.append(AreaLinePlot("observ %i" % i, data_x, top_plot[i], bottom_plot[i], average_plot[i], "time", "value"))
+            plots.append(
+                AreaLinePlot("", data_x, average_plot[i], average_plot[i], average_plot[i], "time", "value"))
+            # plots.append(AreaLinePlot("observ %i" % i, data_x, top_plot[i], bottom_plot[i], average_plot[i], "time", "value"))
 
         return plots

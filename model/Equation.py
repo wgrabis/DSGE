@@ -1,4 +1,4 @@
-from sympy import sympify, symbols, linear_eq_to_matrix
+from sympy import sympify, symbols, linear_eq_to_matrix, pprint
 
 
 class EquationParser:
@@ -31,7 +31,7 @@ class EquationParser:
         print(equations)
         print(variables)
         left, right = linear_eq_to_matrix(equations, symbols(" ".join(variables)))
-        print(left)
-        print(right)
+        pprint(left, wrap_line=False)
+        pprint(right, wrap_line=False)
 
         return left, right

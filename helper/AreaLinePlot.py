@@ -12,7 +12,8 @@ class AreaLinePlot(BasePlot):
         self.y_name = y_name
 
     def draw_plot(self, axs):
-        axs.fill_between(self.data_x, self.bottom, self.top)
+        # todo bugged
+        # axs.fill_between(self.data_x, self.bottom, self.top)
         axs.plot(self.data_x, self.average, color='r')
 
         axs.set_title(self.name)

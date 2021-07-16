@@ -1,0 +1,43 @@
+{
+  "name": "ar(1) model",
+  "variables": ["x", "y"],
+  "structural": ["rhoSt"],
+  "shocks": ["e1", "e2"],
+  "model": {
+    "definitions": [],
+    "equations": [
+      "x = rhoSt*x(-1) + e1",
+      "y = rhoSt*y(-1) + e2"
+    ],
+    "observables": [
+      "obs1 = x",
+      "obs2 = y"
+    ]
+  },
+  "priors": {
+    "rhoSt": {
+      "distribution": "normal",
+      "mean": 0.85,
+      "variance": 1
+    },
+    "e1": {
+      "distribution": "normal",
+      "mean": 0.1,
+      "variance": 1
+    },
+    "e2": {
+      "distribution": "normal",
+      "mean": 0.1,
+      "variance": 1
+    }
+  },
+
+  "estimations": {
+    "data": [
+      [
+        "1.0",
+        "1.0"
+      ]
+    ]
+  }
+}

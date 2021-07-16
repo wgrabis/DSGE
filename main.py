@@ -1,5 +1,6 @@
 from examples.equationParsingExample import test_equations, test_equations2
 from examples.kalmanExample import test_kalman
+from forecast.BlanchardKahnForecast import BlanchardKahnForecast
 from forecast.ForecastAlgorithm import ForecastAlgorithm
 from format.JsonFormat import JsonFormat
 from format.ParseFile import parse_model_file
@@ -7,10 +8,15 @@ from helper.DataPlotter import DataPlotter
 from helper.StackedPlot import StackedPlot
 from likelihood.LikelihoodAlgorithm import LikelihoodAlgorithm
 from metropolis_hastings.randomWalkMH import RandomWalkMH
+from model.Distribution import NormalVectorDistribution
 from model.DsgeModelBuilder import DsgeModelBuilder
 import ast
 from math import sin
 import numpy as np
+import pandas as pd
+
+desired_width = 320
+pd.set_option('display.width', desired_width)
 
 from model.EstimationData import EstimationData
 
@@ -34,24 +40,50 @@ def test2():
     print(b.shape)
     print(np.dot(a, b))
 
+
+def forecast_blanchard_dsge(file_name, state_count):
+    data_plotter = DataPlotter()
+
+    raw_model, estimations = parse_model_file(file_name)
+
+    model = model_builder.build(raw_model)
+
+    blanchard_forecast_alg = BlanchardKahnForecast(model, state_count)
+
+    observables = blanchard_forecast_alg.calculate(20)
+
+    data_plotter.add_plots(observables.prepare_plots())
+
+    data_plotter.draw_plots()
+
+
 def forecast_dsge(file_name):
     data_plotter = DataPlotter()
 
-    name, equations, parameters, variables, estimations = parse_model_file(file_name)
+    raw_model, estimations = parse_model_file(file_name)
 
-    model = model_builder.build(name, equations, parameters, variables)
+    model = model_builder.build(raw_model)
 
     forecast_alg = ForecastAlgorithm(model)
 
-    likelihood_algorithm = LikelihoodAlgorithm()
+    # likelihood_algorithm = LikelihoodAlgorithm()
 
-    posterior = model.get_prior_posterior()
+    preposterior = model.get_prior_posterior()
 
-    _, distribution = likelihood_algorithm.get_likelihood_probability(model, estimations, posterior)
+    transition_matrix, shock_matrix = model.build_matrices(preposterior)
+    noise_covariance = model.noise_covariance(preposterior)
 
-    posteriors = [(posterior, distribution)]
+    structural_mean = len(model.variables)
 
-    observables = forecast_alg.calculate(posteriors, 50, 10, estimations.estimation_time,
+    posterior = NormalVectorDistribution(
+        np.linalg.solve(transition_matrix - np.eye(transition_matrix.shape[0]), np.zeros(transition_matrix.shape[0], dtype='float')),
+        np.zeros((structural_mean, structural_mean)))#model.get_prior_posterior()
+
+    # _, distribution = likelihood_algorithm.get_likelihood_probability(model, estimations, posterior)
+
+    posteriors = [(preposterior, posterior)]
+
+    observables = forecast_alg.calculate(posteriors, 100, 100, estimations.estimation_time,
                                          estimations)
     data_plotter.add_plots(observables.prepare_plots())
 
@@ -61,9 +93,9 @@ def forecast_dsge(file_name):
 def run_dsge(file_name):
     data_plotter = DataPlotter()
 
-    name, equations, parameters, variables, estimations = parse_model_file(file_name)
+    raw_model, estimations = parse_model_file(file_name)
 
-    model = model_builder.build(name, equations, parameters, variables)
+    model = model_builder.build(raw_model)
 
     likelihood_algorithm = LikelihoodAlgorithm()
 
@@ -124,7 +156,7 @@ if __name__ == '__main__':
     # data_plotter.draw_plots()
     # test_equations2()
     test2()
-    run_dsge("samples/forecastModel2.json")
+    forecast_blanchard_dsge("samples/rbcModel.json", 6)
     # forecast_dsge(".json")
     # test()
 
