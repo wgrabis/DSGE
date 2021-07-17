@@ -1,6 +1,7 @@
 from examples.equationParsingExample import test_equations, test_equations2
 from examples.kalmanExample import test_kalman
 from forecast.BlanchardKahnForecast import BlanchardKahnForecast
+from forecast.BlanchardRaw import BlanchardRaw
 from forecast.ForecastAlgorithm import ForecastAlgorithm
 from format.JsonFormat import JsonFormat
 from format.ParseFile import parse_model_file
@@ -14,6 +15,9 @@ import ast
 from math import sin
 import numpy as np
 import pandas as pd
+from sympy import Matrix
+
+from model.Equation import EquationParser
 
 desired_width = 320
 pd.set_option('display.width', desired_width)
@@ -22,6 +26,13 @@ from model.EstimationData import EstimationData
 
 model_builder = DsgeModelBuilder()
 
+
+def blanchard_raw_test():
+    A = Matrix([[1.1 , 1], [0.3,  1]])
+    B = Matrix([[0.95, 0.75], [1.8, 0.7]])
+    C = Matrix([[0.3,  0.1], [-0.5, -1.2]])
+
+    BlanchardRaw().calculate(A, B, C, [], [], 1, 0)
 
 def test():
     formula = "sin(x)*x**2"
@@ -39,6 +50,16 @@ def test2():
     print(a.shape)
     print(b.shape)
     print(np.dot(a, b))
+
+
+def forecast_blanchard_dsge_debug(file_name):
+    data_plotter = DataPlotter()
+
+    raw_model, estimations = parse_model_file(file_name)
+
+    variables, structural, shocks = raw_model.entities()
+
+    EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
 
 
 def forecast_blanchard_dsge(file_name, state_count):
@@ -156,7 +177,8 @@ if __name__ == '__main__':
     # data_plotter.draw_plots()
     # test_equations2()
     test2()
-    forecast_blanchard_dsge("samples/rbcModel.json", 6)
+    blanchard_raw_test()
+    # forecast_blanchard_dsge_debug("samples/rbcModelRe.json")
     # forecast_dsge(".json")
     # test()
 

@@ -32,14 +32,6 @@ printer = PrintArray(precision=4, linewidth=150, suppress=True)
 
 class DsgeModelBuilder:
     def build(self, raw_model):
-        # structural, shocks = self.split_parameters(parameters)
-        #
-        # structural_prior = self.build_prior_distribution(structural, parameters)
-        # shock_prior = self.build_prior_distribution(shocks, parameters)
-        #
-        # measurement_state_matrix, measurement_time_matrix, measurement_base_matrix \
-        #     = self.prepare_measurement_matrices(equations["observables"], variables, structural)
-        #
         variables, structural, shocks = raw_model.entities()
         priors = raw_model.priors
 
@@ -47,6 +39,17 @@ class DsgeModelBuilder:
 
         structural_prior = self.build_prior_distribution(structural, priors)
         shock_prior = self.build_prior_distribution(shocks, priors)
+
+        left_state_matrix, right_state_matrix, shock_matrix, state_vars, control_vars \
+            = EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
+
+
+
+
+
+
+
+
 
         measurement_state_matrix, measurement_time_matrix, measurement_base_matrix \
             = self.prepare_measurement_matrices(raw_model.observables, variables, structural, definition_set)
@@ -134,23 +137,6 @@ class DsgeModelBuilder:
         print("Equation matrix")
         print(left)
 
-        # left_state_matrix = left[:, :len(variables)] * (-1)
-        # right_state_matrix = left[:, len(variables):len(variables) * 2]
-        # shock_matrix = left[:, len(variables) * 2:]
-        #
-        # print("model builder")
-        # print(variables + prev_values + shocks)
-        # print(left)
-        # print(right)
-        # print(left_state_matrix)
-        # print(right_state_matrix)
-        #
-        # inverse_left = left_state_matrix.inv()
-        #
-        # transition_matrix, shock_matrix = inverse_left * right_state_matrix, inverse_left * shock_matrix
-
-        # print(transition_matrix)
-        # print(shock_matrix)
         left_variable = VariableMatrix(left, structural, definition_set)
 
         return (
