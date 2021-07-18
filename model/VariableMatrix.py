@@ -61,6 +61,23 @@ class VariableVector:
         return valued_vector.reshape((valued_vector.shape[0], ))
 
 
+# todo refactor for future
+class CompDoubleVariableMatrix:
+    def __init__(self, variable_matrix1, variable_matrix2, computation):
+        self.variable_matrix1 = variable_matrix1
+        self.variable_matrix2 = variable_matrix2
+        self.computation = computation
+
+    def __call__(self, values):
+        matrix1 = self.variable_matrix1(values)
+        matrix2 = self.variable_matrix2(values)
+        # print("comp-matrix")
+        # print(matrix)
+        # print(matrix.shape)
+
+        return self.computation(matrix1, matrix2)
+
+
 class CompVariableMatrix:
     def __init__(self, variable_matrix, computation):
         self.variable_matrix = variable_matrix
@@ -68,8 +85,5 @@ class CompVariableMatrix:
 
     def __call__(self, values):
         matrix = self.variable_matrix(values)
-        print("comp-matrix")
-        print(matrix)
-        print(matrix.shape)
 
         return self.computation(matrix)

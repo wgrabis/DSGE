@@ -1,32 +1,30 @@
 {
-  "name": "ar model",
+  "name": "ar(1) model",
   "variables": ["x"],
-  "parameters": {
-    "e": {
-      "type": "shock",
+  "structural": [],
+  "shocks": ["e1"],
+  "model": {
+    "definitions": [],
+    "equations": [
+      "x = 0.95*x(-1) + e1"
+    ],
+    "observables": [
+      "obs1 = x"
+    ]
+  },
+  "priors": {
+    "e1": {
       "distribution": "normal",
       "mean": 1,
       "variance": 1
-    },
-    "rho": {
-      "type": "structural",
-      "distribution": "normal",
-      "mean": 0,
-      "variance": 1
     }
   },
-  "equations": {
-    "model": [
-      "x = rho*(x-1) + e"
-    ],
-    "observables": [
-      "y = x"
+
+  "estimations": {
+    "data": [
+      [
+        "1.0"
+      ]
     ]
-  },
-  "data": [
-    ["1.0"],
-    ["1.0"],
-    ["1.0"],
-    ["2.0"]
-  ]
+  }
 }

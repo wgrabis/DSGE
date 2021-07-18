@@ -15,7 +15,7 @@ import ast
 from math import sin
 import numpy as np
 import pandas as pd
-from sympy import Matrix
+from sympy import Matrix, pprint
 
 from model.Equation import EquationParser
 
@@ -27,12 +27,24 @@ from model.EstimationData import EstimationData
 model_builder = DsgeModelBuilder()
 
 
-def blanchard_raw_test():
-    A = Matrix([[1.1 , 1], [0.3,  1]])
-    B = Matrix([[0.95, 0.75], [1.8, 0.7]])
-    C = Matrix([[0.3,  0.1], [-0.5, -1.2]])
+def blanchard_raw_test(file_name):
+    # A = Matrix([[1.1 , 1], [0.3,  1]])
+    # B = Matrix([[0.95, 0.75], [1.8, 0.7]])
+    # C = Matrix([[0.3,  0.1], [-0.5, -1.2]])
+    raw_model, estimations = parse_model_file(file_name)
 
-    BlanchardRaw().calculate(A, B, C, [], [], 1, 0)
+    model = model_builder.build(raw_model)
+
+    A, B, C = model.blanchard_raw_representation([])
+
+    print("Matrix triple:")
+    pprint(A)
+    pprint(B)
+    pprint(C)
+
+    BlanchardRaw().calculate(A, B, C, np.zeros(model.state_var_count), model.shock_prior.get_mean(), model.state_var_count, len(model.variables) - model.state_var_count, 20)
+
+
 
 def test():
     formula = "sin(x)*x**2"
@@ -62,14 +74,14 @@ def forecast_blanchard_dsge_debug(file_name):
     EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
 
 
-def forecast_blanchard_dsge(file_name, state_count):
+def forecast_blanchard_dsge(file_name):
     data_plotter = DataPlotter()
 
     raw_model, estimations = parse_model_file(file_name)
 
     model = model_builder.build(raw_model)
 
-    blanchard_forecast_alg = BlanchardKahnForecast(model, state_count)
+    blanchard_forecast_alg = BlanchardKahnForecast(model)
 
     observables = blanchard_forecast_alg.calculate(20)
 
@@ -177,8 +189,9 @@ if __name__ == '__main__':
     # data_plotter.draw_plots()
     # test_equations2()
     test2()
-    blanchard_raw_test()
-    # forecast_blanchard_dsge_debug("samples/rbcModelRe.json")
+    # blanchard_raw_test()
+    blanchard_raw_test("samples/toyModel.json")
+    # forecast_blanchard_dsge("samples/rbcModelRe.json")
     # forecast_dsge(".json")
     # test()
 

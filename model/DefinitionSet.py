@@ -14,7 +14,7 @@ class DefinitionSet:
         self.last_calculated = None
 
     def __call__(self, values):
-        if np.array_equiv(values, self.last_values):
+        if np.array_equiv(values, self.last_values) and self.last_values is not None:
             return self.last_calculated
 
         partial_expr = []

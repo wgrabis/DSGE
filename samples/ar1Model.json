@@ -7,7 +7,7 @@
     "definitions": [],
     "equations": [
       "x = rhoSt*x(-1) + e1",
-      "y = rhoSt*y(-1) + e2"
+      "y(+1) = rhoSt*y + e2"
     ],
     "observables": [
       "obs1 = x",

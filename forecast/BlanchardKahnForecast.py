@@ -9,7 +9,7 @@ debug_blanchard = True
 
 
 class BlanchardKahnForecast:
-    def __init__(self, model, state_count):
+    def __init__(self, model):
         self.model = model
 
         self.start_state_vector = []
@@ -33,13 +33,14 @@ class BlanchardKahnForecast:
         self.J1 = None
         self.J2 = None
 
-        self.state_count = state_count
+        self.state_count = model.state_var_count
 
         self.measurement_function = None
 
-        self.prepare(state_count)
+        self.prepare()
 
-    def prepare(self, state_count):
+    def prepare(self):
+        state_count = self.state_count
         parameters = self.model.get_prior_posterior()
 
         transition_m, shock_m = self.model.build_matrices(parameters)
@@ -76,6 +77,7 @@ class BlanchardKahnForecast:
         if debug_blanchard:
             print("Debug matrices")
             pprint(sympy_transition, wrap_line=False)
+            pprint(self.G, wrap_line=False)
             print("H:")
             pprint(H, wrap_line=False)
             pprint(self.H11, wrap_line=False)
@@ -107,9 +109,9 @@ class BlanchardKahnForecast:
         return result
 
     def predict_control(self, iteration, state_vector):
-        state_part = self.H22R.pinv() * self.H21R
-        inner_shock = (self.H21R * self.G1 + self.H22R * self.G2)
-        outer_shock = self.H22R.pinv() * self.J2.inv()
+        state_part = self.H22R.pinv() @ self.H21R
+        inner_shock = (self.H21R @ self.G1 + self.H22R @ self.G2)
+        outer_shock = self.H22R.pinv() @ self.J2.inv()
 
         if debug_blanchard:
             print("predict control")
@@ -125,12 +127,12 @@ class BlanchardKahnForecast:
 
         shock_part = outer_shock * inner_shock
 
-        return -1 * state_part * state_vector - shock_part * self.draw_shock(iteration)
+        return -1 * state_part @ state_vector - shock_part @ self.draw_shock(iteration)
 
     def predict_state(self, iteration, state_vector, control_vector):
-        state_progress = self.F11 * state_vector
-        control_progress = self.F12 * control_vector
-        shock_progress = self.G1 * self.draw_shock(iteration)
+        state_progress = self.F11 @ state_vector
+        control_progress = self.F12 @ control_vector
+        shock_progress = self.G1 @ self.draw_shock(iteration)
 
         if debug_blanchard:
             print("predict state")

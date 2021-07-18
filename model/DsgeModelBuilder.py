@@ -6,7 +6,7 @@ from numpy import dot
 import numpy as np
 
 from model.Equation import EquationParser
-from model.VariableMatrix import VariableMatrix, VariableVector, CompVariableMatrix
+from model.VariableMatrix import VariableMatrix, VariableVector, CompVariableMatrix, CompDoubleVariableMatrix
 
 
 class PrintArray:
@@ -40,26 +40,22 @@ class DsgeModelBuilder:
         structural_prior = self.build_prior_distribution(structural, priors)
         shock_prior = self.build_prior_distribution(shocks, priors)
 
-        left_state_matrix, right_state_matrix, shock_matrix, state_vars, control_vars \
+        left_state_matrix, right_state_matrix, shock_bk_matrix, state_vars, control_vars \
             = EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
 
-
-
-
-
-
-
-
-
-        measurement_state_matrix, measurement_time_matrix, measurement_base_matrix \
-            = self.prepare_measurement_matrices(raw_model.observables, variables, structural, definition_set)
-
         transition_matrix, shock_matrix = self.prepare_state_matrices(
-            raw_model.equations, variables, shocks, structural, definition_set)
+            left_state_matrix, right_state_matrix, shock_bk_matrix, structural, definition_set)
 
         noise_covariance = self.build_noise_covariance(shock_matrix, shock_prior.get_covariance())
 
         measurement_noise_covariance = self.build_measurement_noise_covariance(raw_model.observables)
+
+        ordered_variables = state_vars + control_vars
+
+        measurement_state_matrix, measurement_time_matrix, measurement_base_matrix \
+            = self.prepare_measurement_matrices(raw_model.observables, ordered_variables, structural, definition_set)
+
+        state_var_count = len(state_vars)
 
         return DsgeModel(
             raw_model.name,
@@ -69,84 +65,97 @@ class DsgeModelBuilder:
             structural, shocks,
             structural_prior,
             shock_prior,
-            variables,
+            ordered_variables,
+            state_var_count,
+            VariableMatrix(left_state_matrix, structural, definition_set),
+            VariableMatrix(right_state_matrix, structural, definition_set),
+            VariableMatrix(shock_bk_matrix, structural, definition_set),
             self.build_filter()
         )
 
     @staticmethod
-    def prepare_transition_matrix(equation_matrix, variables):
+    def prepare_transition_matrix(left_matrix, right_matrix):
 
-        print("prepare transition matrix")
-        print(equation_matrix)
-        print(variables)
+        # print("prepare transition matrix")
+        # print(equation_matrix)
+        # print(variables)
+        #
+        # left_state_matrix = equation_matrix[:, :len(variables)] * (-1)
+        # right_state_matrix = equation_matrix[:, len(variables):len(variables) * 2]
+        #
+        # print("Left:")
+        # left_state_matrix // printer
+        # # print(left_state_matrix)
+        # print("Right:")
+        # # print(right_state_matrix)
+        # right_state_matrix // printer
 
-        left_state_matrix = equation_matrix[:, :len(variables)] * (-1)
-        right_state_matrix = equation_matrix[:, len(variables):len(variables) * 2]
+        print("Prepare transition")
+        print(left_matrix)
+        print(right_matrix)
 
-        print("Left:")
-        left_state_matrix // printer
-        # print(left_state_matrix)
-        print("Right:")
-        # print(right_state_matrix)
-        right_state_matrix // printer
+        inverse_left = np.linalg.inv(left_matrix)
 
-        inverse_left = np.linalg.pinv(left_state_matrix) #.pinv()
-
-        transition_matrix = inverse_left * right_state_matrix
+        transition_matrix = inverse_left @ right_matrix
 
         return transition_matrix
 
     @staticmethod
-    def prepare_shock_matrix(equation_matrix, variables):
-        left_state_matrix = equation_matrix[:, :len(variables)] * (-1)
-        shock_matrix = equation_matrix[:, len(variables) * 2:]
+    def prepare_shock_matrix(left_matrix, shock_matrix):
+        # left_state_matrix = equation_matrix[:, :len(variables)] * (-1)
+        # shock_matrix = equation_matrix[:, len(variables) * 2:]
+        #
+        # print("prepare shock matrix")
+        # print(shock_matrix)
 
-        print("prepare shock matrix")
+        print("Prepare shock")
+        print(left_matrix)
         print(shock_matrix)
 
-        inverse_left = np.linalg.pinv(left_state_matrix)
+        inverse_left = np.linalg.inv(left_matrix)
 
-        print("shock-inverse-check")
-        (left_state_matrix * inverse_left) // printer
-        (inverse_left * left_state_matrix) // printer
+        # print("shock-inverse-check")
+        # (left_state_matrix * inverse_left) // printer
+        # (inverse_left * left_state_matrix) // printer
 
-        shock_matrix = dot(inverse_left, shock_matrix)
-
-        inverse_left // printer
-        print(shock_matrix)
+        shock_matrix = inverse_left @ shock_matrix
 
         return shock_matrix
 
     @staticmethod
-    def prepare_state_matrices(model_equations, variables, shocks, structural, definition_set):
-        lhs, rhs = [], []
-        prev_values = [x + x for x in variables]
+    def prepare_state_matrices(left, right, shock, structural, definition_set):
+        # lhs, rhs = [], []
+        # prev_values = [x + x for x in variables]
+        #
+        # for equation in model_equations:
+        #     equation_replace = EquationParser.replace_prev_value(
+        #         equation, variables, lambda parameter: parameter + parameter)
+        #
+        #     p_lhs, p_rhs = EquationParser.build_equation(equation_replace)
+        #     rhs.append(p_rhs - p_lhs)
+        #     lhs.append(p_lhs)
+        #
+        # print(rhs)
+        #
+        # left, right = EquationParser.equations_to_matrices(rhs, variables + prev_values + shocks)
 
-        for equation in model_equations:
-            equation_replace = EquationParser.replace_prev_value(
-                equation, variables, lambda parameter: parameter + parameter)
-
-            p_lhs, p_rhs = EquationParser.build_equation(equation_replace)
-            rhs.append(p_rhs - p_lhs)
-            lhs.append(p_lhs)
-
-        print(rhs)
-
-        left, right = EquationParser.equations_to_matrices(rhs, variables + prev_values + shocks)
-
-        print("Equation matrix")
-        print(left)
+        # print("Equation matrix")
+        # print(left)
 
         left_variable = VariableMatrix(left, structural, definition_set)
+        right_variable = VariableMatrix(right, structural, definition_set)
+        shock_variable = VariableMatrix(shock, structural, definition_set)
 
         return (
-            CompVariableMatrix(
+            CompDoubleVariableMatrix(
                 left_variable,
-                lambda equations: DsgeModelBuilder.prepare_transition_matrix(equations, variables)
+                right_variable,
+                lambda c_left, c_right: DsgeModelBuilder.prepare_transition_matrix(c_left, c_right)
             ),
-            CompVariableMatrix(
+            CompDoubleVariableMatrix(
                 left_variable,
-                lambda equations: DsgeModelBuilder.prepare_shock_matrix(equations, variables)
+                shock_variable,
+                lambda c_left, c_shock: DsgeModelBuilder.prepare_shock_matrix(c_left, c_shock)
             )
         )
         # return VariableMatrix(transition_matrix, structural), VariableMatrix(shock_matrix, structural)

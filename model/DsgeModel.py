@@ -1,5 +1,6 @@
 from numpy import dot
 import numpy as np
+from sympy import Matrix
 
 from model.MeasurementFunction import MeasurementFunction
 
@@ -13,6 +14,8 @@ class DsgeModel:
                  structural_prior,
                  shock_prior,
                  variables,
+                 state_var_count,
+                 left_state_matrix, right_state_matrix, shock_bk_matrix,
                  likelihood_filter,
                  ):
         self.name = name
@@ -35,6 +38,12 @@ class DsgeModel:
         self.variables = variables
         self.shocks = shocks
 
+        self.blanchardA = left_state_matrix
+        self.blanchardB = right_state_matrix
+        self.blanchardC = shock_bk_matrix
+
+        self.state_var_count = state_var_count
+
     def build_matrices(self, posterior):
         return self.transition_matrix(posterior), self.shock_matrix(posterior)
 
@@ -56,3 +65,6 @@ class DsgeModel:
 
     def split_variables(self):
         return self.variables
+
+    def blanchard_raw_representation(self, posterior):
+        return Matrix(self.blanchardA(posterior)), Matrix(self.blanchardB(posterior)), Matrix(self.blanchardC(posterior))
