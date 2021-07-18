@@ -45,7 +45,6 @@ def blanchard_raw_test(file_name):
     BlanchardRaw().calculate(A, B, C, np.zeros(model.state_var_count), model.shock_prior.get_mean(), model.state_var_count, len(model.variables) - model.state_var_count, 20)
 
 
-
 def test():
     formula = "sin(x)*x**2"
     code = ast.parse(formula)

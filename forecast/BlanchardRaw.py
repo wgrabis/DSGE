@@ -99,6 +99,7 @@ class BlanchardRaw:
         x_curr = x0
 
         x_values = []
+        y_values = []
 
         print("transition function for x' : X, Y ,Shock")
         pprint(F11)
@@ -118,29 +119,25 @@ class BlanchardRaw:
         x_transition = (F11 - F12 @ H22R.inv() @ H21R)
         x_shock = (G1 - F12 @ H22R.inv() @ J2.inv() @ (H21R @ G1 + H22R @ G2))
 
-
         for i in range(time):
-            state_part = (F11 - F12 @ H22R.inv() @ H21R) @ x_curr
-
-            shock_part = np.zeros(x_len)
-
-            print(H22R.inv() @ J2.inv() @ (H21R @ G1 + H22R @ G2))
-            print(shock)
-            print((G1 - F12 @ H22R.inv() @ J2.inv() @ (H21R @ G1 + H22R @ G2)) @ shock)
+            x_state_part = x_transition @ x_curr
+            curr_shock = np.zeros(len(shock))
 
             if i == 0:
-                shock_part = (G1 - F12 @ H22R.inv() @ J2.inv() @ (H21R @ G1 + H22R @ G2)) @ shock
+                curr_shock = shock
 
-            x_next = state_part + shock_part
+            x_next = x_state_part + x_shock @ curr_shock
+            y_next = y_transition @ x_curr + y_shock @ curr_shock
 
             print("Iter{}".format(i))
-            print(state_part)
-            print(shock_part)
             print(x_next)
+            print(y_next)
+
+            x_curr = x_next
 
             x_values.append(x_next)
 
-        return x_values
+        return x_values, y_values
 
 
 
