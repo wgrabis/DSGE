@@ -42,7 +42,7 @@ class BlanchardRaw:
 
         return Matrix(H), Matrix(J)
 
-    def calculate(self, A, B, C, x0, shock, x_len, y_len, time):
+    def non_singular_calculate(self, A, B, C, x0, shock, x_len, y_len, time):
         # AA, BB, Q, Z = scipy.linalg.qz(A, B)
         #
         # pprint("Blanchard raw")
@@ -136,6 +136,7 @@ class BlanchardRaw:
             x_curr = x_next
 
             x_values.append(x_next)
+            y_values.append(y_next)
 
         return x_values, y_values
 

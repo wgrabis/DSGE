@@ -42,7 +42,7 @@ def blanchard_raw_test(file_name):
     pprint(B)
     pprint(C)
 
-    BlanchardRaw().calculate(A, B, C, np.zeros(model.state_var_count), model.shock_prior.get_mean(), model.state_var_count, len(model.variables) - model.state_var_count, 20)
+    BlanchardRaw().non_singular_calculate(A, B, C, np.zeros(model.state_var_count), model.shock_prior.get_mean(), model.state_var_count, len(model.variables) - model.state_var_count, 20)
 
 
 def test():
@@ -80,9 +80,9 @@ def forecast_blanchard_dsge(file_name):
 
     model = model_builder.build(raw_model)
 
-    blanchard_forecast_alg = BlanchardKahnForecast(model)
+    blanchard_forecast_alg = BlanchardKahnForecast()
 
-    observables = blanchard_forecast_alg.calculate(20)
+    observables = blanchard_forecast_alg.calculate(model, 20)
 
     data_plotter.add_plots(observables.prepare_plots())
 
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     # test_equations2()
     test2()
     # blanchard_raw_test()
-    blanchard_raw_test("samples/toyModel.json")
+    forecast_blanchard_dsge("samples/toyModel.json")
     # forecast_blanchard_dsge("samples/rbcModelRe.json")
     # forecast_dsge(".json")
     # test()
