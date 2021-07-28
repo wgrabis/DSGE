@@ -191,8 +191,8 @@ if __name__ == '__main__':
     # blanchard_raw_test()
     # forecast_blanchard_dsge("samples/toyModel2.json")
     # forecast_blanchard_dsge("samples/toyModel3b.json", False)
-    forecast_blanchard_dsge("samples/rbcModelRe.json", True)
-    # forecast_blanchard_dsge("samples/philipCurveRe.json")
+    # forecast_blanchard_dsge("samples/simpleModel.json", True)
+    forecast_blanchard_dsge("samples/philipCurveRe.json")
     # forecast_dsge(".json")
     # test()
 

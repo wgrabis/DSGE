@@ -30,7 +30,7 @@ class BlanchardKahnForecast:
         Q = Matrix(Q)
         R = Matrix(R)
 
-        FY_plus = A[:, (static_count + state_count):]
+        FY_plus = -1 * A[:, (static_count + state_count):]
         FY_minus = B[:, static_count:(static_count + state_count)]
         # F_zero = A[:, (static_count + state_count):]
 

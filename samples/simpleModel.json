@@ -1,0 +1,44 @@
+{
+  "name": "rbc model",
+  "variables": ["x", "y"],
+  "structural": ["betaSt", "rhoSt", "sigmaSt"],
+  "shocks": ["e"],
+  "model": {
+    "definitions": [],
+    "equations": [
+      "y = betaSt * y(+1) + x",
+      "x = rhoSt*x(-1) + e"
+    ],
+    "observables": [
+      "YX = x",
+      "YY = y"
+    ]
+  },
+  "priors": {
+    "e": {
+      "distribution": "normal",
+      "mean": 1.0,
+      "variance": 0.1
+    },
+    "betaSt": {
+      "distribution": "normal",
+      "mean": 0.99,
+      "variance": 0.1
+    },
+    "rhoSt": {
+      "distribution": "normal",
+      "mean": 0.8,
+      "variance": 0.1
+    },
+    "sigmaSt": {
+      "distribution": "normal",
+      "mean": 1.0,
+      "variance": 0.1
+    }
+  },
+  "estimations": {
+    "data": [
+      [4, 0.04, 2]
+    ]
+  }
+}
