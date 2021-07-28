@@ -189,7 +189,8 @@ class BlanchardRaw:
         print("AA, BB matrices:")
         pprint(Matrix(AA), wrap_line=False)
         pprint(Matrix(BB), wrap_line=False)
-        pprint(sp.re(c_inv(Matrix(AA)) @ BB))
+        pprint(c_inv(Matrix(AA)), wrap_line=False)
+        pprint(sp.re(c_inv(Matrix(AA)) @ BB), wrap_line=False)
 
         G = Q.T @ C
 

@@ -71,9 +71,9 @@ class DsgeModel:
         return self.variables
 
     def blanchard_raw_representation(self, posterior):
-        # log.debug("BlanchardRaw: A, B, C")
-        # log.debug(self.variables)
-        # self.blanchardA.print()
-        # self.blanchardB.print()
-        # self.blanchardC.print()
+        print("BlanchardRaw: A, B, C")
+        print(self.variables)
+        self.blanchardA.print()
+        self.blanchardB.print()
+        self.blanchardC.print()
         return Matrix(self.blanchardA(posterior)), Matrix(self.blanchardB(posterior)), Matrix(self.blanchardC(posterior))
