@@ -1,11 +1,15 @@
 from sympy import Symbol
 import numpy as np
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class DefinitionSet:
     def __init__(self, parameters, definitions):
-        print("definition-set")
-        print(definitions)
+        log.debug("definition-set")
+        log.debug(definitions)
 
         self.definitions = definitions
         self.parameters = parameters
@@ -26,8 +30,8 @@ class DefinitionSet:
                 expr = expr.subs(Symbol(par_name), values[j])
             partial_expr.append((name, expr))
 
-        print("calculated-expression-partial")
-        print(partial_expr)
+        log.debug("calculated-expression-partial")
+        log.debug(partial_expr)
 
         calculated_expr = []
 
@@ -44,8 +48,8 @@ class DefinitionSet:
 
                 partial_expr[j] = (partial_name, expr)
 
-        print("calculated-expression")
-        print(calculated_expr)
+        log.debug("calculated-expression")
+        log.debug(calculated_expr)
 
         return calculated_expr
 

@@ -1,6 +1,9 @@
 import numpy as np
 
 from helper.AreaLinePlot import AreaLinePlot
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class ForecastData:
@@ -43,11 +46,13 @@ class ForecastData:
                 self.update_observable(i, j, observables[i][j])
 
     def update_observable(self, time, observable, value):
-        print(time)
-        print(observable)
-        print(value)
-        print(self.bottom_observables[observable][time])
-        print(self.top_observables[observable][time])
+        log.debug("Update observables")
+        log.debug(time)
+        log.debug(observable)
+        log.debug(value)
+        log.debug(self.bottom_observables[observable][time])
+        log.debug(self.top_observables[observable][time])
+
         self.bottom_observables[observable][time] = min(self.bottom_observables[observable][time], value)
         self.top_observables[observable][time] = max(self.top_observables[observable][time], value)
 
@@ -70,8 +75,6 @@ class ForecastData:
 
         forecast_time = self.time_len
 
-        print(self.main_forecast)
-
         for i in range(forecast_time):
             data_x.append(estimation_time + i)
             for j in range(self.observable_len):
@@ -88,7 +91,9 @@ class ForecastData:
 
         plots = []
 
-        print(average_plot)
+        log.debug("Prepare plots")
+        log.debug(average_plot)
+        log.debug(self.main_forecast)
 
         for i in range(self.observable_len):
             plots.append(

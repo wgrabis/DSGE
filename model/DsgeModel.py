@@ -15,6 +15,8 @@ class DsgeModel:
                  shock_prior,
                  variables,
                  state_var_count,
+                 static_var_count,
+                 control_vars_count,
                  left_state_matrix, right_state_matrix, shock_bk_matrix,
                  likelihood_filter,
                  ):
@@ -43,6 +45,8 @@ class DsgeModel:
         self.blanchardC = shock_bk_matrix
 
         self.state_var_count = state_var_count
+        self.static_var_count = static_var_count
+        self.control_vars_count = control_vars_count
 
     def build_matrices(self, posterior):
         return self.transition_matrix(posterior), self.shock_matrix(posterior)
@@ -67,4 +71,9 @@ class DsgeModel:
         return self.variables
 
     def blanchard_raw_representation(self, posterior):
+        # log.debug("BlanchardRaw: A, B, C")
+        # log.debug(self.variables)
+        # self.blanchardA.print()
+        # self.blanchardB.print()
+        # self.blanchardC.print()
         return Matrix(self.blanchardA(posterior)), Matrix(self.blanchardB(posterior)), Matrix(self.blanchardC(posterior))

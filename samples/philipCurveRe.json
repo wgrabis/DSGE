@@ -1,0 +1,61 @@
+{
+  "name": "philip curve redone",
+  "variables": ["y", "infV" ,"rV"],
+  "structural": ["tauSt", "psiSt", "betaSt", "kapSt"],
+  "shocks": ["er", "ephi", "exi"],
+  "model": {
+    "definitions": [],
+    "equations": [
+      "y = y(+1) - tauSt *(rV-infV(+1)) + ephi",
+      "rV = psiSt*infV + er",
+      "infV = betaSt * infV(+1) + kapSt * y + exi"
+    ],
+    "observables": [
+      "YRV = rV",
+      "YY = y",
+      "Yinf = infV"
+    ]
+  },
+  "priors": {
+    "ephi": {
+      "distribution": "normal",
+      "mean": 0,
+      "variance": 0.1
+    },
+    "er": {
+      "distribution": "normal",
+      "mean": 1.0,
+      "variance": 0.1
+    },
+    "exi": {
+      "distribution": "normal",
+      "mean": 0,
+      "variance": 0.1
+    },
+    "betaSt": {
+      "distribution": "normal",
+      "mean": 0.99,
+      "variance": 0.1
+    },
+    "psiSt": {
+      "distribution": "normal",
+      "mean": 1.5,
+      "variance": 0.1
+    },
+    "tauSt": {
+      "distribution": "normal",
+      "mean": 1,
+      "variance": 0.1
+    },
+    "kapSt": {
+      "distribution": "normal",
+      "mean": 0.2,
+      "variance": 0.1
+    }
+  },
+  "estimations": {
+    "data": [
+      [4, 0.04, 2]
+    ]
+  }
+}

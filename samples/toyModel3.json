@@ -1,0 +1,34 @@
+{
+  "name": "rbc model",
+  "variables": ["x", "y"],
+  "structural": [],
+  "shocks": ["e_x", "e_y"],
+  "model": {
+    "definitions": [],
+    "equations": [
+      "1.8*x+y(+1)=0.35*x(-1)+0.75*y+0.3*e_x-0.1*e_y",
+      "0.3*x+y(+1)=1.80*x(-1)+0.70*y-0.5*e_x+1.2*e_y"
+    ],
+    "observables": [
+      "YX = x",
+      "YY = y"
+    ]
+  },
+  "priors": {
+    "e_x": {
+      "distribution": "normal",
+      "mean": 0,
+      "variance": 0.1
+    },
+    "e_y": {
+      "distribution": "normal",
+      "mean": 0.01,
+      "variance": 0.1
+    }
+  },
+  "estimations": {
+    "data": [
+      [4, 0.04, 2]
+    ]
+  }
+}

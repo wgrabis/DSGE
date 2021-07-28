@@ -1,4 +1,7 @@
-from sympy import sympify, symbols, linear_eq_to_matrix, pprint
+from sympy import sympify, symbols, linear_eq_to_matrix, pprint, pretty
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class EquationParser:
@@ -17,15 +20,10 @@ class EquationParser:
         for parameter in prev_parameters:
             result = result.replace(parameter + "(-1)", mapping(parameter))
 
-        print(result)
-
         return result
 
     @staticmethod
     def equations_to_matrices(equations, variables):
-        print("Eq to matrice")
-        print(equations)
-        print(variables)
         left, right = linear_eq_to_matrix(equations, symbols(" ".join(variables)))
         pprint(left, wrap_line=False)
         pprint(right, wrap_line=False)
@@ -44,15 +42,27 @@ class EquationParser:
                 if equation.find('{}(-1)'.format(variable)) != -1:
                     state_variables.add(variable)
 
-        print("split_variables")
-        print(state_variables)
-        print(control_variables)
+        log.debug("split_variables")
+        log.debug(state_variables)
+        log.debug(control_variables)
 
         assert len(state_variables.intersection(control_variables)) == 0
 
-        state_variables = state_variables.union(set(variables).difference(control_variables))
+        static_variables = set(variables).difference(control_variables).difference(state_variables)
 
-        return list(state_variables), list(control_variables)
+        ordered_state = []
+        ordered_control = []
+        ordered_static = []
+
+        for variable in variables:
+            if variable in state_variables:
+                ordered_state.append(variable)
+            if variable in control_variables:
+                ordered_control.append(variable)
+            if variable in static_variables:
+                ordered_static.append(variable)
+
+        return ordered_state, ordered_control, ordered_static
 
     @staticmethod
     def rename_variables(equations, state_variables, control_variables):
@@ -81,7 +91,7 @@ class EquationParser:
 
     @staticmethod
     def parse_equations_to_matrices(equations, variables, shocks):
-        state_variables, control_variables = EquationParser.split_variables(equations, variables)
+        state_variables, control_variables, static_variables = EquationParser.split_variables(equations, variables)
 
         renamed_equations = EquationParser.rename_variables(equations, state_variables, control_variables)
 
@@ -91,8 +101,12 @@ class EquationParser:
             p_lhs, p_rhs = EquationParser.build_equation(equation)
             parsed_rhs.append(p_rhs - p_lhs)
 
-        ordered_variables = state_variables + ['{param}_{param}'.format(param=x) for x in control_variables] + \
-            ['{param}_{param}'.format(param=x) for x in state_variables] + control_variables + shocks
+        # todo static vars get dummy param
+        ordered_variables = static_variables + state_variables + \
+            ['{param}_{param}'.format(param=x) for x in control_variables] + \
+            ['{param}_{param}'.format(param=x) for x in static_variables] + \
+            ['{param}_{param}'.format(param=x) for x in state_variables] + \
+            control_variables + shocks
 
         equation_matrix, _ = EquationParser.equations_to_matrices(parsed_rhs, ordered_variables)
 
@@ -100,17 +114,18 @@ class EquationParser:
         right_state_matrix = equation_matrix[:, len(variables):len(variables) * 2]
         shock_matrix = equation_matrix[:, len(variables) * 2:]
 
-        print("PARSE EQUATIONS TO MATRICES:")
-        pprint(state_variables)
-        pprint(control_variables)
-        pprint(ordered_variables)
-        print("Renamed equations:")
-        pprint(renamed_equations)
-        print("Matrices:")
-        pprint(left_state_matrix)
-        pprint(right_state_matrix)
-        pprint(shock_matrix)
+        log.debug("PARSE EQUATIONS TO MATRICES:")
+        log.debug(pretty(static_variables))
+        log.debug(pretty(state_variables))
+        log.debug(pretty(control_variables))
+        log.debug(pretty(ordered_variables))
+        log.debug("Renamed equations:")
+        log.debug(pretty(renamed_equations))
+        log.debug("Matrices:")
+        log.debug(pretty(left_state_matrix))
+        log.debug(pretty(right_state_matrix))
+        log.debug(pretty(shock_matrix))
 
-        return left_state_matrix, right_state_matrix, shock_matrix, state_variables, control_variables
+        return left_state_matrix, right_state_matrix, shock_matrix, state_variables, control_variables, static_variables
 
         # prepare equations

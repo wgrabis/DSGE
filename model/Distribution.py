@@ -5,6 +5,10 @@ import numpy as np
 from math import log, pi, exp
 from numpy import dot, linalg
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class Distribution(ABC):
     @abstractmethod
@@ -40,9 +44,9 @@ class NormalDistribution(Distribution):
 
 class NormalVectorDistribution(Distribution):
     def __init__(self, mean_vector, covariance_matrix):
-        print("NormalVector - distribution")
-        print(mean_vector)
-        print(covariance_matrix)
+        logger.debug("NormalVector - distribution")
+        logger.debug(mean_vector)
+        logger.debug(covariance_matrix)
         self.mean_vector = mean_vector
         self.covariance_matrix = covariance_matrix
 

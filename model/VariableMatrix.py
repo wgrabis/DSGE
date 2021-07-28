@@ -1,28 +1,32 @@
 import numpy as np
-from sympy import symbols, Symbol, pprint
+from sympy import symbols, Symbol, pprint, pretty
+
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def calculate(scipy_item, parameters, values, definitions):
     subs = {}
     expr = scipy_item
 
-    print("calculate")
-    pprint(scipy_item, wrap_line=False)
-    pprint(parameters, wrap_line=False)
-    pprint(values, wrap_line=False)
+    log.debug("calculate")
+    log.debug(pretty(scipy_item))
+    log.debug(pretty(parameters))
+    log.debug(pretty(values))
 
     for i in range(len(parameters)):
         expr = expr.subs(Symbol(parameters[i]), values[i])
         # subs[symbols(parameters[i])] = values[i]
 
-    print("calculate-definitions")
-    pprint(expr, wrap_line=False)
-    pprint(definitions, wrap_line=False)
+    log.debug("calculate-definitions")
+    log.debug(pretty(expr))
+    log.debug(pretty(definitions))
 
     for (name, value) in definitions:
         expr = expr.subs(name, value)
 
-    pprint(expr, wrap_line=False)
+    log.debug(pretty(expr))
 
     return expr
 
@@ -34,14 +38,18 @@ class VariableMatrix:
         self.definition_set = definition_set
 
     def __call__(self, values):
-        print("Variable-matrix")
-        print(self.matrix)
-        print(values)
+        log.debug("Variable-matrix")
+        log.debug(self.matrix)
+        log.debug(values)
+
         valued_matrix = np.array(calculate(self.matrix, self.parameters, values, self.definition_set(values)), dtype='float')
 
-        print(valued_matrix)
+        log.debug(valued_matrix)
 
         return valued_matrix
+
+    def print(self):
+        pprint(self.matrix, wrap_line=False)
 
 
 class VariableVector:
@@ -60,6 +68,9 @@ class VariableVector:
 
         return valued_vector.reshape((valued_vector.shape[0], ))
 
+    def print(self):
+        pprint(self.vector, wrap_line=False)
+
 
 # todo refactor for future
 class CompDoubleVariableMatrix:
@@ -77,6 +88,10 @@ class CompDoubleVariableMatrix:
 
         return self.computation(matrix1, matrix2)
 
+    def print(self):
+        self.variable_matrix1.print()
+        self.variable_matrix2.print()
+
 
 class CompVariableMatrix:
     def __init__(self, variable_matrix, computation):
@@ -87,3 +102,6 @@ class CompVariableMatrix:
         matrix = self.variable_matrix(values)
 
         return self.computation(matrix)
+
+    def print(self, description):
+        self.variable_matrix.print()
