@@ -15,24 +15,24 @@
       "Lss = (1-alphaSt)*(Yss/Wss/Pss)"
     ],
     "equations": [
-      "sigmaSt * CV + phiSt * L = W",
-      "(sigmaSt/betaSt)*(CV(+1)-CV)=Rss*RV(+1)",
-      "K = (1 - deltaSt) * K(-1) + deltaSt * IV",
-      "Y = A + alphaSt * K(-1) + (1 - alphaSt) * L",
-      "RV = Y - K(-1)",
-      "W = Y - L",
-      "Yss * Y = Css * CV + Iss*IV",
+      "W - phiSt * L = sigmaSt * CV",
+      "(sigmaSt/betaSt)*CV(+1) - Rss*RV(+1) = (sigmaSt/betaSt) * CV",
+      "K - deltaSt * IV= (1 - deltaSt) * K(-1) ",
+      "Y - A - (1 - alphaSt) * L= alphaSt * K(-1)",
+      "Y = RV + K(-1)",
+      "W + L - Y = 0",
+      "Yss * Y - Iss*IV= Css * CV",
       "A = rhoSt * A(-1) + e"
     ],
     "observables": [
-      "YL = 1000*L",
-      "YW = W",
-      "YK = K",
-      "YY = Y",
-      "YA = A",
-      "YIV = IV",
-      "YCV = 1000*CV",
-      "YRV = RV"
+      "YL = Y",
+      "YW = IV",
+      "YK = CV",
+      "YY = RV",
+      "YA = K",
+      "YIV = W",
+      "YCV = L",
+      "YRV = A"
     ]
   },
   "priors": {

@@ -124,7 +124,7 @@ class BlanchardKahnForecast:
 
         # blanchard pre
 
-        BlanchardRaw().singular_calculate(A, B, C, np.zeros(state_count + static_count), shock, state_count + static_count,
+        X1, Y1 = BlanchardRaw().singular_calculate(model, A, B, C, np.zeros(state_count + static_count), shock, state_count + static_count,
                                           control_count, time)
 
         if model.static_var_count != 0 and enable_static:
@@ -170,11 +170,13 @@ class BlanchardKahnForecast:
         #     x, y = BlanchardRaw().non_singular_calculate(A, B, C, x0, shock, state_count,
         #                                              len(model.variables) - state_count - static_count, time)
 
-        x, y = BlanchardRaw().singular_calculate(A, B, C, x0, shock, endogenous_count,
+        x, y = BlanchardRaw().singular_calculate(model, A, B, C, x0, shock, endogenous_count,
                                                  control_count, time)
         #
 
         full_forecast = []
+
+        x, y = X1, Y1
 
         for i in range(time):
             x_i = x[i]

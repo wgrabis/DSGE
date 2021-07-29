@@ -24,12 +24,12 @@
     },
     "er": {
       "distribution": "normal",
-      "mean": 1.0,
+      "mean": 0,
       "variance": 0.1
     },
     "exi": {
       "distribution": "normal",
-      "mean": 0,
+      "mean": 1.0,
       "variance": 0.1
     },
     "betaSt": {

@@ -6,7 +6,7 @@
   "model": {
     "definitions": [],
     "equations": [
-      "y = betaSt * y(+1) + x",
+      "betaSt * y(+1) + x = y",
       "x = rhoSt*x(-1) + e"
     ],
     "observables": [

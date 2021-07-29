@@ -4,6 +4,8 @@ from scipy import linalg
 import sympy as sp
 import scipy
 
+from helper.PolicyPrinter import PolicyPrinter
+
 
 def c_inv(Z):
     if Z.det() == 0:
@@ -164,7 +166,7 @@ class BlanchardRaw:
 
         return x_values, y_values
 
-    def singular_calculate(self, A, B, C, x0, shock, x_len, y_len, time):
+    def singular_calculate(self, model, A, B, C, x0, shock, x_len, y_len, time):
         BB, AA, _, _, Q, Z = linalg.ordqz(B, A, sort=lambda a, b: pow(a, -1) * b, output="complex")
 
         print(AA)
@@ -190,6 +192,7 @@ class BlanchardRaw:
         pprint(Matrix(AA), wrap_line=False)
         pprint(Matrix(BB), wrap_line=False)
         pprint(c_inv(Matrix(AA)), wrap_line=False)
+        print("EigenValues:")
         pprint(sp.re(c_inv(Matrix(AA)) @ BB), wrap_line=False)
 
         G = Q.T @ C
@@ -231,7 +234,7 @@ class BlanchardRaw:
         g_y_plus = -1 * c_inv(Z22) @ Z21
         g_y_minus = ZT11 @ T11.inv() @ S11 @ c_inv(ZT11) #.inv()
 
-        FY_plus = -1 * A[:, x_len:]
+        FY_plus = A[:, x_len:]
         FY = B - A
         FU = C
 
@@ -281,6 +284,8 @@ class BlanchardRaw:
         pprint(g_u_plus, wrap_line=False)
         pprint(g_u_minus, wrap_line=False)
 
+        PolicyPrinter.print(model, g_y_plus, g_y_minus, g_u)
+
         x_curr = x0
 
         x_values = []
@@ -305,108 +310,6 @@ class BlanchardRaw:
             y_values.append(y_next)
 
         return x_values, y_values
-
-        return
-
-        F = AA.inv() * BB
-
-        H, J = self.reorder_decomposition(F)
-
-        Hr = H.inv()
-
-        H21R = Hr[x_len:, :x_len]
-        H22R = Hr[x_len:, x_len:]
-
-        F11 = F[:x_len, :x_len]
-        F12 = F[:x_len, x_len:]
-
-        # J1 = J[:x_len, :x_len]
-        J2 = J[x_len:, x_len:]
-
-        G1 = G[:x_len, :]
-        G2 = G[x_len:, :]
-
-        print("Debug matrices: H, G, J, F11, F12")
-        print("F")
-        pprint(F, wrap_line=False)
-        print("H")
-        pprint(H, wrap_line=False)
-        print("Hr")
-        pprint(Hr, wrap_line=False)
-        print("G")
-        pprint(G, wrap_line=False)
-        print("J")
-        pprint(J, wrap_line=False)
-        # pprint(F11, wrap_line=False)
-        # pprint(F12, wrap_line=False)
-        print("Debug HJHr")
-        pprint(F, wrap_line=False)
-        pprint(H @ J @ Hr, wrap_line=False)
-
-        y_transition = sp.re(-1 * H22R.pinv() @ H21R)
-        y_shock = sp.re(-1 * H22R.pinv() @ J2.inv() @ (H21R @ G1 + H22R @ G2))
-
-        x_transition = sp.re(F11 - F12 @ H22R.pinv() @ H21R)
-        x_shock = sp.re(G1 - F12 @ H22R.pinv() @ J2.inv() @ (H21R @ G1 + H22R @ G2))
-
-        print("transition function for y' : X ,Shock")
-        pprint(y_transition, wrap_line=False)
-        pprint(y_shock, wrap_line=False)
-
-        print("Combined for x' from x, shock")
-        pprint(x_transition, wrap_line=False)
-        pprint(x_shock, wrap_line=False)
-
-        y_final_transition = (-1 * Matrix(Z22).inv()) @ Z21 @ y_transition
-        y_final_shock = Z22 @ y_shock
-
-        print("Final transition function for y' : X ,Shock")
-        pprint(y_final_transition, wrap_line=False)
-        pprint(y_final_shock, wrap_line=False)
-
-        # X, Y = self.non_singular_calculate(Matrix(AA), Matrix(BB), Matrix(reC), reX0[:x_len], shock, x_len, y_len, time)
-
-        x_curr = x0
-
-        x_values = []
-        y_values = []
-
-        for i in range(time):
-            x_state_part = x_transition @ x_curr
-            curr_shock = np.zeros(len(shock))
-
-            if i == 0:
-                curr_shock = shock
-
-            x_next = x_state_part + x_shock @ curr_shock
-            y_next = y_final_transition @ x_curr + y_final_shock @ curr_shock
-
-            print("Iter{}".format(i))
-            print(x_next)
-            print(y_next)
-
-            x_curr = x_next
-
-            x_values.append(x_next)
-            y_values.append(y_next)
-
-        return x_values, y_values
-
-        resX, resY = [], []
-        # for i in range(time):
-        #     x_i = X[i]
-        #     y_i = Y[i]
-        #
-        #     full_state_vector = Matrix(np.zeros(x_len + y_len))
-        #     full_state_vector[:x_len, :] = x_i
-        #     full_state_vector[x_len:, :] = y_i
-        #
-        #     fs = Z @ full_state_vector
-        #
-        #     resX.append(fs[:x_len])
-        #     resY.append(fs[x_len:])
-        #
-        # return resX, resY
 
 
 
