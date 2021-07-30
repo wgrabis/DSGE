@@ -1,28 +1,32 @@
 {
-  "name": "rbc model",
-  "variables": ["Y", "IV", "CV", "RV", "K", "W", "L", "A"],
-  "structural": ["alphaSt", "betaSt", "deltaSt", "sigmaSt", "phiSt", "rhoSt"],
+  "name": "nk model",
+  "variables": ["CV", "RV", "L", "W", "K", "Y", "A", "IV", "MC", "P", "PI"],
+  "structural": ["alphaSt", "betaSt", "deltaSt", "sigmaSt", "phiSt", "rhoSt", "psiSt", "thetaSt"],
   "shocks": ["e"],
   "model": {
     "definitions": [
       "Pss = 1",
       "Rss = Pss*((1/betaSt)-(1-deltaSt))",
-      "Wss = (1-alphaSt)*(Pss^(1/(1-alphaSt)))*((alphaSt/Rss)^(alphaSt/(1-alphaSt)))",
-      "Yss = ((Rss/(Rss-deltaSt*alphaSt))^(sigmaSt/(sigmaSt+phiSt)))*(((1-alphaSt)^(-phiSt))*((Wss/Pss)^(1+phiSt)))^(1/(sigmaSt+phiSt))",
-      "Kss = alphaSt*(Yss/Rss/Pss)",
+      "MCss = ((psiSt-1)/psiSt)*(1-betaSt*thetaSt)*Pss",
+      "Wss = (1-alphaSt)*(MCss^(1/(1-alphaSt)))*((alphaSt/Rss)^(alphaSt/(1-alphaSt)))",
+      "Yss = ((Rss/(Rss-deltaSt*alphaSt*MCss))^(sigmaSt/(sigmaSt+phiSt)))*((Wss/Pss)*(Wss/((1-alphaSt)*MCss))^phiSt)^(1/(sigmaSt+phiSt))",
+      "Kss = alphaSt*MCss*(Yss/Rss)",
       "Iss = deltaSt*Kss",
       "Css = Yss - Iss",
-      "Lss = (1-alphaSt)*(Yss/Wss/Pss)"
+      "Lss = (1-alphaSt)*MCss*(Yss/Wss)"
     ],
     "equations": [
-      "W - phiSt * L = sigmaSt * CV",
-      "(sigmaSt/betaSt)*CV(+1) - Rss*RV(+1) = (sigmaSt/betaSt) * CV",
-      "K - deltaSt * IV= (1 - deltaSt) * K(-1) ",
-      "Y - A - (1 - alphaSt) * L= alphaSt * K(-1)",
-      "Y = RV + K(-1)",
-      "W + L - Y = 0",
-      "Yss * Y - Iss*IV= Css * CV",
-      "A = rhoSt * A(-1) + e"
+      "sigma*CV + phi*L = W - P",
+      "(sigma/beta)*(CV(+1)-CV)=(Rss/Pss)*(RV(+1)-P(+1))",
+      "K = (1-delta)*K(-1) + delta*IV",
+      "Y = A + alpha*K(-1) + (1-alpha)*L",
+      "K(-1) = Y - RV",
+      "L = Y - W",
+      "MC = (1-alpha)*W + alpha*RV - A",
+      "PI = beta*PI(+1)+((1-theta)*(1-beta*theta)/theta)*(MC-P)",
+      "PI = P - P(-1)",
+      "Yss*Y = Css*CV + Iss*IV",
+      "A = rhoa*A(-1) + e"
     ],
     "observables": [
       "YL = Y",
@@ -76,6 +80,18 @@
       "type": "structural",
       "distribution": "normal",
       "mean": 0.95,
+      "variance": 0.01
+    },
+    "psiSt": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 8,
+      "variance": 0.01
+    },
+    "thetaSt": {
+      "type": "structural",
+      "distribution": "normal",
+      "mean": 0.75,
       "variance": 0.01
     }
   },

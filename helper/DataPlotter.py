@@ -26,4 +26,5 @@ class DataPlotter:
             else:
                 sub_plot.draw_plot(axs[i])
 
+        # pyplot.gca().set_aspect('equal')
         pyplot.show()

@@ -167,7 +167,10 @@ class BlanchardRaw:
         return x_values, y_values
 
     def singular_calculate(self, model, A, B, C, x0, shock, x_len, y_len, time):
-        BB, AA, _, _, Q, Z = linalg.ordqz(B, A, sort=lambda a, b: pow(a, -1) * b, output="complex")
+        def sorter(a, b):
+            return abs(a/b) < 1 + 1e-6
+
+        BB, AA, _, _, Q, Z = linalg.ordqz(B, A, sort=sorter, output="complex")#linalg.ordqz(A, B, sort=lambda a, b: 1/a * b, output="complex")
 
         print(AA)
         print(BB)
@@ -231,7 +234,11 @@ class BlanchardRaw:
 
         #transition function
 
-        g_y_plus = -1 * c_inv(Z22) @ Z21
+        print("Gen g_y+")
+        pprint(Z22.inv())
+        pprint(Z21)
+
+        g_y_plus = -1 * Z22.inv() @ Z21
         g_y_minus = ZT11 @ T11.inv() @ S11 @ c_inv(ZT11) #.inv()
 
         FY_plus = A[:, x_len:]

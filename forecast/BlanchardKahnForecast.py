@@ -4,6 +4,7 @@ import sympy as sym
 from scipy import linalg
 
 from forecast.BlanchardRaw import BlanchardRaw
+from model.EquationNormalize import EquationNormalize
 from model.EstimationData import EstimationData
 from model.ForecastData import ForecastData
 
@@ -38,7 +39,7 @@ class BlanchardKahnForecast:
 
         FY_zero = sym.zeros(var_count, var_count)
 
-        FY_zero[:, :(static_count + state_count)] = A[:, :(static_count + state_count)]
+        FY_zero[:, :(static_count + state_count)] = -1 * A[:, :(static_count + state_count)]
         FY_zero[:, (static_count + state_count):] = B[:, (static_count + state_count):]
 
         # FY_plus[:, :(static_count + state_count)] = F_zero[:, :(static_count + state_count)]
@@ -98,7 +99,7 @@ class BlanchardKahnForecast:
 
         C_p = C_t[static_count:, :]
 
-        return A_p, B_p, C_p
+        return -1 * A_p, B_p, C_p
 
     def calculate(self, model, time, enable_static=False):
         parameters = model.get_prior_posterior()
@@ -152,6 +153,7 @@ class BlanchardKahnForecast:
         pprint(Bp, wrap_line=False)
         pprint(C, wrap_line=False)
         pprint(Cp, wrap_line=False)
+        A, B, C = EquationNormalize.normalize(A, B, C)
 
         # Ap = A[static_count:, static_count:]
         # Bp = B[static_count:, static_count:]
@@ -164,11 +166,11 @@ class BlanchardKahnForecast:
 
         # todo fix after
         # if A.det() == 0:
-        #     x, y = BlanchardRaw().singular_calculate(A, B, C, x0, shock, state_count,
-        #                                              len(model.variables) - state_count - static_count, time)
+        #     x, y = BlanchardRaw().singular_calculate(A, B, C, x0, shock, endogenous_count,
+        #                                              control_count, time)
         # else:
-        #     x, y = BlanchardRaw().non_singular_calculate(A, B, C, x0, shock, state_count,
-        #                                              len(model.variables) - state_count - static_count, time)
+        #     x, y = BlanchardRaw().non_singular_calculate(A, B, C, x0, shock, endogenous_count,
+        #                                              control_count, time)
 
         x, y = BlanchardRaw().singular_calculate(model, A, B, C, x0, shock, endogenous_count,
                                                  control_count, time)
@@ -176,7 +178,8 @@ class BlanchardKahnForecast:
 
         full_forecast = []
 
-        x, y = X1, Y1
+        if not enable_static:
+            x, y = X1, Y1
 
         for i in range(time):
             x_i = x[i]

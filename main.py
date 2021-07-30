@@ -73,7 +73,7 @@ def forecast_blanchard_dsge_debug(file_name):
     EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
 
 
-def forecast_blanchard_dsge(file_name, with_static=False):
+def forecast_blanchard_dsge(file_name, with_static=True):
     data_plotter = DataPlotter()
 
     raw_model, estimations = parse_model_file(file_name)
@@ -82,7 +82,7 @@ def forecast_blanchard_dsge(file_name, with_static=False):
 
     blanchard_forecast_alg = BlanchardKahnForecast()
 
-    observables = blanchard_forecast_alg.calculate(model, 40, with_static)
+    observables = blanchard_forecast_alg.calculate(model, 80, with_static)
 
     data_plotter.add_plots(observables.prepare_plots())
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     # forecast_blanchard_dsge("samples/toyModel2.json")
     # forecast_blanchard_dsge("samples/toyModel3b.json", False)
     # forecast_blanchard_dsge("samples/simpleModel.json", True)
-    forecast_blanchard_dsge("samples/rbcModelRe.json")
+    forecast_blanchard_dsge("samples/rbcModelRe.json", True)
     # forecast_dsge(".json")
     # test()
 
