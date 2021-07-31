@@ -103,7 +103,7 @@ class BlanchardKahnForecast:
         def eigen_sort(a, b):
             return abs(a/b) < 1 + 1e-6
 
-        s, t, _, _, q, z = linalg.ordqz(right_matrix, left_matrix, sort=eigen_sort, output="complex")
+        s, t, s_eigen, t_eigen, q, z = linalg.ordqz(right_matrix, left_matrix, sort=eigen_sort, output="complex")
 
         t = Matrix(t)
         s = Matrix(s)
@@ -111,7 +111,7 @@ class BlanchardKahnForecast:
 
         if debug_level <= 1:
             print("EigenValues:")
-            mprint(t.inv() @ s)
+            print(s_eigen/t_eigen)
 
         z_21 = z.T[no_state:, :no_state]
         z_22 = z.T[no_state:, no_state:]
@@ -188,8 +188,17 @@ class BlanchardKahnForecast:
             print("GU")
             mprint(g_u)
 
-        #todo calculate
-        g_y_static = np.zeros((no_static, no_state))
+        ad_plus = a_plus[:no_static, :]
+        ad_minus = a_minus[:no_static, :]
+        ad_zero_s = a_zero[:no_static, :no_static]
+        ad_zero_d = a_zero[:no_static, no_static:]
+
+        g_y_d = np.zeros((no_state + no_control, no_state))
+
+        g_y_d[:no_state, :] = g_y_minus[:, :]
+        g_y_d[no_state:, :] = g_y_plus[:, :]
+
+        g_y_static = -1 * ad_zero_s.inv() @ (ad_plus @ g_y_plus @ g_y_minus + ad_zero_d @ g_y_d + ad_minus)
 
         policy_function = PolicyFunction(model, g_y_minus, g_y_plus, g_y_static, g_u)
 

@@ -19,20 +19,20 @@
       "(sigmaSt/betaSt)*CV(+1) - Rss*RV(+1) = (sigmaSt/betaSt) * CV",
       "K - deltaSt * IV= (1 - deltaSt) * K(-1) ",
       "Y - A - (1 - alphaSt) * L= alphaSt * K(-1)",
-      "A = rhoSt * A(-1) + e",
       "0 = RV + K(-1) - Y",
       "0 = W + L - Y",
-      "Yss * Y - Iss*IV= Css * CV"
+      "Yss * Y - Iss*IV= Css * CV",
+      "rhoSt * A(-1) + e = A"
     ],
     "observables": [
-      "YL = Y",
+      "YL = A",
       "YW = IV",
       "YK = CV",
-      "YY = RV",
+      "YY = Y",
       "YA = K",
       "YIV = W",
-      "YCV = L",
-      "YRV = A"
+      "YCV = RV",
+      "YRV = L"
     ]
   },
   "priors": {
