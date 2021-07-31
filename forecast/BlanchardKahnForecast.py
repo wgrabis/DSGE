@@ -49,8 +49,6 @@ class BlanchardKahnForecast:
         a_zero = Q.T @ fy_zero
         a_minus = Q.T @ fy_minus
 
-        fu_t = Q.T @ fu
-
         if debug_level == 0:
             print("A+, A0, A-")
             print("A+")
@@ -115,10 +113,10 @@ class BlanchardKahnForecast:
             print("EigenValues:")
             mprint(t.inv() @ s)
 
-        z_21 = z[no_state:, :no_state]
-        z_22 = z[no_state:, no_state:]
+        z_21 = z.T[no_state:, :no_state]
+        z_22 = z.T[no_state:, no_state:]
 
-        zt_11 = z.T[:no_state, :no_state]
+        zt_11 = z[:no_state, :no_state]
 
         t_11 = t[:no_state, :no_state]
 
