@@ -238,8 +238,19 @@ class BlanchardRaw:
         pprint(Z22.inv())
         pprint(Z21)
 
+        print("Gen g_y-")
+        print("Eigens")
+        pprint(T11.inv() @ S11)
+        print("ZT11")
+        pprint(ZT11)
+        print("ZT11.inv()")
+        pprint(ZT11.inv())
+
         g_y_plus = -1 * Z22.inv() @ Z21
-        g_y_minus = ZT11 @ T11.inv() @ S11 @ c_inv(ZT11) #.inv()
+        g_y_minus = ZT11 @ T11.inv() @ S11 @ ZT11.inv() #.inv()
+
+        print("G_Y-")
+        pprint(g_y_minus)
 
         FY_plus = A[:, x_len:]
         FY = B - A

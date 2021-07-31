@@ -1,6 +1,6 @@
 {
   "name": "rbc model",
-  "variables": ["Y", "IV", "CV", "RV", "K", "W", "L", "A"],
+  "variables": ["A", "IV",  "CV", "Y", "K",  "W", "RV", "L" ],
   "structural": ["alphaSt", "betaSt", "deltaSt", "sigmaSt", "phiSt", "rhoSt"],
   "shocks": ["e"],
   "model": {
@@ -19,10 +19,10 @@
       "(sigmaSt/betaSt)*CV(+1) - Rss*RV(+1) = (sigmaSt/betaSt) * CV",
       "K - deltaSt * IV= (1 - deltaSt) * K(-1) ",
       "Y - A - (1 - alphaSt) * L= alphaSt * K(-1)",
-      "Y = RV + K(-1)",
-      "W + L - Y = 0",
-      "Yss * Y - Iss*IV= Css * CV",
-      "A = rhoSt * A(-1) + e"
+      "A = rhoSt * A(-1) + e",
+      "0 = RV + K(-1) - Y",
+      "0 = W + L - Y",
+      "Yss * Y - Iss*IV= Css * CV"
     ],
     "observables": [
       "YL = Y",

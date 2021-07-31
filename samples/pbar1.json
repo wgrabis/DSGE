@@ -1,0 +1,63 @@
+{
+  "name": "PBar1",
+  "variables": ["y", "Rv", "infl", "a"],
+  "structural": ["b", "phiSt", "mu1", "mu2", "mu3", "rhoSt"],
+  "shocks": ["ea"],
+  "model": {
+    "definitions": [],
+    "equations": [
+      "y = y(+1) + b*(Rv - infl)",
+      "y = phiSt*y(-1) - phiSt*a(-1) + a",
+      "Rv = mu1*infl(-1) + mu2*y - mu2*a",
+      "a = rhoSt*a(-1) + ea"
+    ],
+    "observables": [
+      "YRV = rV",
+      "YY = y",
+      "Yinf = infl",
+      "YA = a"
+    ]
+  },
+  "priors": {
+    "ea": {
+      "distribution": "normal",
+      "mean": 0.01,
+      "variance": 0.1
+    },
+    "b": {
+      "distribution": "normal",
+      "mean": -1,
+      "variance": 0.1
+    },
+    "phiSt": {
+      "distribution": "normal",
+      "mean": 0.89,
+      "variance": 0.1
+    },
+    "mu1": {
+      "distribution": "normal",
+      "mean": 0.5,
+      "variance": 0.1
+    },
+    "mu2": {
+      "distribution": "normal",
+      "mean": 0.5,
+      "variance": 0.1
+    },
+    "mu3": {
+      "distribution": "normal",
+      "mean": 0,
+      "variance": 0.1
+    },
+    "rhoSt": {
+      "distribution": "normal",
+      "mean": 0.9,
+      "variance": 0.1
+    }
+  },
+  "estimations": {
+    "data": [
+      [4, 0.04, 2]
+    ]
+  }
+}

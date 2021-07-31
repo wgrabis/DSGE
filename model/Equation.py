@@ -34,27 +34,40 @@ class EquationParser:
     def split_variables(equations, variables):
         state_variables = set()
         control_variables = set()
+        mixed_variables = set()
 
         for equation in equations:
             for variable in variables:
+                if variable in mixed_variables:
+                    continue
                 if equation.find('{}(+1)'.format(variable)) != -1:
-                    control_variables.add(variable)
+                    if variable in state_variables:
+                        state_variables.remove(variable)
+                        mixed_variables.add(variable)
+                    else:
+                        control_variables.add(variable)
                 if equation.find('{}(-1)'.format(variable)) != -1:
-                    state_variables.add(variable)
-
-        log.debug("split_variables")
-        log.debug(state_variables)
-        log.debug(control_variables)
+                    if variable in control_variables:
+                        control_variables.remove(variable)
+                        mixed_variables.add(variable)
+                    else:
+                        state_variables.add(variable)
 
         assert len(state_variables.intersection(control_variables)) == 0
 
-        static_variables = set(variables).difference(control_variables).difference(state_variables)
+        static_variables = set(variables)\
+            .difference(mixed_variables)\
+            .difference(control_variables)\
+            .difference(state_variables)
 
         ordered_state = []
         ordered_control = []
         ordered_static = []
+        ordered_mixed = []
 
         for variable in variables:
+            if variable in mixed_variables:
+                ordered_mixed.append(variable)
             if variable in state_variables:
                 ordered_state.append(variable)
             if variable in control_variables:
@@ -62,23 +75,37 @@ class EquationParser:
             if variable in static_variables:
                 ordered_static.append(variable)
 
-        return ordered_state, ordered_control, ordered_static
+        return ordered_state, ordered_control, ordered_mixed, ordered_static
 
     @staticmethod
-    def rename_variables(equations, state_variables, control_variables):
+    def generate_mapping(param, var_type):
+        if var_type == -1:
+            return '{}_prev'.format(param)
+        if var_type == 0:
+            return param
+        if var_type == 1:
+            return '{}_fwd'.format(param)
+
+    @staticmethod
+    def rename_variables(equations, state_variables, control_variables, mixed_variables, static_variables):
         renamed_equations = []
 
-        def name_mapping(param, is_prev):
-            if is_prev:
-                return '{param}_{param}'.format(param=param)
-            else:
-                return param
+        def name_mapping(param, var_type):
+            return EquationParser.generate_mapping(param, var_type)
 
         for equation in equations:
             result = equation
 
+            for parameter in static_variables:
+                result = result.replace(parameter, name_mapping(parameter, 0))
+
+            for parameter in mixed_variables:
+                result = result.replace('{}(-1)'.format(parameter), name_mapping(parameter, -1))
+                result = result.replace('{}(+1)'.format(parameter), name_mapping(parameter, 1))
+                result = result.replace(parameter, name_mapping(parameter, 0))
+
             for parameter in state_variables:
-                result = result.replace('{}(-1)'.format(parameter), name_mapping(parameter, 1))
+                result = result.replace('{}(-1)'.format(parameter), name_mapping(parameter, -1))
                 result = result.replace(parameter, name_mapping(parameter, 0))
 
             for parameter in control_variables:
@@ -90,10 +117,52 @@ class EquationParser:
         return renamed_equations
 
     @staticmethod
-    def parse_equations_to_matrices(equations, variables, shocks):
-        state_variables, control_variables, static_variables = EquationParser.split_variables(equations, variables)
+    def parse_equations_to_functional(equations, variables, shocks):
+        state_variables, control_variables, mixed_variables, static_variables = EquationParser.split_variables(
+            equations, variables)
 
-        renamed_equations = EquationParser.rename_variables(equations, state_variables, control_variables)
+        renamed_equations = EquationParser.rename_variables(equations, state_variables, control_variables, mixed_variables, static_variables)
+
+        parsed_rhs = []
+
+        for equation in renamed_equations:
+            p_lhs, p_rhs = EquationParser.build_equation(equation)
+            parsed_rhs.append(p_rhs - p_lhs)
+
+        def name_map(param, var_type):
+            return EquationParser.generate_mapping(param, var_type)
+
+        ordered_variables = [name_map(x, 0) for x in static_variables] + \
+            [name_map(x, 0) for x in state_variables] + \
+            [name_map(x, 0) for x in mixed_variables] + \
+            [name_map(x, 0) for x in control_variables] + \
+            [name_map(x, -1) for x in state_variables] + \
+            [name_map(x, -1) for x in mixed_variables] + \
+            [name_map(x, 1) for x in mixed_variables] + \
+            [name_map(x, 1) for x in control_variables] + \
+            shocks
+
+        equation_matrix, _ = EquationParser.equations_to_matrices(parsed_rhs, ordered_variables)
+
+        no_variables = len(variables)
+        no_state = len(state_variables)
+        no_mixed = len(mixed_variables)
+        no_control = len(control_variables)
+
+        f_y_plus = equation_matrix[:, (no_variables + no_state + no_mixed):(no_variables + no_state + 2 * no_mixed + no_control)]
+        f_y_zero = equation_matrix[:, :no_variables]
+        f_y_minus = equation_matrix[:, no_variables:(no_variables + no_state + no_mixed)]
+        f_u = equation_matrix[:, (no_variables + no_state + 2 * no_mixed + no_control):]
+
+        return f_y_plus, f_y_zero, f_y_minus, f_u, static_variables, state_variables, mixed_variables, control_variables
+
+    @staticmethod
+    def parse_equations_to_matrices(equations, variables, shocks):
+        state_variables, control_variables, mixed_variables, static_variables = EquationParser.split_variables(equations, variables)
+
+        assert len(mixed_variables) == 0, 'old model doesn\'t support mixed variables'
+
+        renamed_equations = EquationParser.rename_variables(equations, state_variables, control_variables, mixed_variables, static_variables)
 
         parsed_rhs = []
 

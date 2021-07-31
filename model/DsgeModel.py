@@ -7,49 +7,94 @@ from model.MeasurementFunction import MeasurementFunction
 
 class DsgeModel:
     def __init__(self, name,
-                 transition_matrix, shock_matrix,
+                 fy_plus, fy_zero, fy_minus, fu,
                  measurement_state_matrix, measurement_time_matrix, measurement_base_matrix,
-                 noise_covariance, measurement_noise_covariance,
+                 measurement_noise_covariance,
                  structural, shocks,
                  structural_prior,
                  shock_prior,
                  variables,
-                 state_var_count,
-                 static_var_count,
-                 control_vars_count,
-                 left_state_matrix, right_state_matrix, shock_bk_matrix,
-                 likelihood_filter,
+                 static_vars,
+                 state_vars,
+                 mixed_vars,
+                 control_vars,
+                 likelihood_filter
                  ):
         self.name = name
-        self.transition_matrix = transition_matrix
-        self.shock_matrix = shock_matrix
-
-        self.measurement_state_matrix = measurement_state_matrix
-        self.measurement_time_matrix = measurement_time_matrix
-        self.measurement_base_matrix = measurement_base_matrix
-
-        self.noise_covariance = noise_covariance
-        self.measurement_noise_covariance = measurement_noise_covariance
-
-        self.likelihood_filter = likelihood_filter
 
         self.structural = structural
         self.structural_prior = structural_prior
         self.shock_prior = shock_prior
-        # self.priors = priors
+
+        self.measurement_state_matrix = measurement_state_matrix
+        self.measurement_time_matrix = measurement_time_matrix
+        self.measurement_base_matrix = measurement_base_matrix
+        self.measurement_noise_covariance = measurement_noise_covariance
+
+        self.likelihood_filter = likelihood_filter
+
         self.variables = variables
         self.shocks = shocks
 
-        self.blanchardA = left_state_matrix
-        self.blanchardB = right_state_matrix
-        self.blanchardC = shock_bk_matrix
+        # self.transition_matrix = transition_matrix
+        # self.shock_matrix = shock_matrix
 
-        self.state_var_count = state_var_count
-        self.static_var_count = static_var_count
-        self.control_vars_count = control_vars_count
+        # self.blanchardA = left_state_matrix
+        # self.blanchardB = right_state_matrix
+        # self.blanchardC = shock_bk_matrix
 
-    def build_matrices(self, posterior):
-        return self.transition_matrix(posterior), self.shock_matrix(posterior)
+        self.fy_plus = fy_plus
+        self.fy_zero = fy_zero
+        self.fy_minus = fy_minus
+        self.fu = fu
+
+        self.static_vars = static_vars
+        self.state_vars = state_vars
+        self.control_vars = control_vars
+        self.mixed_vars = mixed_vars
+
+    def build_mh_form(self, posterior):
+        def form_transition():
+            pass
+        def form_shock():
+            pass
+        pass
+
+    def build_canonical_form(self, posterior):
+        def form_a():
+            pass
+        def form_b():
+            pass
+        def form_c():
+            pass
+        pass
+
+    def print_debug(self):
+        print("Debug model {}".format(self.name))
+        print("Static vars:")
+        print(self.static_vars)
+        print("State vars:")
+        print(self.state_vars)
+        print("Mixed vars:")
+        print(self.mixed_vars)
+        print("Control vars(pure forward):")
+        print(self.control_vars)
+        print("Full order vector:")
+        print(self.variables)
+        print("FY+")
+        self.fy_plus.print()
+        print("FY0")
+        self.fy_zero.print()
+        print("FY-")
+        self.fy_minus.print()
+        print("FU")
+        self.fu.print()
+
+    def build_bh_form(self, posterior):
+        return Matrix(self.fy_plus(posterior)), \
+               Matrix(self.fy_zero(posterior)), \
+               Matrix(self.fy_minus(posterior)), \
+               Matrix(self.fu(posterior))
 
     def measurement_matrices(self, posterior):
         m_base_matrix = self.measurement_base_matrix(posterior)
@@ -69,11 +114,3 @@ class DsgeModel:
 
     def split_variables(self):
         return self.variables
-
-    def blanchard_raw_representation(self, posterior):
-        print("BlanchardRaw: A, B, C")
-        print(self.variables)
-        self.blanchardA.print()
-        self.blanchardB.print()
-        self.blanchardC.print()
-        return Matrix(self.blanchardA(posterior)), Matrix(self.blanchardB(posterior)), Matrix(self.blanchardC(posterior))

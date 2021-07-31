@@ -1,5 +1,6 @@
 from examples.equationParsingExample import test_equations, test_equations2
 from examples.kalmanExample import test_kalman
+from forecast.BKForecast import BlanchardKahnForecastOld
 from forecast.BlanchardKahnForecast import BlanchardKahnForecast
 from forecast.BlanchardRaw import BlanchardRaw
 from forecast.ForecastAlgorithm import ForecastAlgorithm
@@ -80,9 +81,15 @@ def forecast_blanchard_dsge(file_name, with_static=True):
 
     model = model_builder.build(raw_model)
 
+    model.print_debug()
+
     blanchard_forecast_alg = BlanchardKahnForecast()
 
-    observables = blanchard_forecast_alg.calculate(model, 80, with_static)
+    policy = blanchard_forecast_alg.calculate_policy(model)
+
+    policy.print()
+
+    observables = blanchard_forecast_alg.predict_observables(model, policy, 40)
 
     data_plotter.add_plots(observables.prepare_plots())
 
