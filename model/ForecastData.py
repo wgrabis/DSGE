@@ -97,7 +97,7 @@ class ForecastData:
 
         for i in range(self.observable_len):
             plots.append(
-                AreaLinePlot("", data_x, average_plot[i], average_plot[i], average_plot[i], "time", "value"))
+                AreaLinePlot("", data_x, average_plot[i], average_plot[i], average_plot[i], "", ""))
             # plots.append(AreaLinePlot("observ %i" % i, data_x, top_plot[i], bottom_plot[i], average_plot[i], "time", "value"))
 
         return plots

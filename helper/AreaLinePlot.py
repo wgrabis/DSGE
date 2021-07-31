@@ -15,6 +15,9 @@ class AreaLinePlot(BasePlot):
         # todo bugged
         # axs.fill_between(self.data_x, self.bottom, self.top)
         axs.plot(self.data_x, self.average, color='r')
+        # axs.figure(figsize=(3, 3))
+
+        # axs..set_aspect('equal')
 
         axs.set_title(self.name)
         axs.set(xlabel=self.x_name, ylabel=self.y_name)

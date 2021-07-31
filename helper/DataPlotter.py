@@ -1,4 +1,5 @@
 import matplotlib.pyplot as pyplot
+import math
 
 
 class DataPlotter:
@@ -16,15 +17,20 @@ class DataPlotter:
         self.setCount += len(plots)
 
     def draw_plots(self):
-        fig, axs = pyplot.subplots(self.setCount)
+        box_width = math.ceil(math.sqrt(self.setCount))
+
+        fig, axs = pyplot.subplots(box_width, box_width)
 
         for i in range(0, self.setCount):
             sub_plot = self.sets[i]
 
+            ind_i = math.floor(i / box_width)
+            ind_j = i - ind_i * box_width
+
             if self.setCount == 1:
                 sub_plot.draw_plot(axs)
             else:
-                sub_plot.draw_plot(axs[i])
+                sub_plot.draw_plot(axs[ind_i][ind_j])
 
         # pyplot.gca().set_aspect('equal')
         pyplot.show()

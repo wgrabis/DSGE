@@ -64,7 +64,7 @@ class PolicyFunction:
 
             x_curr = x_next
 
-            print(var_vector)
+            # print(var_vector)
 
             calc_vectors.append(var_vector)
 
