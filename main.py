@@ -74,7 +74,7 @@ def forecast_blanchard_dsge_debug(file_name):
     EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
 
 
-def forecast_blanchard_dsge(file_name, with_static=True):
+def forecast_blanchard_dsge(file_name):
     data_plotter = DataPlotter()
 
     raw_model, estimations = parse_model_file(file_name)
@@ -197,9 +197,10 @@ if __name__ == '__main__':
     test2()
     # blanchard_raw_test()
     # forecast_blanchard_dsge("samples/toyModel2.json")
-    # forecast_blanchard_dsge("samples/toyModel3b.json", False)
+    # forecast_blanchard_dsge("samples/philipCurveRe.json", False)
     # forecast_blanchard_dsge("samples/simpleModel.json", True)
-    forecast_blanchard_dsge("samples/rbcModelRe.json", True)
+    # forecast_blanchard_dsge("samples/rbcModelRe.json")
+    forecast_blanchard_dsge("samples/nkModel.json")
     # forecast_dsge(".json")
     # test()
 

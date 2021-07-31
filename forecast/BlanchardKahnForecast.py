@@ -27,27 +27,31 @@ class BlanchardKahnForecast:
         no_mixed = len(model.mixed_vars)
         no_control = len(model.control_vars)
 
-        S = fy_zero[:, :no_static]
+        if no_static > 0:
+            S = fy_zero[:, :no_static]
+            S = Matrix(S)
 
-        S = Matrix(S)
+            Q, R = linalg.qr(S)
 
-        Q, R = linalg.qr(S)
+            Q = Matrix(Q)
+            R = Matrix(R)
 
-        Q = Matrix(Q)
-        R = Matrix(R)
+            if debug_level == 0:
+                print("S, Q, R:")
+                print("S:")
+                mprint(S)
+                print("Q:")
+                mprint(Q)
+                print("R:")
+                mprint(R)
 
-        if debug_level == 0:
-            print("S, Q, R:")
-            print("S:")
-            mprint(S)
-            print("Q:")
-            mprint(Q)
-            print("R:")
-            mprint(R)
-
-        a_plus = Q.T @ fy_plus
-        a_zero = Q.T @ fy_zero
-        a_minus = Q.T @ fy_minus
+            a_plus = Q.T @ fy_plus
+            a_zero = Q.T @ fy_zero
+            a_minus = Q.T @ fy_minus
+        else:
+            a_plus = fy_plus
+            a_zero = fy_zero
+            a_minus = fy_minus
 
         if debug_level == 0:
             print("A+, A0, A-")

@@ -17,19 +17,20 @@ class PolicyFunction:
         static_vars = self.model.static_vars
         state_vars = self.model.state_vars
         control_vars = self.model.control_vars
+
+        policy_dict = {}
+
         print("Policy depends on {}".format(" ".join(["{}(-1)".format(x) for x in self.model.state_vars] + self.model.shocks)))
         for i in range(len(static_vars)):
-            print("{param} {transition}".format(
-                param=static_vars[i],
-                transition=np.concatenate((cast_to_vector(self.gy_static[i, :]), cast_to_vector(self.gu[i, :])))))
+            policy_dict[static_vars[i]] = np.concatenate((cast_to_vector(self.gy_static[i, :]), cast_to_vector(self.gu[i, :])))
         for i in range(len(state_vars)):
-            print("{param} {transition}".format(
-                param=state_vars[i],
-                transition=np.concatenate((cast_to_vector(self.gy_minus[i, :]), cast_to_vector(self.gu[i + len(static_vars), :])))))
+            policy_dict[state_vars[i]] = np.concatenate((cast_to_vector(self.gy_minus[i, :]), cast_to_vector(self.gu[i + len(static_vars), :])))
         for i in range(len(control_vars)):
+            policy_dict[control_vars[i]] = np.concatenate((cast_to_vector(self.gy_plus[i, :]), cast_to_vector(self.gu[i + len(static_vars + state_vars),:])))
+        for variable in self.model.ordered_variables:
             print("{param} {transition}".format(
-                param=control_vars[i],
-                transition=np.concatenate((cast_to_vector(self.gy_plus[i, :]), cast_to_vector(self.gu[i + len(static_vars + state_vars),:])))))
+                param=variable,
+                transition=policy_dict[variable]))
 
     def gen_shock(self, time):
         if time == 0:
@@ -62,6 +63,8 @@ class PolicyFunction:
             var_vector[no_static + no_state + no_mixed:] = y_next[:]
 
             x_curr = x_next
+
+            print(var_vector)
 
             calc_vectors.append(var_vector)
 

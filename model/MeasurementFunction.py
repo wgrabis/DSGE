@@ -8,11 +8,11 @@ class MeasurementFunction:
         self.m_state = m_state
 
     def __call__(self, state, time):
-        # print("measurement-pre")
-        # print(self.m_state)
-        # print(self.m_time)
-        # print(state)
-        # print(time)
+        print("measurement-pre")
+        print(self.m_state)
+        print(self.m_time)
+        print(state)
+        print(time)
 
         v_state = np.dot(self.m_state, state)
         v_time = np.dot(self.m_time, time)

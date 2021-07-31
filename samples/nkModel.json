@@ -1,6 +1,6 @@
 {
   "name": "nk model",
-  "variables": ["CV", "RV", "L", "W", "K", "Y", "A", "IV", "MC", "P", "PI"],
+  "variables": ["Y", "IV" ,"CV", "RV", "K", "W", "L", "MC", "ZV", "PI", "A", "P"],
   "structural": ["alphaSt", "betaSt", "deltaSt", "sigmaSt", "phiSt", "rhoSt", "psiSt", "thetaSt"],
   "shocks": ["e"],
   "model": {
@@ -16,17 +16,18 @@
       "Lss = (1-alphaSt)*MCss*(Yss/Wss)"
     ],
     "equations": [
-      "sigma*CV + phi*L = W - P",
-      "(sigma/beta)*(CV(+1)-CV)=(Rss/Pss)*(RV(+1)-P(+1))",
-      "K = (1-delta)*K(-1) + delta*IV",
-      "Y = A + alpha*K(-1) + (1-alpha)*L",
+      "sigmaSt*CV + phiSt*L = W - P",
+      "(sigmaSt/betaSt)*(CV(+1)-CV)=(Rss/Pss)*(RV(+1)-ZV(+1) - P)",
+      "K = (1-deltaSt)*K(-1) + deltaSt*IV",
+      "Y = A + alphaSt*K(-1) + (1-alphaSt)*L",
       "K(-1) = Y - RV",
       "L = Y - W",
-      "MC = (1-alpha)*W + alpha*RV - A",
-      "PI = beta*PI(+1)+((1-theta)*(1-beta*theta)/theta)*(MC-P)",
-      "PI = P - P(-1)",
+      "MC = (1-alphaSt)*W + alphaSt*RV - A",
+      "PI = betaSt*PI(+1)+((1-thetaSt)*(1-betaSt*thetaSt)/thetaSt)*(MC-P)",
+      "PI = ZV",
+      "ZV = P - P(-1)",
       "Yss*Y = Css*CV + Iss*IV",
-      "A = rhoa*A(-1) + e"
+      "A = rhoSt*A(-1) + e"
     ],
     "observables": [
       "YL = Y",

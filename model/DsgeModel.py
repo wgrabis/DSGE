@@ -14,6 +14,7 @@ class DsgeModel:
                  structural_prior,
                  shock_prior,
                  variables,
+                 order_variables,
                  static_vars,
                  state_vars,
                  mixed_vars,
@@ -34,6 +35,7 @@ class DsgeModel:
         self.likelihood_filter = likelihood_filter
 
         self.variables = variables
+        self.ordered_variables = order_variables
         self.shocks = shocks
 
         # self.transition_matrix = transition_matrix

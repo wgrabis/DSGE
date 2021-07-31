@@ -73,6 +73,7 @@ class DsgeModelBuilder:
             structural_prior,
             shock_prior,
             ordered_variables,
+            variables,
             static_vars,
             state_vars,
             mixed_vars,
