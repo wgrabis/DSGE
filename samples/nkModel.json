@@ -1,6 +1,6 @@
 {
   "name": "nk model",
-  "variables": ["Y", "IV" ,"CV", "RV", "K", "W", "L", "MC", "ZV", "PI", "A", "P"],
+  "variables": ["Y", "IV" ,"CV", "RV", "K", "W", "L", "MC", "PI", "A", "P"],
   "structural": ["alphaSt", "betaSt", "deltaSt", "sigmaSt", "phiSt", "rhoSt", "psiSt", "thetaSt"],
   "shocks": ["e"],
   "model": {
@@ -17,15 +17,14 @@
     ],
     "equations": [
       "sigmaSt*CV + phiSt*L = W - P",
-      "(sigmaSt/betaSt)*(CV(+1)-CV)=(Rss/Pss)*(RV(+1)-ZV(+1) - P)",
+      "(sigmaSt/betaSt)*(CV(+1)-CV)=(Rss/Pss)*(RV(+1)-P(+1))",
       "K = (1-deltaSt)*K(-1) + deltaSt*IV",
       "Y = A + alphaSt*K(-1) + (1-alphaSt)*L",
       "K(-1) = Y - RV",
       "L = Y - W",
       "MC = (1-alphaSt)*W + alphaSt*RV - A",
       "PI = betaSt*PI(+1)+((1-thetaSt)*(1-betaSt*thetaSt)/thetaSt)*(MC-P)",
-      "PI = ZV",
-      "ZV = P - P(-1)",
+      "PI = P - P(-1)",
       "Yss*Y = Css*CV + Iss*IV",
       "A = rhoSt*A(-1) + e"
     ],

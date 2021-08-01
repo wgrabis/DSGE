@@ -200,7 +200,8 @@ if __name__ == '__main__':
     # forecast_blanchard_dsge("samples/philipCurveRe.json", False)
     # forecast_blanchard_dsge("samples/simpleModel.json", True)
     # forecast_blanchard_dsge("samples/rbcModelRe.json")
-    forecast_blanchard_dsge("samples/nkModel.json")
+    # forecast_blanchard_dsge("samples/nkModel.json")
+    forecast_blanchard_dsge("samples/pbar1.json")
     # forecast_dsge(".json")
     # test()
 

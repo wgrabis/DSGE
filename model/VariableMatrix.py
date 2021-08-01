@@ -72,25 +72,19 @@ class VariableVector:
         pprint(self.vector, wrap_line=False)
 
 
-# todo refactor for future
-class CompDoubleVariableMatrix:
-    def __init__(self, variable_matrix1, variable_matrix2, computation):
-        self.variable_matrix1 = variable_matrix1
-        self.variable_matrix2 = variable_matrix2
+class CompMultiVariableMatrix:
+    def __init__(self, variable_matrices, computation):
+        self.variable_matrices = variable_matrices
         self.computation = computation
 
     def __call__(self, values):
-        matrix1 = self.variable_matrix1(values)
-        matrix2 = self.variable_matrix2(values)
-        # print("comp-matrix")
-        # print(matrix)
-        # print(matrix.shape)
+        matrices = [var_matrix(values) for var_matrix in self.variable_matrices]
 
-        return self.computation(matrix1, matrix2)
+        return self.computation(matrices)
 
     def print(self):
-        self.variable_matrix1.print()
-        self.variable_matrix2.print()
+        for var_matrix in self.variable_matrices:
+            var_matrix.print()
 
 
 class CompVariableMatrix:

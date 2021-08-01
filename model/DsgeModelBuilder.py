@@ -6,7 +6,7 @@ from numpy import dot
 import numpy as np
 
 from model.Equation import EquationParser
-from model.VariableMatrix import VariableMatrix, VariableVector, CompVariableMatrix, CompDoubleVariableMatrix
+from model.VariableMatrix import VariableMatrix, VariableVector
 import logging
 
 log = logging.getLogger(__name__)
@@ -105,25 +105,25 @@ class DsgeModelBuilder:
 
         return shock_matrix
 
-    @staticmethod
-    def prepare_state_matrices(left, right, shock, structural, definition_set):
-        left_variable = VariableMatrix(left, structural, definition_set)
-        right_variable = VariableMatrix(right, structural, definition_set)
-        shock_variable = VariableMatrix(shock, structural, definition_set)
-
-        return (
-            CompDoubleVariableMatrix(
-                left_variable,
-                right_variable,
-                lambda c_left, c_right: DsgeModelBuilder.prepare_transition_matrix(c_left, c_right)
-            ),
-            CompDoubleVariableMatrix(
-                left_variable,
-                shock_variable,
-                lambda c_left, c_shock: DsgeModelBuilder.prepare_shock_matrix(c_left, c_shock)
-            )
-        )
-        # return VariableMatrix(transition_matrix, structural), VariableMatrix(shock_matrix, structural)
+    # @staticmethod
+    # def prepare_state_matrices(left, right, shock, structural, definition_set):
+    #     left_variable = VariableMatrix(left, structural, definition_set)
+    #     right_variable = VariableMatrix(right, structural, definition_set)
+    #     shock_variable = VariableMatrix(shock, structural, definition_set)
+    #
+    #     return (
+    #         CompDoubleVariableMatrix(
+    #             left_variable,
+    #             right_variable,
+    #             lambda c_left, c_right: DsgeModelBuilder.prepare_transition_matrix(c_left, c_right)
+    #         ),
+    #         CompDoubleVariableMatrix(
+    #             left_variable,
+    #             shock_variable,
+    #             lambda c_left, c_shock: DsgeModelBuilder.prepare_shock_matrix(c_left, c_shock)
+    #         )
+    #     )
+    #     # return VariableMatrix(transition_matrix, structural), VariableMatrix(shock_matrix, structural)
 
     @staticmethod
     def prepare_measurement_matrices(observable_equations, variables, structural, definition_set):

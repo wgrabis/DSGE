@@ -1,7 +1,10 @@
-from sympy import sympify, symbols, linear_eq_to_matrix, pprint, pretty
+from sympy import Symbol, sympify, symbols, linear_eq_to_matrix, pprint, pretty
 import logging
 
 log = logging.getLogger(__name__)
+
+
+mix_prefix = "mx_pre_v{}"
 
 
 class EquationParser:
@@ -117,11 +120,45 @@ class EquationParser:
         return renamed_equations
 
     @staticmethod
+    def remove_mixed_variables(in_equations, mixed_variables):
+        equations = in_equations.copy()
+        new_fw_variables = []
+        new_equations = []
+        for i in range(len(mixed_variables)):
+            new_var = mix_prefix.format(i)
+            mix_var = mixed_variables[i]
+
+            mix_symbol = EquationParser.generate_mapping(mix_var, 0)
+            mix_pre_symbol = EquationParser.generate_mapping(mix_var, -1)
+            mix_fwd_symbol = EquationParser.generate_mapping(mix_var, +1)
+            new_symbol = EquationParser.generate_mapping(new_var, 0)
+            new_fwd_symbol = EquationParser.generate_mapping(new_var, +1)
+
+            new_eq = "{new} = {mix} - {mix_pre}".format(new=new_symbol, mix=mix_symbol, mix_pre=mix_pre_symbol)
+            new_equations.append(new_eq)
+            new_fw_variables.append(new_var)
+
+            for j in range(len(equations)):
+                equations[j] = equations[j]\
+                    .replace(mix_fwd_symbol, "({new_fwd} + {mix_curr})".format(new_fwd=new_fwd_symbol, mix_curr=mix_symbol))
+
+        return equations + new_equations, new_fw_variables
+
+    @staticmethod
     def parse_equations_to_functional(equations, variables, shocks):
         state_variables, control_variables, mixed_variables, static_variables = EquationParser.split_variables(
             equations, variables)
 
         renamed_equations = EquationParser.rename_variables(equations, state_variables, control_variables, mixed_variables, static_variables)
+
+        renamed_equations, new_fwd_var = EquationParser.remove_mixed_variables(renamed_equations, mixed_variables)
+
+        print(renamed_equations)
+        print(new_fwd_var)
+
+        control_variables += new_fwd_var
+        state_variables += mixed_variables
+        mixed_variables = []
 
         parsed_rhs = []
 
@@ -144,10 +181,11 @@ class EquationParser:
 
         equation_matrix, _ = EquationParser.equations_to_matrices(parsed_rhs, ordered_variables)
 
-        no_variables = len(variables)
+        no_static = len(static_variables)
         no_state = len(state_variables)
         no_mixed = len(mixed_variables)
         no_control = len(control_variables)
+        no_variables = no_static + no_state + no_mixed + no_control
 
         f_y_plus = equation_matrix[:, (no_variables + no_state + no_mixed):(no_variables + no_state + 2 * no_mixed + no_control)]
         f_y_zero = equation_matrix[:, :no_variables]

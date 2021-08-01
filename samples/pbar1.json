@@ -12,8 +12,8 @@
       "a = rhoSt*a(-1) + ea"
     ],
     "observables": [
-      "YRV = rV",
-      "YY = y",
+      "YT = y",
+      "YY = Rv",
       "Yinf = infl",
       "YA = a"
     ]

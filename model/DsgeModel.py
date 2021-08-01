@@ -5,6 +5,12 @@ from sympy import Matrix
 from model.MeasurementFunction import MeasurementFunction
 
 
+def c_inv(Z):
+    if Z.det() == 0:
+        return Z.pinv()
+    return Z.inv()
+
+
 class DsgeModel:
     def __init__(self, name,
                  fy_plus, fy_zero, fy_minus, fu,
@@ -56,20 +62,17 @@ class DsgeModel:
         self.mixed_vars = mixed_vars
 
     def build_mh_form(self, posterior):
-        def form_transition():
-            pass
-        def form_shock():
-            pass
-        pass
+        left, right, shock = self.build_canonical_form()
+
+        inv_left = c_inv(left)
+
+        return inv_left @ right, inv_left @ shock
 
     def build_canonical_form(self, posterior):
-        def form_a():
-            pass
-        def form_b():
-            pass
-        def form_c():
-            pass
-        pass
+        fy_plus, fy_zero, fy_minus, fu = self.build_bh_form(posterior)
+        left, right, shock = None, None, None
+
+        return left, right, shock
 
     def print_debug(self):
         print("Debug model {}".format(self.name))
