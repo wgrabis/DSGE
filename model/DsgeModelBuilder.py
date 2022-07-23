@@ -58,7 +58,7 @@ class DsgeModelBuilder:
 
         ordered_variables = static_vars + state_vars + mixed_vars + control_vars
 
-        measurement_state_matrix, measurement_time_matrix, measurement_base_matrix \
+        measurement_state_matrix, measurement_time_matrix, measurement_base_matrix, observable_names \
             = self.prepare_measurement_matrices(raw_model.observables, ordered_variables, structural, definition_set)
 
         return DsgeModel(
@@ -69,6 +69,7 @@ class DsgeModelBuilder:
             VariableMatrix(fu, structural, definition_set),
             measurement_state_matrix, measurement_time_matrix, measurement_base_matrix,
             measurement_noise_covariance,
+            observable_names,
             structural, shocks,
             structural_prior,
             shock_prior,
@@ -130,10 +131,10 @@ class DsgeModelBuilder:
         parameters = variables.copy()
         parameters.append("t")
 
-        lhs, rhs = [], []
+        observable_names, rhs = [], []
         for equation in observable_equations:
             p_lhs, p_rhs = EquationParser.build_equation(equation)
-            lhs.append(p_lhs)
+            observable_names.append(str(p_lhs))
             rhs.append(p_rhs)
 
         base_left, base_right = EquationParser.equations_to_matrices(rhs, parameters)
@@ -144,7 +145,7 @@ class DsgeModelBuilder:
         measurement_base_matrix = VariableVector(base_right * -1, structural, definition_set)
 
         measurement_state_matrix = VariableMatrix(base_left, structural, definition_set)
-        return measurement_state_matrix, measurement_time_matrix, measurement_base_matrix
+        return measurement_state_matrix, measurement_time_matrix, measurement_base_matrix, observable_names
 
     # @staticmethod
     # def multiply_noise_covariance(computed_shock, shock_variances):
@@ -210,9 +211,22 @@ class DsgeModelBuilder:
 
         for i in range(count):
             variable = variables[i]
-            means.append(parameters[variable]["mean"])
+            calibration = parameters[variable]
 
-            variance = parameters[variable]["variance"]
+            dist_type = calibration["distribution"]
+            if dist_type == "calibration":
+                mean = calibration["value"]
+                variance = 0
+            elif dist_type == "normal":
+                mean = calibration["mean"]
+                variance = calibration["variance"]
+            else:
+                mean = None
+                variance = None
+
+            assert mean is not None
+
+            means.append(mean)
             covariance[i, i] = variance
 
         return NormalVectorDistribution(means, covariance)

@@ -3,7 +3,7 @@ from helper.BasePlot import BasePlot
 
 class StackedPlot(BasePlot):
     def __init__(self, name, data_x, data_y, x_name, y_name):
-        self.name = name
+        super().__init__(name)
         self.data_x = data_x
         self.data_y = data_y
         self.x_name = x_name

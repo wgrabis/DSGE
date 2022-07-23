@@ -1,7 +1,7 @@
 from sympy import Symbol, sympify, symbols, linear_eq_to_matrix, pprint, pretty
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 mix_prefix = "mx_pre_v{}"
@@ -153,8 +153,8 @@ class EquationParser:
 
         renamed_equations, new_fwd_var = EquationParser.remove_mixed_variables(renamed_equations, mixed_variables)
 
-        print(renamed_equations)
-        print(new_fwd_var)
+        logger.debug(renamed_equations)
+        logger.debug(new_fwd_var)
 
         control_variables += new_fwd_var
         state_variables += mixed_variables
@@ -221,17 +221,17 @@ class EquationParser:
         right_state_matrix = equation_matrix[:, len(variables):len(variables) * 2]
         shock_matrix = equation_matrix[:, len(variables) * 2:]
 
-        log.debug("PARSE EQUATIONS TO MATRICES:")
-        log.debug(pretty(static_variables))
-        log.debug(pretty(state_variables))
-        log.debug(pretty(control_variables))
-        log.debug(pretty(ordered_variables))
-        log.debug("Renamed equations:")
-        log.debug(pretty(renamed_equations))
-        log.debug("Matrices:")
-        log.debug(pretty(left_state_matrix))
-        log.debug(pretty(right_state_matrix))
-        log.debug(pretty(shock_matrix))
+        logger.debug("PARSE EQUATIONS TO MATRICES:")
+        logger.debug(pretty(static_variables))
+        logger.debug(pretty(state_variables))
+        logger.debug(pretty(control_variables))
+        logger.debug(pretty(ordered_variables))
+        logger.debug("Renamed equations:")
+        logger.debug(pretty(renamed_equations))
+        logger.debug("Matrices:")
+        logger.debug(pretty(left_state_matrix))
+        logger.debug(pretty(right_state_matrix))
+        logger.debug(pretty(shock_matrix))
 
         return left_state_matrix, right_state_matrix, shock_matrix, state_variables, control_variables, static_variables
 

@@ -5,8 +5,8 @@ from helper.StackedPlot import StackedPlot
 from model.DsgeModelBuilder import DsgeModelBuilder
 import numpy as np
 
-model_builder = DsgeModelBuilder()
-data_plotter = DataPlotter()
+# model_builder = DsgeModelBuilder()
+# data_plotter = DataPlotter()
 
 
 def test_kalman(data_plotter):

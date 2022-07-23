@@ -43,7 +43,7 @@
     "e": {
       "type": "shock",
       "distribution": "normal",
-      "mean": 0.01,
+      "mean": -0.01,
       "variance": 0.1
     },
     "alphaSt": {

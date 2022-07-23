@@ -1,8 +1,11 @@
 import os
 import csv
+import logging
 
 from format.JsonFormat import JsonFormat
 from model.EstimationData import EstimationData
+
+log = logging.getLogger(__name__)
 
 
 def parse_estimation_data(data_description, observable_len):
@@ -30,11 +33,14 @@ def parse_model_file(file_name):
     assert formatter is not None
 
     with open(file_name, "r") as data:
-        print(data)
+        log.debug(data)
         raw_model, estimations_info = formatter.parse_format(data)
 
     observable_len = len(raw_model.observables)
 
-    estimations = parse_estimation_data(estimations_info, observable_len)
+    if estimations_info is not None:
+        estimations = parse_estimation_data(estimations_info, observable_len)
+    else:
+        estimations = None
 
     return raw_model, estimations

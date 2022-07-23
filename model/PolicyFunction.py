@@ -8,10 +8,14 @@ def cast_to_vector(vector):
 class PolicyFunction:
     def __init__(self, model, g_y_minus, g_y_plus, g_y_static, g_u):
         self.model = model
-        self.gy_minus = g_y_minus
-        self.gy_plus = g_y_plus
-        self.gy_static = g_y_static
-        self.gu = g_u
+        self.gy_minus = np.array(g_y_minus, dtype="complex").astype(np.float32)
+        self.gy_plus = np.array(g_y_plus, dtype="complex").astype(np.float32)
+        self.gy_static = np.array(g_y_static, dtype="complex").astype(np.float32)
+        self.gu = np.array(g_u, dtype="complex").astype(np.float32)
+
+        print("policy function")
+        print("GU")
+        print(self.gu)
 
     def print(self):
         static_vars = self.model.static_vars

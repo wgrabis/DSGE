@@ -1,8 +1,12 @@
 from numpy import dot
 import numpy as np
+import logging
+
 from sympy import Matrix
 
 from model.MeasurementFunction import MeasurementFunction
+
+logger = logging.getLogger(__name__)
 
 
 def c_inv(Z):
@@ -16,6 +20,7 @@ class DsgeModel:
                  fy_plus, fy_zero, fy_minus, fu,
                  measurement_state_matrix, measurement_time_matrix, measurement_base_matrix,
                  measurement_noise_covariance,
+                 observable_names,
                  structural, shocks,
                  structural_prior,
                  shock_prior,
@@ -60,6 +65,7 @@ class DsgeModel:
         self.state_vars = state_vars
         self.control_vars = control_vars
         self.mixed_vars = mixed_vars
+        self.observable_names = observable_names
 
     def build_mh_form(self, posterior):
         left, right, shock = self.build_canonical_form()
@@ -75,24 +81,22 @@ class DsgeModel:
         return left, right, shock
 
     def print_debug(self):
-        print("Debug model {}".format(self.name))
-        print("Static vars:")
-        print(self.static_vars)
-        print("State vars:")
-        print(self.state_vars)
-        print("Mixed vars:")
-        print(self.mixed_vars)
-        print("Control vars(pure forward):")
-        print(self.control_vars)
-        print("Full order vector:")
-        print(self.variables)
-        print("FY+")
+        logger.debug("Debug model {}".format(self.name))
+        logger.debug("Static vars:")
+        logger.debug(self.static_vars)
+        logger.debug("State vars:")
+        logger.debug(self.state_vars)
+        logger.debug("Mixed vars:")
+        logger.debug(self.mixed_vars)
+        logger.debug("Control vars(pure forward):")
+        logger.debug(self.control_vars)
+        logger.debug("Full order vector:")
+        logger.debug(self.variables)
+
         self.fy_plus.print()
-        print("FY0")
         self.fy_zero.print()
-        print("FY-")
         self.fy_minus.print()
-        print("FU")
+
         self.fu.print()
 
     def build_bh_form(self, posterior):

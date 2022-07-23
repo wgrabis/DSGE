@@ -17,8 +17,11 @@ from math import sin
 import numpy as np
 import pandas as pd
 from sympy import Matrix, pprint
+import argparse
 
 from model.Equation import EquationParser
+from model.config.PlotConfig import PlotConfig
+from util.RunUtils import RunMode
 
 desired_width = 320
 pd.set_option('display.width', desired_width)
@@ -64,32 +67,34 @@ def test2():
     print(np.dot(a, b))
 
 
-def forecast_blanchard_dsge_debug(file_name):
-    data_plotter = DataPlotter()
+# def forecast_blanchard_dsge_debug(file_name):
+#     data_plotter = DataPlotter()
+#
+#     raw_model, estimations = parse_model_file(file_name)
+#
+#     variables, structural, shocks = raw_model.entities()
+#
+#     EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
 
-    raw_model, estimations = parse_model_file(file_name)
 
-    variables, structural, shocks = raw_model.entities()
-
-    EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
-
-
-def forecast_blanchard_dsge(file_name):
-    data_plotter = DataPlotter()
+def forecast_blanchard_dsge(file_name, is_debug, plot_config):
+    data_plotter = DataPlotter(plot_config)
 
     raw_model, estimations = parse_model_file(file_name)
 
     model = model_builder.build(raw_model)
 
-    model.print_debug()
+    if is_debug:
+        model.print_debug()
 
     blanchard_forecast_alg = BlanchardKahnForecast()
 
     policy = blanchard_forecast_alg.calculate_policy(model)
 
-    policy.print()
+    if is_debug:
+        policy.print()
 
-    observables = blanchard_forecast_alg.predict_observables(model, policy, 40)
+    observables = blanchard_forecast_alg.predict_observables(model, policy, plot_config.time)
 
     data_plotter.add_plots(observables.prepare_plots())
 
@@ -188,20 +193,37 @@ def run_dsge(file_name):
 
     # posterior = algorithm.calculate_posterior()
 
-
-if __name__ == '__main__':
     # data_plotter = DataPlotter()
     # test_kalman(data_plotter)
     # data_plotter.draw_plots()
     # test_equations2()
-    test2()
+    # test2()
     # blanchard_raw_test()
     # forecast_blanchard_dsge("samples/toyModel2.json")
     # forecast_blanchard_dsge("samples/philipCurveRe.json", False)
     # forecast_blanchard_dsge("samples/simpleModel.json", True)
     # forecast_blanchard_dsge("samples/rbcModelRe.json")
     # forecast_blanchard_dsge("samples/nkModel.json")
-    forecast_blanchard_dsge("samples/pbar1.json")
+    # forecast_blanchard_dsge("samples/pbar1.json")
     # forecast_dsge(".json")
     # test()
 
+
+if __name__ == '__main__':
+    my_parser = argparse.ArgumentParser(prog="dsgeSolve", description='DSGE solver')
+
+    my_parser.add_argument('modelFile', help="file containing model", type=str)
+    my_parser.add_argument('-m', '--mode', type=str, default='fblanchard')
+    my_parser.add_argument('-d', '--debug', action='store_true')
+    my_parser.add_argument('-t', '--time', type=int, default=40)
+    my_parser.add_argument('-sp', '--singlePlot', action='store_true')
+    my_parser.add_argument('-pdir', '--plotDir', type=str, default='')
+
+    args = my_parser.parse_args()
+
+    run_mode = RunMode(args.mode)
+    is_debug = args.debug
+    model_file_name = args.modelFile
+
+    if run_mode == RunMode.forecastBlanchard:
+        forecast_blanchard_dsge(model_file_name, is_debug, PlotConfig.parse(args.time, args.singlePlot, args.plotDir))

@@ -3,10 +3,9 @@ from sympy import Matrix, pprint
 import sympy as sym
 from scipy import linalg
 
-from forecast.BlanchardRaw import BlanchardRaw
-from model.EquationNormalize import EquationNormalize
 from model.EstimationData import EstimationData
-from model.ForecastData import ForecastData
+from model.forecast.CalibrationForecastData import CalibrationForecastData
+from model.forecast.ForecastData import ForecastData
 from model.PolicyFunction import PolicyFunction
 
 debug_level = 0 # 0 - full 1 - important matrices 2 - only result policy
@@ -75,7 +74,6 @@ class BlanchardKahnForecast:
             print("A'-:")
             mprint(ap_minus)
 
-        #todo mixed are currently ignored
         ap_zero_plus = ap_zero[:, no_state:]
         ap_zero_minus = ap_zero[:, :no_state]
 
@@ -197,7 +195,7 @@ class BlanchardKahnForecast:
         ad_zero_s = a_zero[:no_static, :no_static]
         ad_zero_d = a_zero[:no_static, no_static:]
 
-        g_y_d = np.zeros((no_state + no_control, no_state))
+        g_y_d = np.zeros((no_state + no_control, no_state), dtype=complex)
 
         g_y_d[:no_state, :] = g_y_minus[:, :]
         g_y_d[no_state:, :] = g_y_plus[:, :]
@@ -208,12 +206,9 @@ class BlanchardKahnForecast:
 
         return policy_function
 
-    def predict_observables(self, model, policy_function, time, ):
+    def predict_observables(self, model, policy_function, time):
         parameters = model.get_prior_posterior()
         measurement_function, _ = model.measurement_matrices(parameters)
-        dummy_data = EstimationData([], 0)
-
-        forecast_data = ForecastData(dummy_data)
 
         full_forecast = []
 
@@ -221,5 +216,4 @@ class BlanchardKahnForecast:
             observables = measurement_function(np.array(var_vector).flatten(), time + 1)
             full_forecast.append(observables)
 
-        forecast_data.add_main_forecast(full_forecast)
-        return forecast_data
+        return CalibrationForecastData(full_forecast, model.observable_names)

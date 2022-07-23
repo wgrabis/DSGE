@@ -1,13 +1,18 @@
+from abc import ABC
+
 import numpy as np
 
 from helper.AreaLinePlot import AreaLinePlot
 import logging
 
+from model.forecast.ForecastData import ForecastData
+
 log = logging.getLogger(__name__)
 
 
-class ForecastData:
-    def __init__(self, estimations):
+class PathForecastData(ForecastData):
+    def __init__(self, estimations, observable_names):
+        super().__init__(observable_names)
         self.estimations = estimations
 
         self.forecasts = []
@@ -17,7 +22,6 @@ class ForecastData:
         self.setup = False
 
         self.time_len = 0
-        self.observable_len = 0
 
     def setup_data(self, observables):
         if self.setup:
@@ -96,8 +100,9 @@ class ForecastData:
         log.debug(self.main_forecast)
 
         for i in range(self.observable_len):
-            plots.append(
-                AreaLinePlot("", data_x, average_plot[i], average_plot[i], average_plot[i], "", ""))
-            # plots.append(AreaLinePlot("observ %i" % i, data_x, top_plot[i], bottom_plot[i], average_plot[i], "time", "value"))
+            # plots.append(
+            #     AreaLinePlot("", data_x, top_plot[i], bottom_plot[i], average_plot[i], "", ""))
+            plots.append(AreaLinePlot("observ %s" % self.observable_names[i], data_x, top_plot[i], bottom_plot[i],
+                                      average_plot[i], "time", "value"))
 
         return plots

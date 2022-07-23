@@ -24,6 +24,9 @@
       "Yss * Y - Iss*IV= Css * CV",
       "rhoSt * A(-1) + e = A"
     ],
+    "_observables": [
+      "YL = L"
+    ],
     "observables": [
       "YL = A",
       "YW = IV",

@@ -1,0 +1,95 @@
+{
+  "name": "nek model simple monetary",
+  "variables": ["YV", "IV", "CV", "RK", "KV", "WV", "LV", "MC", "PI", "AV", "RQ"],
+  "structural": ["sigmaSt", "phiSt", "alphaSt", "betaSt", "deltaSt", "rhoASt", "psiSt", "thetaSt", "phiPSt", "rhoQSt"],
+  "shocks": ["eA"],
+  "model": {
+    "definitions": [
+      "Rss = (1/betaSt)-(1-deltaSt)",
+      "MCss = (psiSt-1)/psiSt",
+      "Wss = (1-alphaSt)*(MCss*((alphaSt/Rss)^alphaSt))^(1/(1-alphaSt))",
+      "Yss = ((Rss/(Rss-deltaSt*alphaSt*MCss))^(sigmaSt/(sigmaSt+phiSt)))*((Wss)*(Wss/((1-alphaSt)*MCss))^phiSt)^(1/(sigmaSt+phiSt))",
+      "Kss = alphaSt*MCss*(Yss/Rss)",
+      "Iss = deltaSt*Kss",
+      "Css = (Wss*(Wss/(Yss*(1-alphaSt)*MCss))^phiSt)^(1/sigmaSt)",
+      "Lss = (1-alphaSt)*MCss*(Yss/Wss)"
+    ],
+    "equations": [
+      "sigmaSt*CV + phiSt*LV = WV",
+      "(sigmaSt/betaSt)*(CV(+1)-CV)=Rss*RK(+1)",
+      "KV = (1-deltaSt)*KV(-1) + deltaSt * IV",
+      "sigmaSt*(CV(+1) - CV) = RQ - PI(+1)",
+      "KV(-1) = MC + YV - RK",
+      "LV = MC + YV - WV",
+      "YV = AV + alphaSt*KV(-1) + (1-alphaSt)*LV",
+      "PI = betaSt*PI(+1)+((1-thetaSt)*(1-betaSt*thetaSt)/thetaSt)*MC",
+      "AV = rhoASt*AV(-1) + eA",
+      "Yss*YV = Css*CV + Iss*IV",
+      "RQ=(1-rhoQSt)*(1 + phiPSt * PI)  + rhoQSt * RQ(-1)"
+    ],
+    "observables": [
+      "L = LV",
+      "C = CV",
+      "PI = PI",
+      "K = KV",
+      "Y = YV",
+      "MC = MC",
+      "I = IV",
+      "W = WV",
+      "RQ = RQ",
+      "RK = RK",
+      "A = AV"
+    ]
+  },
+  "priors": {
+    "sigmaSt": {
+      "distribution": "calibration",
+      "value": 2
+    },
+    "phiSt": {
+      "distribution": "calibration",
+      "value": 1.5
+    },
+    "alphaSt": {
+      "distribution": "calibration",
+      "value": 0.35
+    },
+    "betaSt": {
+      "distribution": "calibration",
+      "value": 0.985
+    },
+    "deltaSt": {
+      "distribution": "calibration",
+      "value": 0.035
+    },
+    "rhoASt": {
+      "distribution": "calibration",
+      "value": 0.95
+    },
+    "psiSt": {
+      "distribution": "calibration",
+      "value": 8
+    },
+    "thetaSt": {
+      "distribution": "calibration",
+      "value": 0.75
+    },
+    "phiPSt": {
+      "distribution": "calibration",
+      "value": 1.5
+    },
+    "rhoQSt": {
+      "distribution": "calibration",
+      "value": 0.015
+    },
+    "eA": {
+      "distribution": "calibration",
+      "value": 1
+    }
+  },
+  "estimations": {
+    "data": [
+      [4, 0.04, 2]
+    ]
+  }
+}

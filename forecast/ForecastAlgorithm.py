@@ -1,8 +1,8 @@
 import numpy as np
 
-from likelihood.LikelihoodAlgorithm import LikelihoodAlgorithm
-from model.ForecastData import ForecastData
+from model.forecast.ForecastData import ForecastData
 from model.StateTransition import StateTransition
+from model.forecast.PathForecastData import PathForecastData
 
 
 class ForecastAlgorithm:
@@ -54,7 +54,7 @@ class ForecastAlgorithm:
     def calculate(self, posteriors, rounds, time, starting_time, data):
         measure_len, _ = data.size()
 
-        forecast_data = ForecastData(data)
+        forecast_data = PathForecastData(data, self.model.observable_names)
 
         average_sum = [np.zeros(measure_len) for _ in range(time)]
 

@@ -6,7 +6,8 @@ from scipy import linalg
 from forecast.BlanchardRaw import BlanchardRaw
 from model.EquationNormalize import EquationNormalize
 from model.EstimationData import EstimationData
-from model.ForecastData import ForecastData
+from model.forecast.CalibrationForecastData import CalibrationForecastData
+from model.forecast.ForecastData import ForecastData
 
 debug_blanchard = True
 
@@ -131,9 +132,6 @@ class BlanchardKahnForecastOld:
             A, B, C = self.substitute_static_vars(model, parameters)
 
         measurement_function, _ = model.measurement_matrices(parameters)
-        dummy_data = EstimationData([], 0)
-
-        forecast_data = ForecastData(dummy_data)
 
         endogenous_count = state_count
 
@@ -201,7 +199,6 @@ class BlanchardKahnForecastOld:
             print(observables)
             full_forecast.append(observables)
 
-        forecast_data.add_main_forecast(full_forecast)
-        return forecast_data
+        return CalibrationForecastData(full_forecast, model.observable_names)
 
 
