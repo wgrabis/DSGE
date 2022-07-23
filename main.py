@@ -80,7 +80,7 @@ def test2():
 def forecast_blanchard_dsge(file_name, is_debug, plot_config):
     data_plotter = DataPlotter(plot_config)
 
-    raw_model, estimations = parse_model_file(file_name)
+    raw_model, _ = parse_model_file(file_name)
 
     model = model_builder.build(raw_model)
 
@@ -218,6 +218,7 @@ if __name__ == '__main__':
     my_parser.add_argument('-t', '--time', type=int, default=40)
     my_parser.add_argument('-sp', '--singlePlot', action='store_true')
     my_parser.add_argument('-pdir', '--plotDir', type=str, default='')
+    my_parser.add_argument('-ds', '--disableShow', action='store_true')
 
     args = my_parser.parse_args()
 
@@ -226,4 +227,5 @@ if __name__ == '__main__':
     model_file_name = args.modelFile
 
     if run_mode == RunMode.forecastBlanchard:
-        forecast_blanchard_dsge(model_file_name, is_debug, PlotConfig.parse(args.time, args.singlePlot, args.plotDir))
+        forecast_blanchard_dsge(model_file_name, is_debug, PlotConfig.parse(args.time, args.singlePlot, args.plotDir,
+                                                                            args.disableShow))

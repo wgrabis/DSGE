@@ -22,7 +22,11 @@ class JsonFormat(Format):
         observables = model_equations['observables']
 
         priors = model['priors']
-        estimations = model['estimations']
+
+        estimations = None
+
+        if 'estimations' in model:
+            estimations = model['estimations']
 
         # shocks, structural = [], []
         #

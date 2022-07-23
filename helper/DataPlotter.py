@@ -59,12 +59,6 @@ class DataPlotter:
             ind_j = i - ind_i * box_width
 
             if self.plot_config.as_single_plot:
-                fig = pyplot.figure()
-                ax = fig.add_subplot(111)
-                sub_plot.draw_plot(ax)
-                if self.plot_config.auto_save_plot:
-                    fig.savefig(os.path.join(self.plot_config.plot_dir, sub_plot.name + ".png"))
-            else:
                 if self.setCount == 1:
                     fig, axs = pyplot.subplots(box_width, box_width)
                     sub_plot.draw_plot(axs)
@@ -75,7 +69,13 @@ class DataPlotter:
                         col_span = box_width - ind_j
                     ax = pyplot.subplot2grid((box_width, box_width), (ind_i, ind_j), colspan=col_span)
                     sub_plot.draw_plot(ax)
-
+            else:
+                fig = pyplot.figure()
+                ax = fig.add_subplot(111)
+                sub_plot.draw_plot(ax)
+                if self.plot_config.auto_save_plot:
+                    fig.savefig(os.path.join(self.plot_config.plot_dir, sub_plot.name + ".png"))
 
         # pyplot.gca().set_aspect('equal')
-        pyplot.show()
+        if not self.plot_config.disable_show_plots:
+            pyplot.show()
