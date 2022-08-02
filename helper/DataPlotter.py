@@ -30,8 +30,8 @@ class DataPlotter:
             "font.family": "serif",
             # "font.serif": ["Palatino"],
             "axes.labelsize": 8,  # LaTeX default is 10pt font.
-            "font.size": 10,
-            "legend.fontsize": 8,  # Make the legend/label fonts a little smaller
+            "font.size": 16,
+            "legend.fontsize": 9,  # Make the legend/label fonts a little smaller
             "savefig.dpi": 125,
             "text.latex.preamble": r"\usepackage{amsmath,amssymb,amsfonts}",
             # "figure.figsize": figure_size(figure_size_scale)
@@ -69,6 +69,8 @@ class DataPlotter:
                         col_span = box_width - ind_j
                     ax = pyplot.subplot2grid((box_width, box_width), (ind_i, ind_j), colspan=col_span)
                     sub_plot.draw_plot(ax)
+                if self.plot_config.auto_save_plot:
+                    pyplot.savefig(os.path.join(self.plot_config.plot_dir, "combined.png"))
             else:
                 fig = pyplot.figure()
                 ax = fig.add_subplot(111)

@@ -8,5 +8,5 @@ class PlotConfig:
 
     @staticmethod
     def parse(time, as_single_plot, plot_dir, disable_show_plots):
-        return PlotConfig(time, as_single_plot, plot_dir != '', plot_dir, disable_show_plots)
+        return PlotConfig(time, as_single_plot, plot_dir is not None, plot_dir, disable_show_plots)
 

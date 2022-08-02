@@ -2,10 +2,11 @@ import numpy as np
 
 
 class EstimationData:
-    def __init__(self, data, observable_len):
+    def __init__(self, data, observable_len, observable_names):
         self.estimation_time = len(data)
         self.measurements = data
         self.observable_len = observable_len
+        self.observable_names = observable_names
 
     def __getitem__(self, key):
         return np.array(self.measurements[key], dtype='float')

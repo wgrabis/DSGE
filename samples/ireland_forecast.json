@@ -1,0 +1,120 @@
+{
+  "name": "ireland model",
+  "variables": ["aV", "eV", "zV", "xV", "pihat", "yhat", "ghat", "rhat", "r_annual", "pi_annual"],
+  "structural": [ "betaSt", "alpha_x", "alpha_pi", "rho_a", "rho_e", "omegaSt", "psiSt", "rho_pi", "rho_g", "rho_x"],
+  "shocks": ["eps_a", "eps_e", "eps_z", "eps_r"],
+  "model": {
+    "definitions": [
+    ],
+    "equations": [
+      "aV=rho_a*aV(-1)+eps_a",
+      "eV=rho_e*eV(-1)+eps_e",
+      "zV=eps_z",
+      "xV=alpha_x*xV(-1)+(1-alpha_x)*xV(+1)-(rhat-pihat(+1))+(1-omegaSt)*(1-rho_a)*aV",
+      "pihat=betaSt*(alpha_pi*pihat(-1)+(1-alpha_pi)*pihat(+1))+psiSt*xV-eV",
+      "xV=yhat-omegaSt*aV",
+      "ghat=yhat-yhat(-1)+zV",
+      "rhat-rhat(-1)=rho_pi*pihat+rho_g*ghat+rho_x*xV+eps_r",
+      "r_annual=4*rhat",
+      "pi_annual=4*pihat"
+    ],
+    "observables": [
+      "gobs=ghat",
+      "robs=rhat",
+      "piobs=pihat",
+      "aobs=aV",
+      "eobs=eV",
+      "zobs=zV",
+      "xobs=xV",
+      "rannobs=r_annual",
+      "piannobs=pi_annual"
+    ]
+  },
+  "priors": {
+    "betaSt": {
+      "distribution": "normal",
+      "mean": 0.99,
+      "variance": 0.000001
+    },
+    "psiSt": {
+      "distribution": "normal",
+      "mean": 0.99,
+      "variance": 0.000001
+    },
+    "omegaSt": {
+      "distribution": "normal",
+      "oldMean": 0.0617,
+      "mean": 0.00001,
+      "variance": 0.02
+    },
+    "alpha_x": {
+      "distribution": "normal",
+      "oldMean": 0.0836,
+      "mean": 0.2028,
+      "variance": 0.09
+    },
+    "alpha_pi": {
+      "distribution": "normal",
+      "oldMean": 0.0001,
+      "mean": 0.00001,
+      "variance": 0.00005
+    },
+    "rho_pi": {
+      "distribution": "normal",
+      "oldMean": 0.3597,
+      "mean": 0.3053,
+      "variance": 0.02
+    },
+    "rho_g": {
+      "distribution": "normal",
+      "oldMean": 0.2536,
+      "mean": 0.2365,
+      "variance": 0.01
+    },
+    "rho_x": {
+      "distribution": "normal",
+      "oldMean": 0.0347,
+      "mean": 0.00001,
+      "variance": 0.01
+    },
+    "rho_a": {
+      "distribution": "normal",
+      "oldMean": 0.9470,
+      "mean": 0.9910,
+      "variance": 0.02
+    },
+    "rho_e": {
+      "distribution": "normal",
+      "oldMean": 0.9625,
+      "mean": 0.5439,
+      "variance": 0.1
+    },
+    "eps_a": {
+      "distribution": "normal",
+      "oldMean": 0.0405,
+      "mean": 0.1538,
+      "variance": 0.03
+    },
+    "eps_e": {
+      "distribution": "normal",
+      "oldMean": 0.0012,
+      "mean": 0,
+      "variance": 0.0008
+    },
+    "eps_z": {
+      "distribution": "normal",
+      "oldMean": 0.0109,
+      "mean": 0,
+      "variance": 0.0001
+    },
+    "eps_r": {
+      "distribution": "normal",
+      "oldMean": 0.0031,
+      "mean": 0,
+      "variance": 0.0005
+    }
+  },
+  "estimations": {
+    "name": "samples/ireland_data.csv"
+  }
+}

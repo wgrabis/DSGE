@@ -1,4 +1,5 @@
 from filter.KalmanFilter import KalmanFilter
+from filter.NewKalmanFilter import NewKalmanFilter
 from model.DefinitionSet import DefinitionSet
 from model.Distribution import NormalVectorDistribution
 from model.DsgeModel import DsgeModel
@@ -186,7 +187,7 @@ class DsgeModelBuilder:
 
     @staticmethod
     def build_filter():
-        return KalmanFilter()
+        return NewKalmanFilter()
 
     @staticmethod
     def split_parameters(parameters):

@@ -1,3 +1,6 @@
+import logging
+import sys
+
 from examples.equationParsingExample import test_equations, test_equations2
 from examples.kalmanExample import test_kalman
 from forecast.BKForecast import BlanchardKahnForecastOld
@@ -8,6 +11,7 @@ from format.JsonFormat import JsonFormat
 from format.ParseFile import parse_model_file
 from helper.DataPlotter import DataPlotter
 from helper.StackedPlot import StackedPlot
+from helper.test.TestTransition import test_transition
 from likelihood.LikelihoodAlgorithm import LikelihoodAlgorithm
 from metropolis_hastings.randomWalkMH import RandomWalkMH
 from model.Distribution import NormalVectorDistribution
@@ -21,6 +25,7 @@ import argparse
 
 from model.Equation import EquationParser
 from model.config.PlotConfig import PlotConfig
+from model.forecast.AgainstCalibrationForecastData import AgainstCalibrationForecastData
 from util.RunUtils import RunMode
 
 desired_width = 320
@@ -29,6 +34,19 @@ pd.set_option('display.width', desired_width)
 from model.EstimationData import EstimationData
 
 model_builder = DsgeModelBuilder()
+
+
+def setup_logging(is_debug):
+    np.set_printoptions(linewidth=np.nan)
+    logging_level = logging.DEBUG if is_debug else logging.INFO
+    logging.basicConfig(
+        level=logging_level,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logging.FileHandler("debug.log"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 
 def blanchard_raw_test(file_name):
@@ -77,9 +95,7 @@ def test2():
 #     EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
 
 
-def forecast_blanchard_dsge(file_name, is_debug, plot_config):
-    data_plotter = DataPlotter(plot_config)
-
+def forecast_blanchard_dsge(file_name, is_debug):
     raw_model, _ = parse_model_file(file_name)
 
     model = model_builder.build(raw_model)
@@ -96,9 +112,32 @@ def forecast_blanchard_dsge(file_name, is_debug, plot_config):
 
     observables = blanchard_forecast_alg.predict_observables(model, policy, plot_config.time)
 
-    data_plotter.add_plots(observables.prepare_plots())
+    return observables
 
-    data_plotter.draw_plots()
+
+def run_estimation(file_name, is_debug):
+    raw_model, estimations = parse_model_file(file_name)
+
+    assert estimations is not None
+
+    model = model_builder.build(raw_model)
+
+    if is_debug:
+        model.print_debug()
+
+    rounds = plot_config.time
+
+    mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=model.posterior_covariance())
+
+    posteriors, history = mh_algorithm.calculate_posterior()
+
+    (posterior, distribution) = posteriors.last()
+
+    print("Final posterior:")
+    print(model.structural)
+    print(posterior)
+
+    return history, posteriors
 
 
 def forecast_dsge(file_name):
@@ -217,8 +256,9 @@ if __name__ == '__main__':
     my_parser.add_argument('-d', '--debug', action='store_true')
     my_parser.add_argument('-t', '--time', type=int, default=40)
     my_parser.add_argument('-sp', '--singlePlot', action='store_true')
-    my_parser.add_argument('-pdir', '--plotDir', type=str, default='')
+    my_parser.add_argument('-pdir', '--plotDir', type=str, default=None)
     my_parser.add_argument('-ds', '--disableShow', action='store_true')
+    my_parser.add_argument('-ra', '--runAgainst', type=str, default=None)
 
     args = my_parser.parse_args()
 
@@ -226,6 +266,33 @@ if __name__ == '__main__':
     is_debug = args.debug
     model_file_name = args.modelFile
 
+    run_against = args.runAgainst
+
+    plot_config = PlotConfig.parse(args.time, args.singlePlot, args.plotDir, args.disableShow)
+
+    data_plotter = DataPlotter(plot_config)
+
+    setup_logging(is_debug)
+
+    plots = []
+
     if run_mode == RunMode.forecastBlanchard:
-        forecast_blanchard_dsge(model_file_name, is_debug, PlotConfig.parse(args.time, args.singlePlot, args.plotDir,
-                                                                            args.disableShow))
+        main_observables = forecast_blanchard_dsge(model_file_name, is_debug)
+
+        assert main_observables is not None
+
+        if run_against is not None:
+            against_observable = forecast_blanchard_dsge(run_against, is_debug)
+            main_observables = AgainstCalibrationForecastData(main_observables, against_observable)
+
+        plots = main_observables.prepare_plots()
+
+    if run_mode == RunMode.estimation:
+        main_observables, posterior_story = run_estimation(model_file_name, is_debug)
+
+        plots = main_observables.prepare_plots() + posterior_story.get_posterior_plot()
+
+    data_plotter.add_plots(plots)
+
+    data_plotter.draw_plots()
+

@@ -14,12 +14,18 @@ def parse_estimation_data(data_description, observable_len):
     if 'name' in data_description:
         data_filename = data_description['name']
         _, file_extension = os.path.splitext(data_filename)
-        if file_extension == 'csv':
-            csv_reader = csv.reader(data_filename, delimiter=',')
-            data = []
-            for row in csv_reader:
-                data.append(row)
-            return EstimationData(data, observable_len)
+        if file_extension == '.csv':
+            with open(data_filename) as csvfile:
+                csv_reader = csv.reader(csvfile, delimiter=',')
+                data = []
+                observable_names = None
+                for row in csv_reader:
+                    if observable_names is None:
+                        observable_names = row
+                    else:
+                        data.append(row)
+
+                return EstimationData(data, observable_len, observable_names)
 
 
 def parse_model_file(file_name):

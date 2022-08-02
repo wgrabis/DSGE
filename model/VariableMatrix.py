@@ -11,7 +11,7 @@ def calculate(scipy_item, parameters, values, definitions):
     expr = scipy_item
 
     log.debug("calculate")
-    log.debug(pretty(scipy_item))
+    # log.debug(pretty(scipy_item))
     log.debug(pretty(parameters))
     log.debug(pretty(values))
 
@@ -20,13 +20,13 @@ def calculate(scipy_item, parameters, values, definitions):
         # subs[symbols(parameters[i])] = values[i]
 
     log.debug("calculate-definitions")
-    log.debug(pretty(expr))
+    # log.debug(pretty(expr))
     log.debug(pretty(definitions))
 
     for (name, value) in definitions:
         expr = expr.subs(name, value)
 
-    log.debug(pretty(expr))
+    # log.debug(pretty(expr))
 
     return expr
 

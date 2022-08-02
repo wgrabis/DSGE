@@ -187,6 +187,13 @@ class EquationParser:
         no_control = len(control_variables)
         no_variables = no_static + no_state + no_mixed + no_control
 
+        logger.debug("Variable separation: (static, state, mixed, control)")
+        logger.debug(ordered_variables)
+        logger.debug(static_variables)
+        logger.debug(state_variables)
+        logger.debug(mixed_variables)
+        logger.debug(control_variables)
+
         f_y_plus = equation_matrix[:, (no_variables + no_state + no_mixed):(no_variables + no_state + 2 * no_mixed + no_control)]
         f_y_zero = equation_matrix[:, :no_variables]
         f_y_minus = equation_matrix[:, no_variables:(no_variables + no_state + no_mixed)]

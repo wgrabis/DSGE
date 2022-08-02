@@ -10,9 +10,10 @@ from model.forecast.ForecastData import ForecastData
 log = logging.getLogger(__name__)
 
 
+# todo
 class PathForecastData(ForecastData):
     def __init__(self, estimations, observable_names):
-        super().__init__(observable_names)
+        super().__init__(observable_names, [])
         self.estimations = estimations
 
         self.forecasts = []

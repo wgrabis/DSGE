@@ -1,8 +1,8 @@
 {
-  "name": "nek model simple monetary",
+  "name": "nek model simple monetary compare",
   "variables": ["YV", "IV", "CV", "RK", "KV", "WV", "LV", "MC", "PI", "AV", "RQ"],
   "structural": ["sigmaSt", "phiSt", "alphaSt", "betaSt", "deltaSt", "rhoASt", "psiSt", "thetaSt", "phiPSt", "rhoQSt"],
-  "shocks": ["eA", "eM"],
+  "shocks": ["eA"],
   "model": {
     "definitions": [
       "Rss = (1/betaSt)-(1-deltaSt)",
@@ -25,7 +25,7 @@
       "PI = betaSt*PI(+1)+((1-thetaSt)*(1-betaSt*thetaSt)/thetaSt)*MC",
       "AV = rhoASt*AV(-1) + eA",
       "Yss*YV = Css*CV + Iss*IV",
-      "RQ=(1-rhoQSt)*(1 + phiPSt * PI)  + rhoQSt * RQ(-1) + eM"
+      "RQ=(1-rhoQSt)*(1 + phiPSt * PI)  + rhoQSt * RQ(-1)"
     ],
     "observables": [
       "L = LV",
@@ -72,7 +72,7 @@
     },
     "thetaSt": {
       "distribution": "calibration",
-      "value": 0.75
+      "value": 0.9
     },
     "phiPSt": {
       "distribution": "calibration",
@@ -84,11 +84,7 @@
     },
     "eA": {
       "distribution": "calibration",
-      "value": 0
-    },
-    "eM": {
-      "distribution": "calibration",
-      "value": 0.01
+      "value": 0.1
     }
   }
 }

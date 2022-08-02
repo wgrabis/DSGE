@@ -55,7 +55,7 @@ class NormalVectorDistribution(Distribution):
         residual = value - self.mean_vector
 
         probability = 0.5 * dot(residual.T, dot(linalg.inv(self.covariance_matrix), residual))
-        probability += 0.5 * residual.shape[0] * log(2 * np.pi)
+        probability += 0.5 * residual.shape[0] * np.log(2 * np.pi)
         probability += 0.5 * log(linalg.det(self.covariance_matrix))
 
         return probability
