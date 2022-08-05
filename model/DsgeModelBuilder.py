@@ -7,6 +7,7 @@ from numpy import dot
 import numpy as np
 
 from model.Equation import EquationParser
+from model.StructuralParameterSet import StructuralParameterSet
 from model.VariableMatrix import VariableMatrix, VariableVector
 import logging
 
@@ -41,19 +42,11 @@ class DsgeModelBuilder:
 
         definition_set = self.build_definition_set(raw_model.definitions, structural)
 
-        structural_prior = self.build_prior_distribution(structural, priors)
+        structural_prior = self.build_structural_distribution(structural, priors)
         shock_prior = self.build_prior_distribution(shocks, priors)
 
         fy_plus, fy_zero, fy_minus, fu, static_vars, state_vars, mixed_vars, control_vars \
             = EquationParser.parse_equations_to_functional(raw_model.equations, variables, shocks)
-
-        # left_state_matrix, right_state_matrix, shock_bk_matrix, state_vars, control_vars, static_vars \
-        #     = EquationParser.parse_equations_to_matrices(raw_model.equations, variables, shocks)
-        #
-        # transition_matrix, shock_matrix = self.prepare_state_matrices(
-        #     left_state_matrix, right_state_matrix, shock_bk_matrix, structural, definition_set)
-
-        # noise_covariance = self.build_noise_covariance(shock_matrix, shock_prior.get_covariance())
 
         measurement_noise_covariance = self.build_measurement_noise_covariance(raw_model.observables)
 
@@ -201,8 +194,12 @@ class DsgeModelBuilder:
                 structural.append(key)
         return structural, shocks
 
+
     @staticmethod
-    def build_prior_distribution(variables, parameters):
+    def build_parame
+
+    @staticmethod
+    def build_prior(variables, parameters):
         means = []
 
         # todo more options for covariance
@@ -229,5 +226,17 @@ class DsgeModelBuilder:
 
             means.append(mean)
             covariance[i, i] = variance
+
+        return means, covariance
+
+    @staticmethod
+    def build_structural_distribution(variables, parameters):
+        means, covariance = DsgeModelBuilder.build_prior(variables, parameters)
+
+        return StructuralParameterSet(variables, means, covariance)
+
+    @staticmethod
+    def build_prior_distribution(variables, parameters):
+        means, covariance = DsgeModelBuilder.build_prior(variables, parameters)
 
         return NormalVectorDistribution(means, covariance)

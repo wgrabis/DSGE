@@ -18,7 +18,7 @@ class RandomWalkMH(MetropolisHastings):
         self.walk_covariance = with_covariance
 
         if with_covariance is None:
-            self.walk_covariance = np.identity(len(model.structural))
+            self.walk_covariance = np.identity(len(model.structural_prior.structural))
 
         super().__init__(rounds, model, data)
 
@@ -32,11 +32,14 @@ class RandomWalkMH(MetropolisHastings):
         return np.random.multivariate_normal(current_draw, probability_covariance)
 
     def accept(self, current_draw, draw):
-        logger.debug("accept")
-        logger.debug(current_draw)
-        logger.debug(draw)
-        draw_likelihood, distribution = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, draw)
-        current_likelihood, _ = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, current_draw)
+        logger.info("accept")
+        logger.info(current_draw)
+        logger.info(draw)
+        try:
+            draw_likelihood, distribution = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, draw)
+            current_likelihood, _ = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, current_draw)
+        except:
+            return False, None, 0
 
         roll = random()
 

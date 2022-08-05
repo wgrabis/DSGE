@@ -127,6 +127,9 @@ def run_estimation(file_name, is_debug):
 
     rounds = plot_config.time
 
+    # test_transition(model)
+    # return
+
     mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=model.posterior_covariance())
 
     posteriors, history = mh_algorithm.calculate_posterior()
@@ -134,118 +137,146 @@ def run_estimation(file_name, is_debug):
     (posterior, distribution) = posteriors.last()
 
     print("Final posterior:")
-    print(model.structural)
+    print(model.structural_prior.structural)
     print(posterior)
 
     return history, posteriors
 
 
-def forecast_dsge(file_name):
-    data_plotter = DataPlotter()
+# def forecast_dsge(file_name):
+#     data_plotter = DataPlotter()
+#
+#     raw_model, estimations = parse_model_file(file_name)
+#
+#     model = model_builder.build(raw_model)
+#
+#     forecast_alg = ForecastAlgorithm(model)
+#
+#     likelihood_algorithm = LikelihoodAlgorithm()
+#
+#     preposterior = model.get_prior_posterior()
+#
+#     transition_matrix, shock_matrix = model.build_matrices(preposterior)
+#     noise_covariance = model.noise_covariance(preposterior)
+#
+#     structural_mean = len(model.variables)
+#
+#     posterior = NormalVectorDistribution(
+#         np.linalg.solve(transition_matrix - np.eye(transition_matrix.shape[0]), np.zeros(transition_matrix.shape[0], dtype='float')),
+#         np.zeros((structural_mean, structural_mean)))#model.get_prior_posterior()
+#
+#     _, distribution = likelihood_algorithm.get_likelihood_probability(model, estimations, posterior)
+#
+#     posteriors = [(preposterior, posterior)]
+#
+#     observables = forecast_alg.calculate(posteriors, 100, 100, estimations.estimation_time,
+#                                          estimations)
+#     data_plotter.add_plots(observables.prepare_plots())
+#
+#     data_plotter.draw_plots()
 
-    raw_model, estimations = parse_model_file(file_name)
+
+# def run_dsge(file_name):
+#     data_plotter = DataPlotter()
+#
+#     raw_model, estimations = parse_model_file(file_name)
+#
+#     model = model_builder.build(raw_model)
+#
+#     likelihood_algorithm = LikelihoodAlgorithm()
+#
+#     print("Posterior")
+#     print(model.get_prior_posterior())
+#
+#     # retries = 0
+#     rounds = 3
+#
+#     # probability = likelihood_algorithm.get_likelihood_probability(model, estimations, model.get_prior_posterior())
+#
+#     mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=model.posterior_covariance())
+#     posteriors, history = mh_algorithm.calculate_posterior()
+#     histories = [history]
+#
+#     # print(posteriors.get_post_burnout()[0])
+#
+#     # for i in range(retries):
+#     #     mh_algorithm = RandomWalkMH(rounds, model, estimations, posterior)
+#     #     posterior, data_history, observables = mh_algorithm.calculate_posterior()
+#     #     histories.append(data_history)
+#
+#     forecast_alg = ForecastAlgorithm(model)
+#
+#     observables = forecast_alg.calculate([posteriors.get_post_burnout()[0]], 50, 10, estimations.estimation_time, estimations)
+#
+#     print("calculated observables")
+#     # print(observables)
+#
+#     posterior, _ = posteriors.last()
+#
+#     print("calculated posterior")
+#     print(posterior)
+#
+#     # for i in range(len(histories)):
+#     #     name = "calculated posterior"
+#     #     for j in range(posterior.shape[0]):
+#     #         data_x, data_y = histories[i].prepare_plot(j)
+#     #         print("data")
+#     #         print(data_x)
+#     #         print(data_y)
+#     #         data_plotter.add_plot(StackedPlot(name, [data_x], [data_y], 'iter', 'post'))
+#     #         name = ''
+#
+#     data_plotter.add_plots(observables.prepare_plots())
+#
+#     data_plotter.draw_plots()
+#
+#     # print(probability)
+#     # algorithm = RandomWalkMH(rounds, model, estimations)
+#
+#     # posterior = algorithm.calculate_posterior()
+#
+#     # data_plotter = DataPlotter()
+#     # test_kalman(data_plotter)
+#     # data_plotter.draw_plots()
+#     # test_equations2()
+#     # test2()
+#     # blanchard_raw_test()
+#     # forecast_blanchard_dsge("samples/toyModel2.json")
+#     # forecast_blanchard_dsge("samples/philipCurveRe.json", False)
+#     # forecast_blanchard_dsge("samples/simpleModel.json", True)
+#     # forecast_blanchard_dsge("samples/rbcModelRe.json")
+#     # forecast_blanchard_dsge("samples/nkModel.json")
+#     # forecast_blanchard_dsge("samples/pbar1.json")
+#     # forecast_dsge(".json")
+#     # test()
+
+
+def test_run_estimate(model_file, is_debug):
+    raw_model, estimations = parse_model_file(model_file)
+
+    assert estimations is not None
 
     model = model_builder.build(raw_model)
 
-    forecast_alg = ForecastAlgorithm(model)
+    if is_debug:
+        model.print_debug()
 
-    # likelihood_algorithm = LikelihoodAlgorithm()
+    likelihood_alg = LikelihoodAlgorithm()
 
-    preposterior = model.get_prior_posterior()
+    # ["betaSt", "alpha_x", "alpha_pi", "rho_a", "rho_e", "omegaSt", "psiSt", "rho_pi", "rho_g", "rho_x"]
+    test_posterior = np.array([0.99, 0.0836, 0.0001, 0.9470, 0.9625, 0.0617, 0.99, 0.3597, 0.2536, 0.0347])
+    test_wrong_posterior = np.array([ 0.99425141,  0.03169621,  0.00172063, 0.96534852, -0.44178758,  0.016841,    0.9888124,  0.82655394,  0.56722404,  0.58486679])
 
-    transition_matrix, shock_matrix = model.build_matrices(preposterior)
-    noise_covariance = model.noise_covariance(preposterior)
+    probability, covariance = likelihood_alg.get_likelihood_probability(model, estimations, test_posterior)
+    wrong_probability, wrong_covariance = likelihood_alg.get_likelihood_probability(model, estimations, test_wrong_posterior)
 
-    structural_mean = len(model.variables)
-
-    posterior = NormalVectorDistribution(
-        np.linalg.solve(transition_matrix - np.eye(transition_matrix.shape[0]), np.zeros(transition_matrix.shape[0], dtype='float')),
-        np.zeros((structural_mean, structural_mean)))#model.get_prior_posterior()
-
-    # _, distribution = likelihood_algorithm.get_likelihood_probability(model, estimations, posterior)
-
-    posteriors = [(preposterior, posterior)]
-
-    observables = forecast_alg.calculate(posteriors, 100, 100, estimations.estimation_time,
-                                         estimations)
-    data_plotter.add_plots(observables.prepare_plots())
-
-    data_plotter.draw_plots()
-
-
-def run_dsge(file_name):
-    data_plotter = DataPlotter()
-
-    raw_model, estimations = parse_model_file(file_name)
-
-    model = model_builder.build(raw_model)
-
-    likelihood_algorithm = LikelihoodAlgorithm()
-
-    print("Posterior")
-    print(model.get_prior_posterior())
-
-    # retries = 0
-    rounds = 3
-
-    # probability = likelihood_algorithm.get_likelihood_probability(model, estimations, model.get_prior_posterior())
-
-    mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=model.posterior_covariance())
-    posteriors, history = mh_algorithm.calculate_posterior()
-    histories = [history]
-
-    # print(posteriors.get_post_burnout()[0])
-
-    # for i in range(retries):
-    #     mh_algorithm = RandomWalkMH(rounds, model, estimations, posterior)
-    #     posterior, data_history, observables = mh_algorithm.calculate_posterior()
-    #     histories.append(data_history)
-
-    forecast_alg = ForecastAlgorithm(model)
-
-    observables = forecast_alg.calculate([posteriors.get_post_burnout()[0]], 50, 10, estimations.estimation_time, estimations)
-
-    print("calculated observables")
-    # print(observables)
-
-    posterior, _ = posteriors.last()
-
-    print("calculated posterior")
-    print(posterior)
-
-    # for i in range(len(histories)):
-    #     name = "calculated posterior"
-    #     for j in range(posterior.shape[0]):
-    #         data_x, data_y = histories[i].prepare_plot(j)
-    #         print("data")
-    #         print(data_x)
-    #         print(data_y)
-    #         data_plotter.add_plot(StackedPlot(name, [data_x], [data_y], 'iter', 'post'))
-    #         name = ''
-
-    data_plotter.add_plots(observables.prepare_plots())
-
-    data_plotter.draw_plots()
-
-    # print(probability)
-    # algorithm = RandomWalkMH(rounds, model, estimations)
-
-    # posterior = algorithm.calculate_posterior()
-
-    # data_plotter = DataPlotter()
-    # test_kalman(data_plotter)
-    # data_plotter.draw_plots()
-    # test_equations2()
-    # test2()
-    # blanchard_raw_test()
-    # forecast_blanchard_dsge("samples/toyModel2.json")
-    # forecast_blanchard_dsge("samples/philipCurveRe.json", False)
-    # forecast_blanchard_dsge("samples/simpleModel.json", True)
-    # forecast_blanchard_dsge("samples/rbcModelRe.json")
-    # forecast_blanchard_dsge("samples/nkModel.json")
-    # forecast_blanchard_dsge("samples/pbar1.json")
-    # forecast_dsge(".json")
-    # test()
+    print("TestModeResult:")
+    print("Correct:")
+    print(probability)
+    print(covariance)
+    print("Wrong:")
+    print(wrong_probability)
+    print(wrong_covariance)
 
 
 if __name__ == '__main__':
@@ -292,7 +323,11 @@ if __name__ == '__main__':
 
         plots = main_observables.prepare_plots() + posterior_story.get_posterior_plot()
 
-    data_plotter.add_plots(plots)
+    if run_mode == RunMode.testEstimation:
+        test_run_estimate(model_file_name, is_debug)
 
-    data_plotter.draw_plots()
+
+    if len(plots) > 0:
+        data_plotter.add_plots(plots)
+        data_plotter.draw_plots()
 

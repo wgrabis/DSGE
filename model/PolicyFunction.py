@@ -1,5 +1,7 @@
 import numpy as np
 
+from util.NpUtils import to_np
+
 
 def cast_to_vector(vector):
     return np.array(vector).flatten()
@@ -12,10 +14,6 @@ class PolicyFunction:
         self.gy_plus = np.array(g_y_plus, dtype="complex").astype(np.float32)
         self.gy_static = np.array(g_y_static, dtype="complex").astype(np.float32)
         self.gu = np.array(g_u, dtype="complex").astype(np.float32)
-
-        print("policy function")
-        print("GU")
-        print(self.gu)
 
     def print(self):
         static_vars = self.model.static_vars
@@ -40,6 +38,19 @@ class PolicyFunction:
         if time == 0:
             return self.model.shock_prior.get_mean()
         return np.zeros(len(self.model.shocks))
+
+    def map_to_transition(self):
+        var_count = len(self.model.ordered_variables)
+        no_static = len(self.model.static_vars)
+        no_state = len(self.model.state_vars)
+
+        transition_matrix = np.zeros((var_count, var_count))
+
+        transition_matrix[:no_static, no_static:(no_static + no_state)] = self.gy_static
+        transition_matrix[no_static:(no_static + no_state), no_static:(no_static + no_state)] = self.gy_minus
+        transition_matrix[(no_static + no_state):, no_static:(no_static + no_state)] = self.gy_plus
+
+        return transition_matrix, to_np(self.gu)
 
     def predict(self, time):
         no_static = len(self.model.static_vars)

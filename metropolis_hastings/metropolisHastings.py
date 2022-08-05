@@ -28,7 +28,7 @@ class MetropolisHastings(ABC):
 
     # todo refactor for forecasting
     def calculate_posterior(self):
-        data_history = DataHistory(self.model.structural)
+        data_history = DataHistory(self.model.structural_prior.structural)
         current_posterior = self.get_starting_posterior()
         logger.debug("mh-start")
         logger.debug(current_posterior)

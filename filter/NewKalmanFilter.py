@@ -41,7 +41,7 @@ class NewKalmanFilter(Filter):
         y_diff = y - y_hat
         y_cov = dot(dot(measurement_matrix, p_k), measurement_matrix.transpose()) + measurement_noise_covariance
 
-        y_cov = 0.5 * (y_cov.transpose() + y_cov)
+        # y_cov = 0.5 * (y_cov.transpose() + y_cov)
 
         logger.debug("Measurement")
         logger.debug(y)
@@ -58,15 +58,21 @@ class NewKalmanFilter(Filter):
         x_updated_k = x_k + dot(kalman_gain, iFtnut)
         p_updated_k = p_k - kalman_gain @ np.linalg.solve(y_cov, kalman_gain.transpose())
 
-        assert x_updated_k.shape == x_k.shape
+        assert x_updated_k.shape == x_k.shape, "Wrong shape of updated vector"
         assert p_k.shape == p_updated_k.shape
 
-        likelihood = 0.5 * dFt
-        likelihood += 0.5 * y_hat.shape[0] * np.log(2 * np.pi)
-        likelihood += 0.5 * np.dot(y_diff, iFtnut)
+        likelihood = - 0.5 * dFt
+        likelihood -= 0.5 * y_hat.shape[0] * np.log(2 * np.pi)
+        likelihood -= 0.5 * np.dot(y_diff, iFtnut)
 
         logger.debug("Likelihood-status")
+        logger.debug(np.linalg.det(y_cov))
         logger.debug(y_cov)
+        logger.debug(dFt)
+        logger.debug(np.dot(y_diff, iFtnut))
+        logger.debug(y_hat.shape[0])
+        logger.debug("Diffrence of value, probability:")
+        logger.debug(y_diff)
         logger.debug(likelihood)
 
-        return NormalVectorDistribution(x_updated_k, p_updated_k), -likelihood
+        return NormalVectorDistribution(x_updated_k, p_updated_k), likelihood

@@ -74,7 +74,7 @@ class LikelihoodAlgorithm:
 
         logger.info("posterior")
         logger.info(posterior)
-        logger.info(model.structural)
+        logger.info(model.structural_prior.structural)
         logger.info(posterior_probability)
         # print(math.exp(-likelihood))
         posterior_probability += likelihood

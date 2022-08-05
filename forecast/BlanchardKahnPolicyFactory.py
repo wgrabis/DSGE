@@ -10,7 +10,7 @@ from model.forecast.ForecastData import ForecastData
 from model.PolicyFunction import PolicyFunction
 from util.NpUtils import to_np
 
-debug_level = 0 # 0 - full 1 - important matrices 2 - only result policy
+debug_level = 2 # 0 - full 1 - important matrices 2 - only result policy
 
 logger = logging.getLogger(__name__)
 
@@ -116,9 +116,21 @@ class BlanchardKahnPolicyFactory:
         s = Matrix(s)
         z = Matrix(z)
 
-        if debug_level <= 1:
-            logger.debug("EigenValues:")
-            logger.debug(s_eigen / t_eigen)
+        logger.info("Eigenvalues")
+        logger.info(s_eigen / t_eigen)
+
+        real_eigenvalues = np.array(s_eigen / t_eigen, dtype="complex").astype(np.float32)
+
+        logger.debug(real_eigenvalues)
+
+        non_explosive = sum(abs(x) < 1 for x in real_eigenvalues)
+
+        if non_explosive != no_state:
+            logger.warning("Policy cannot be constructed for posterior")
+            logger.warning(posterior)
+            logger.warning("Got no_non_explosive/no_state: " + str(non_explosive) + "/" + str(no_state))
+
+        assert non_explosive == no_state
 
         z_21 = z.T[no_state:, :no_state]
         z_22 = z.T[no_state:, no_state:]
@@ -140,23 +152,6 @@ class BlanchardKahnPolicyFactory:
             logger.debug(to_np(z_22.inv()))
             logger.debug("Z21")
             logger.debug(to_np(z_21))
-
-        if debug_level <= 1:
-            print("G_Y+:")
-            mprint(g_y_plus)
-
-        if debug_level == 0:
-            print("Construct G_Y-")
-            print("T11^-1 @ S11")
-            mprint(t_11.inv() @ s_11)
-            print("ZT11")
-            mprint(zt_11)
-            print("ZT'11")
-            mprint(zt_11.inv())
-
-        if debug_level <= 1:
-            print("G_Y-:")
-            mprint(g_y_minus)
 
         j_minus = sym.eye(no_state)
 

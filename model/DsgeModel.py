@@ -5,6 +5,7 @@ import sympy as sym
 from sympy import Matrix
 
 from forecast.BlanchardKahnForecast import BlanchardKahnForecast
+from forecast.BlanchardKahnPolicyFactory import BlanchardKahnPolicyFactory
 from model.MeasurementFunction import MeasurementFunction
 from util.NpUtils import to_np
 
@@ -40,7 +41,7 @@ class DsgeModel:
                  ):
         self.name = name
 
-        self.structural = structural
+        # self.structural = structural
         self.structural_prior = structural_prior
         self.shock_prior = shock_prior
 
@@ -75,27 +76,39 @@ class DsgeModel:
 
     def build_mh_form(self, posterior):
         # todo refactor into separate file
+        policy_factory = BlanchardKahnPolicyFactory(self)
 
-        left, right, shock = self.build_canonical_form(posterior)
+        transition_matrix, shock_matrix = policy_factory.create_policy(posterior).map_to_transition()
 
-        inv_left = c_inv(left)
-
-        logger.debug("Left:")
-        logger.debug(to_np(left))
-        logger.debug("Right:")
-        logger.debug(to_np(right))
-        logger.debug("Shock:")
-        logger.debug(to_np(shock))
-
-        transition_matrix = to_np(inv_left @ right)
-        shock_matrix = to_np(inv_left @ shock)
-
-        logger.debug("Transition matrix:")
-        logger.debug(transition_matrix)
-        logger.debug("Shock matrix")
-        logger.debug(shock_matrix)
+        logger.info("MH Form for posterior")
+        logger.info(posterior)
+        logger.info("Transition matrix:")
+        logger.info(transition_matrix)
+        logger.info("Shock matrix")
+        logger.info(shock_matrix)
 
         return transition_matrix, shock_matrix
+
+        # left, right, shock = self.build_canonical_form(posterior)
+        #
+        # inv_left = c_inv(left)
+        #
+        # logger.debug("Left:")
+        # logger.debug(to_np(left))
+        # logger.debug("Right:")
+        # logger.debug(to_np(right))
+        # logger.debug("Shock:")
+        # logger.debug(to_np(shock))
+        #
+        # transition_matrix = to_np(inv_left @ right)
+        # shock_matrix = to_np(inv_left @ shock)
+        #
+        # logger.debug("Transition matrix:")
+        # logger.debug(transition_matrix)
+        # logger.debug("Shock matrix")
+        # logger.debug(shock_matrix)
+        #
+        #
 
     def build_canonical_form(self, posterior):
         fy_plus, fy_zero, fy_minus, fu = self.build_bh_form(posterior)
