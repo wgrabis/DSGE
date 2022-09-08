@@ -76,7 +76,7 @@ class DataPlotter:
                 ax = fig.add_subplot(111)
                 sub_plot.draw_plot(ax)
                 if self.plot_config.auto_save_plot:
-                    fig.savefig(os.path.join(self.plot_config.plot_dir, sub_plot.name + ".png"))
+                    fig.savefig(os.path.join(self.plot_config.plot_dir, sub_plot.file_name + ".png"))
 
         # pyplot.gca().set_aspect('equal')
         if not self.plot_config.disable_show_plots:

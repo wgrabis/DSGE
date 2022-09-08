@@ -2,8 +2,8 @@ from helper.BasePlot import BasePlot
 
 
 class LinePlot(BasePlot):
-    def __init__(self, name, data_x, plot_data, x_name, y_name):
-        super().__init__(name)
+    def __init__(self, name, data_x, plot_data, x_name, y_name, display_name=None):
+        super().__init__(name, display_name)
         self.data_x = data_x
         self.plot_data = plot_data
         self.x_name = x_name

@@ -7,10 +7,11 @@ logger = logging.getLogger(__name__)
 
 # todo add common ancestor class hierarchy
 class DataHistory:
-    def __init__(self, structural_params):
+    def __init__(self, structural_params, name_map):
         self.iterations = 0
         self.data = []
         self.structural_params = structural_params
+        self.name_map = name_map
 
     def prepare_plots(self, iter_start=0, iter_end=-1):
         if iter_end == -1:
@@ -34,7 +35,8 @@ class DataHistory:
 
         for i in range(structural_len):
             plots.append(
-                LinePlot("$" + self.structural_params[i] + "$", x_plot_data, y_plot_data[i], "time", ""))
+                LinePlot("$" + self.name_map[self.structural_params[i]] + "$", x_plot_data, y_plot_data[i],
+                         "round", "", self.structural_params[i]))
 
         return plots
 

@@ -44,9 +44,9 @@ class NormalDistribution(Distribution):
 
 class NormalVectorDistribution(Distribution):
     def __init__(self, mean_vector, covariance_matrix):
-        logger.debug("NormalVector - distribution")
-        logger.debug(mean_vector)
-        logger.debug(covariance_matrix)
+        # logger.debug("NormalVector - distribution")
+        # logger.debug(mean_vector)
+        # logger.debug(covariance_matrix)
         self.mean_vector = mean_vector
         self.covariance_matrix = covariance_matrix
 
@@ -54,9 +54,13 @@ class NormalVectorDistribution(Distribution):
     def probability_of(self, value):
         residual = value - self.mean_vector
 
-        probability = 0.5 * dot(residual.T, dot(linalg.inv(self.covariance_matrix), residual))
-        probability += 0.5 * residual.shape[0] * np.log(2 * np.pi)
-        probability += 0.5 * log(linalg.det(self.covariance_matrix))
+        ft_diff = np.linalg.solve(self.covariance_matrix, residual)
+
+        probability = - 0.5 * np.dot(residual, ft_diff)
+        # probability = 0.5 * dot(residual.T, dot(linalg.inv(self.covariance_matrix), residual))
+
+        # probability += 0.5 * residual.shape[0] * np.log(2 * np.pi)
+        # probability += 0.5 * log(linalg.det(self.covariance_matrix))
 
         return probability
 

@@ -18,44 +18,58 @@ class RandomWalkMH(MetropolisHastings):
         self.walk_covariance = with_covariance
 
         if with_covariance is None:
-            self.walk_covariance = np.identity(len(model.structural_prior.structural))
+            self.walk_covariance = np.identity(model.structural_prior.random_len)
 
         super().__init__(rounds, model, data)
 
-    def draw_posterior(self, current_draw):
+    def draw_posterior(self, iteration, current_draw):
+        if iteration % 100 == 0:
+            self.c = self.c * 0.75
 
         probability_covariance = self.walk_covariance * (self.c * self.c)
-        # next_distribution = stats.norm(current_draw, self.c * self.c * self.var_c)
+
         logger.debug("draw")
         logger.debug(probability_covariance)
-        logger.debug(current_draw)
-        return np.random.multivariate_normal(current_draw, probability_covariance)
 
-    def accept(self, current_draw, draw):
+        random_seed = current_draw.get_seed()
+
+        logger.debug(random_seed)
+        next_seed = np.random.multivariate_normal(random_seed, probability_covariance)
+
+        # random_part = self.model.structural_prior.get_random_part(current_draw)
+        # next_value = np.random.multivariate_normal(random_part, probability_covariance)
+        #
+        # while not self.model.structural_prior.check_bounds(next_value):
+        #     next_value = np.random.multivariate_normal(random_part, probability_covariance)
+
+        logger.debug(current_draw)
+        logger.debug(next_seed)
+
+        return self.model.structural_prior.get_move_vector(next_seed)
+
+    def accept(self, current_draw, current_value, draw):
         logger.info("accept")
-        logger.info(current_draw)
-        logger.info(draw)
+        logger.info(current_draw.get_full_vector())
+        logger.info(draw.get_full_vector())
+
         try:
-            draw_likelihood, distribution = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, draw)
-            current_likelihood, _ = self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, current_draw)
+            draw_likelihood, distribution = \
+                self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, draw.get_full_vector())
         except:
             return False, None, 0
 
         roll = random()
 
         logger.info("Roll accept")
-        logger.info(current_draw)
-        logger.info(draw)
-        logger.info(draw_likelihood - current_likelihood)
+        logger.info(draw_likelihood - current_value)
         logger.info("Roll value:")
-        logger.info(current_likelihood)
+        logger.info(current_value)
         logger.info(draw_likelihood)
-        logger.info(draw_likelihood - current_likelihood)
 
-        if draw_likelihood > current_likelihood:
+        if draw_likelihood > current_value:
             return True, distribution, draw_likelihood
 
-        draw_probability = np.exp2(draw_likelihood - current_likelihood)
+        draw_probability = np.exp2(draw_likelihood - current_value)
 
         logger.info("Roll probability")
         logger.info(draw_probability)
@@ -67,4 +81,9 @@ class RandomWalkMH(MetropolisHastings):
         return roll <= draw_probability, distribution, draw_likelihood
 
     def get_starting_posterior(self):
-        return self.model.get_prior_posterior()
+        prior_vector = self.model.structural_prior.get_prior_vector()
+
+        likelihood, distribution = \
+            self.likelihood_algorithm.get_likelihood_probability(self.model, self.data, prior_vector.get_full_vector())
+
+        return prior_vector, distribution, likelihood

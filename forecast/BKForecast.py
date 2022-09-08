@@ -102,7 +102,8 @@ class BlanchardKahnForecastOld:
         return -1 * A_p, B_p, C_p
 
     def calculate(self, model, time, enable_static=False):
-        parameters = model.get_prior_posterior()
+        # todo STRUCTURAL
+        parameters = model.structural_prior.get_prior_vector().get_full_vector()
 
         # self.substitute_static_vars(model, parameters)
         # return

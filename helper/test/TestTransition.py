@@ -5,7 +5,8 @@ logger = logging.getLogger(__name__)
 
 
 def test_transition(model):
-    posterior = model.get_prior_posterior()
+    # todo STRUCTURAL
+    posterior = model.structural_prior.get_prior_vector().get_full_vector()
 
     transition_matrix, shock_matrix = model.build_mh_form(posterior)
 

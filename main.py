@@ -115,7 +115,7 @@ def forecast_blanchard_dsge(file_name, is_debug):
     return observables
 
 
-def run_estimation(file_name, is_debug):
+def run_estimation(file_name, is_debug, chain_run):
     raw_model, estimations = parse_model_file(file_name)
 
     assert estimations is not None
@@ -130,14 +130,26 @@ def run_estimation(file_name, is_debug):
     # test_transition(model)
     # return
 
-    mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=model.posterior_covariance())
+    # todo STRUCTURAL
+    covariance = model.structural_prior.get_param_covariance()
 
-    posteriors, history = mh_algorithm.calculate_posterior()
+    mh_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=covariance)
+
+    posteriors, history, stats = mh_algorithm.calculate_posterior()
+
+    if chain_run:
+        distribution, _ = stats
+
+        print("First run:")
+        print(distribution.get_covariance())
+
+        mh2_algorithm = RandomWalkMH(rounds, model, estimations, with_covariance=distribution.get_covariance())
+        posteriors, history = mh2_algorithm.calculate_posterior(posteriors, history)
 
     (posterior, distribution) = posteriors.last()
 
     print("Final posterior:")
-    print(model.structural_prior.structural)
+    print(model.structural_prior.ordered_params)
     print(posterior)
 
     return history, posteriors
@@ -263,20 +275,26 @@ def test_run_estimate(model_file, is_debug):
 
     likelihood_alg = LikelihoodAlgorithm()
 
-    # ["betaSt", "alpha_x", "alpha_pi", "rho_a", "rho_e", "omegaSt", "psiSt", "rho_pi", "rho_g", "rho_x"]
-    test_posterior = np.array([0.99, 0.0836, 0.0001, 0.9470, 0.9625, 0.0617, 0.99, 0.3597, 0.2536, 0.0347])
-    test_wrong_posterior = np.array([ 0.99425141,  0.03169621,  0.00172063, 0.96534852, -0.44178758,  0.016841,    0.9888124,  0.82655394,  0.56722404,  0.58486679])
+    test_vectors = [
+        ("good", [0.99, 0.99, 0.0836, 0.0001, 0.9470, 0.9625, 0.0617, 0.3597, 0.2536, 0.0347]),
+        ("wrong", [0.99425141,  0.03169621,  0.00172063, 0.96534852, -0.44178758,  0.016841,    0.9888124, 0.82655394, 0.56722404,  0.58486679]),
+        ("wrong", [0.99,        0.99,        0.72814111, -0.00398059,  0.76622819,  0.39811385, -0.09975318,  0.68298919, 0.41500156,  0.14496968]),
+        ("prior", model.structural_prior.get_prior_vector().get_full_vector()),
+        ("wrong", [0.99, 0.99, 0.35377216, 0.0188116, 0.78261931, 0.20572711, -0.17007625,  0.23627613,  0.02664442, 0.03837244]),
+        ("wrong", [ 9.90000000e-01,  9.90000000e-01,  6.42226200e-01,  7.34113439e-03,  6.45596798e-01,  4.14374081e-02, -1.36375698e-01,  2.21047584e-01,  1.96998441e-02,  6.71683795e-04]),
+        ("wrong", [0.99,       0.99,       0.00878366, 0.03821123, 0.98792298, 0.10398958, 0.02864189, 0.64379357, 0.73062375, 0.06499799]),
+        ("wrong best", [9.90000000e-01, 9.90000000e-01, 8.51225072e-02, 7.87604623e-04, 9.75630602e-01, 9.82302572e-01, 3.57974845e-02, 9.90387028e-01, 8.96625294e-01, 1.88979308e-06]),
+        ("wrong", [ 9.90000000e-01,  9.90000000e-01,  6.17804018e-02,  2.13153636e-08,  9.67864532e-01,  4.73437991e-01, -6.47478143e-02, 3.59700000e-01,  3.71395453e-01,  5.19534675e-06]),
+        ("wrong", [ 9.90000000e-01,  9.90000000e-01,  5.25342664e-03,  6.07739311e-08,  9.79622512e-01,  8.69952395e-01, -1.01649482e-01, 3.59700000e-01,  8.15358328e-01,  4.00100341e-07])
+    ]
 
-    probability, covariance = likelihood_alg.get_likelihood_probability(model, estimations, test_posterior)
-    wrong_probability, wrong_covariance = likelihood_alg.get_likelihood_probability(model, estimations, test_wrong_posterior)
+    results = [(flag, likelihood_alg.get_likelihood_probability(model, estimations, np.array(vector))) for (flag, vector) in test_vectors]
 
     print("TestModeResult:")
-    print("Correct:")
-    print(probability)
-    print(covariance)
-    print("Wrong:")
-    print(wrong_probability)
-    print(wrong_covariance)
+    for (flag, (probability, covariance)) in results:
+        print(flag + ":")
+        print(probability)
+        print(covariance)
 
 
 if __name__ == '__main__':
@@ -290,12 +308,14 @@ if __name__ == '__main__':
     my_parser.add_argument('-pdir', '--plotDir', type=str, default=None)
     my_parser.add_argument('-ds', '--disableShow', action='store_true')
     my_parser.add_argument('-ra', '--runAgainst', type=str, default=None)
+    my_parser.add_argument('-c', '--chain', action='store_true')
 
     args = my_parser.parse_args()
 
     run_mode = RunMode(args.mode)
     is_debug = args.debug
     model_file_name = args.modelFile
+    chain_run = args.chain
 
     run_against = args.runAgainst
 
@@ -319,13 +339,12 @@ if __name__ == '__main__':
         plots = main_observables.prepare_plots()
 
     if run_mode == RunMode.estimation:
-        main_observables, posterior_story = run_estimation(model_file_name, is_debug)
+        main_observables, posterior_story = run_estimation(model_file_name, is_debug, chain_run)
 
         plots = main_observables.prepare_plots() + posterior_story.get_posterior_plot()
 
     if run_mode == RunMode.testEstimation:
         test_run_estimate(model_file_name, is_debug)
-
 
     if len(plots) > 0:
         data_plotter.add_plots(plots)
