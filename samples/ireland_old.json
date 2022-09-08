@@ -1,47 +1,7 @@
 {
   "name": "ireland model",
-  "variables": ["aV", "eV", "zV", "xV", "pihat", "yhat", "ghat", "rhat"],
-  "structural": [
-    {
-      "name": "betaSt",
-      "display": "\\beta"
-    },
-    {
-      "name": "alpha_x",
-      "display": "\\alpha_X"
-    },
-    {
-      "name": "alpha_pi",
-      "display": "\\alpha_{\\pi}"
-    },
-    {
-      "name": "rho_a",
-      "display": "\\rho_A"
-    },
-    {
-      "name": "rho_e",
-      "display": "\\rho_E"
-    },
-    {
-      "name": "omegaSt",
-      "display": "\\omega"
-    },
-    {
-      "name": "psiSt",
-      "display": "\\psi"
-    },
-    {
-      "name": "rho_pi",
-      "display": "\\rho_{\\pi}"
-    },
-    {
-      "name": "rho_g",
-      "display": "\\rho_g"
-    },
-    {
-      "name": "rho_x",
-      "display": "\\rho_X"
-    }],
+  "variables": ["aV", "eV", "zV", "xV", "pihat", "yhat", "ghat", "rhat", "r_annual", "pi_annual"],
+  "structural": [ "betaSt", "alpha_x", "alpha_pi", "rho_a", "rho_e", "omegaSt", "psiSt", "rho_pi", "rho_g", "rho_x"],
   "shocks": ["eps_a", "eps_e", "eps_z", "eps_r"],
   "model": {
     "definitions": [
@@ -54,12 +14,14 @@
       "pihat=betaSt*(alpha_pi*pihat(-1)+(1-alpha_pi)*pihat(+1))+psiSt*xV-eV",
       "xV=yhat-omegaSt*aV",
       "ghat=yhat-yhat(-1)+zV",
-      "rhat-rhat(-1)=rho_pi*pihat+rho_g*ghat+rho_x*xV+eps_r"
+      "rhat-rhat(-1)=rho_pi*pihat+rho_g*ghat+rho_x*xV+eps_r",
+      "r_annual=4*rhat",
+      "pi_annual=4*pihat"
     ],
     "observables": [
       "gobs=ghat",
-      "piobs=pihat",
-      "robs=rhat"
+      "robs=rhat",
+      "piobs=pihat"
     ]
   },
   "priors": {
@@ -75,7 +37,7 @@
       "distribution": "normal",
       "oldMean": 0.0617,
       "mean": 0.00001,
-      "variance": 0.1
+      "variance": 0.07
     },
     "alpha_x": {
       "distribution": "normal",
@@ -89,15 +51,15 @@
       "distribution": "normal",
       "oldMean": 0.0001,
       "mean": 0.00001,
-      "variance": 0.001,
+      "variance": 0.0001,
       "lowerBound": 0,
       "upperBound": 1
     },
     "rho_pi": {
       "distribution": "normal",
-      "value": 0.3597,
+      "oldMean": 0.3597,
       "mean": 0.3053,
-      "variance": 0.05,
+      "variance": 0.4,
       "lowerBound": 0,
       "upperBound": 1
     },
@@ -105,7 +67,7 @@
       "distribution": "normal",
       "oldMean": 0.2536,
       "mean": 0.2365,
-      "variance": 0.05,
+      "variance": 0.3,
       "lowerBound": 0,
       "upperBound": 1
     },
@@ -113,7 +75,7 @@
       "distribution": "normal",
       "oldMean": 0.0347,
       "mean": 0.00001,
-      "variance": 0.1,
+      "variance": 0.05,
       "lowerBound": 0,
       "upperBound": 1
     },
@@ -121,7 +83,7 @@
       "distribution": "normal",
       "oldMean": 0.9470,
       "mean": 0.9910,
-      "variance": 0.1,
+      "variance": 0.95,
       "lowerBound": 0,
       "upperBound": 1
     },
@@ -129,38 +91,33 @@
       "distribution": "normal",
       "oldMean": 0.9625,
       "mean": 0.5439,
-      "variance": 0.1,
+      "variance": 0.99,
       "lowerBound": 0,
       "upperBound": 1
     },
     "eps_a": {
       "distribution": "normal",
-      "ovariance": 0.0405,
-      "mean": 0.0405,
-      "variance": 0.000912,
-      "o2variance": 0.1
+      "oldMean": 0.0405,
+      "mean": 0.1538,
+      "variance": 0.1
     },
     "eps_e": {
       "distribution": "normal",
-      "ovariance": 0.0012,
-      "mean": 0.0012,
-      "variance": 0.000009,
-      "o2variance": 0.1
+      "oldMean": 0.0012,
+      "mean": 0.0035,
+      "variance": 0.002
     },
     "eps_z": {
       "distribution": "normal",
-      "voariance": 0.0109,
-      "mean": 0.0109,
-      "variance": 0.000079,
-      "o2variance": 0.1
+      "oldMean": 0.0109,
+      "mean": 0.0104,
+      "variance": 0.01
     },
     "eps_r": {
       "distribution": "normal",
       "oldMean": 0.0031,
       "mean": 0.0033,
-      "ovariance2": 0.0033,
-      "variance": 0.000008,
-      "ovariance": 0.1
+      "variance": 0.004
     }
   },
   "estimations": {

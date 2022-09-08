@@ -18,14 +18,16 @@ def mprint(matrix):
 
 class BlanchardKahnForecast:
     def calculate_policy(self, model):
-        parameters = model.get_prior_posterior()
+        # todo STRUCTURAL
+        parameters = model.structural_prior.get_prior_vector().get_full_vector()
 
         policy_factory = BlanchardKahnPolicyFactory(model)
 
         return policy_factory.create_policy(parameters)
 
     def predict_observables(self, model, policy_function, time):
-        parameters = model.get_prior_posterior()
+        # todo STRUCTURAL
+        parameters = model.structural_prior.get_prior_vector().get_full_vector()
         measurement_function, _ = model.measurement_matrices(parameters)
 
         full_forecast = []

@@ -13,6 +13,7 @@ class MeasurementFunction:
         # print(self.m_time)
         # print(state)
         # print(time)
+        #
 
         v_state = np.dot(self.m_state, state)
         v_time = np.dot(self.m_time, time)

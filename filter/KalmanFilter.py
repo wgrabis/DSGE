@@ -10,8 +10,8 @@ from model.Distribution import NormalVectorDistribution
 logger = logging.getLogger(__name__)
 
 
-class KalmanFilter(Filter):
-    def predict(self, prev_distribution, transition, shock_matrix, shock_covariance, control_input_matrix, control_input, noise_covariance):
+class KalmanFilter_Old(Filter):
+    def predict(self, prev_distribution, transition, shock_matrix, shock_covariance, noise_covariance):
         # x(k) = Fx(k-1) + Bu(k-1)
         # P(k_ = FP(k-1)Ft + Q
         x_k, p_k = prev_distribution
@@ -20,7 +20,7 @@ class KalmanFilter(Filter):
         logger.debug(x_k)
         logger.debug(p_k)
 
-        x_next = dot(transition, x_k) + dot(control_input_matrix, control_input)
+        x_next = dot(transition, x_k)
         #todo + noise_covariance debug - below
         p_next = dot(dot(transition, p_k), transition.T) + shock_matrix @ shock_covariance @ shock_matrix.transpose()
 

@@ -1,3 +1,4 @@
+from filter.FilterFactory import KalmanFilterFactory
 from filter.KalmanFilter import KalmanFilter
 from filter.NewKalmanFilter import NewKalmanFilter
 from model.DefinitionSet import DefinitionSet
@@ -7,6 +8,7 @@ from numpy import dot
 import numpy as np
 
 from model.Equation import EquationParser
+from model.RandomParameter import RandomParameter
 from model.StructuralParameterSet import StructuralParameterSet
 from model.VariableMatrix import VariableMatrix, VariableVector
 import logging
@@ -37,12 +39,14 @@ printer = PrintArray(precision=4, linewidth=150, suppress=True)
 
 class DsgeModelBuilder:
     def build(self, raw_model):
-        variables, structural, shocks = raw_model.entities()
+        variables, raw_structural, shocks = raw_model.entities()
         priors = raw_model.priors
 
-        definition_set = self.build_definition_set(raw_model.definitions, structural)
+        structural_prior = self.build_structural_parameters(priors, raw_structural)
 
-        structural_prior = self.build_structural_distribution(structural, priors)
+        structural = structural_prior.ordered_params
+
+        definition_set = self.build_definition_set(raw_model.definitions, structural)
         shock_prior = self.build_prior_distribution(shocks, priors)
 
         fy_plus, fy_zero, fy_minus, fu, static_vars, state_vars, mixed_vars, control_vars \
@@ -73,7 +77,7 @@ class DsgeModelBuilder:
             state_vars,
             mixed_vars,
             control_vars,
-            self.build_filter()
+            self.build_filter_factory()
         )
 
     @staticmethod
@@ -133,6 +137,12 @@ class DsgeModelBuilder:
 
         base_left, base_right = EquationParser.equations_to_matrices(rhs, parameters)
 
+        log.info("Measurement matrices")
+        log.info(parameters)
+        log.info(base_left)
+        log.info(base_right)
+        log.info(observable_names)
+
         measurement_time_matrix = VariableVector(base_left.col(-1), structural, definition_set)
         base_left.col_del(-1)
 
@@ -179,8 +189,8 @@ class DsgeModelBuilder:
         return np.zeros((observable_size, observable_size))
 
     @staticmethod
-    def build_filter():
-        return NewKalmanFilter()
+    def build_filter_factory():
+        return KalmanFilterFactory()
 
     @staticmethod
     def split_parameters(parameters):
@@ -196,7 +206,56 @@ class DsgeModelBuilder:
 
 
     @staticmethod
-    def build_parame
+    def build_structural_parameters(parameters, structural):
+        calibrated_names = []
+        calibrated_values = []
+        means = []
+        variances = []
+        random_part_names = []
+        name_map = {}
+
+        count = len(structural)
+
+        for i in range(count):
+            variable = structural[i]
+
+            if isinstance(variable, str):
+                name_map[variable] = variable
+            else:
+                assert "name" in variable
+                assert "display" in variable
+
+                var_name = variable["name"]
+                name_map[var_name] = variable["display"]
+
+                variable = var_name
+
+            calibration = parameters[variable]
+
+            dist_type = calibration["distribution"]
+            if dist_type == "calibration":
+                calibrated_values.append(calibration["value"])
+                calibrated_names.append(variable)
+            elif dist_type == "normal":
+                mean = calibration["mean"]
+                variance = calibration["variance"]
+
+                upper_bound = calibration['upperBound'] if 'upperBound' in calibration else None
+                lower_bound = calibration['lowerBound'] if 'lowerBound' in calibration else None
+
+                means.append(mean)
+                variances.append(variance)
+                random_part_names.append(RandomParameter(variable, lower_bound, upper_bound))
+            else:
+                raise Exception("Parameter description not recognized")
+
+        random_size = len(random_part_names)
+        covariance = np.zeros((random_size, random_size))
+
+        for i in range(random_size):
+            covariance[i, i] = variances[i]
+
+        return StructuralParameterSet(calibrated_names, random_part_names, calibrated_values, means, covariance, name_map)
 
     @staticmethod
     def build_prior(variables, parameters):
@@ -229,11 +288,11 @@ class DsgeModelBuilder:
 
         return means, covariance
 
-    @staticmethod
-    def build_structural_distribution(variables, parameters):
-        means, covariance = DsgeModelBuilder.build_prior(variables, parameters)
-
-        return StructuralParameterSet(variables, means, covariance)
+    # @staticmethod
+    # def build_structural_distribution(variables, parameters):
+    #     means, covariance = DsgeModelBuilder.build_prior(variables, parameters)
+    #
+    #     return StructuralParameterSet(variables, means, covariance)
 
     @staticmethod
     def build_prior_distribution(variables, parameters):

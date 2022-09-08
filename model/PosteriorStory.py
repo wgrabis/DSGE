@@ -40,4 +40,4 @@ class PosteriorStory:
         logger.debug(y_plot_data)
         logger.debug(self.posterior_values)
 
-        return [LinePlot("posteriors", x_plot_data, y_plot_data, "time", "")]
+        return [LinePlot("Likelihood", x_plot_data, y_plot_data, "round", "")]

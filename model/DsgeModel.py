@@ -37,7 +37,7 @@ class DsgeModel:
                  state_vars,
                  mixed_vars,
                  control_vars,
-                 likelihood_filter
+                 likelihood_filter_factory
                  ):
         self.name = name
 
@@ -50,7 +50,7 @@ class DsgeModel:
         self.measurement_base_matrix = measurement_base_matrix
         self.measurement_noise_covariance = measurement_noise_covariance
 
-        self.likelihood_filter = likelihood_filter
+        self.likelihood_filter_factory = likelihood_filter_factory
 
         self.variables = variables
         self.ordered_variables = order_variables
@@ -177,11 +177,11 @@ class DsgeModel:
 
         return MeasurementFunction(m_base_matrix, m_time_matrix, m_state_matrix), m_state_matrix
 
-    def prior_probability(self, posterior):
-        return self.structural_prior.probability_of(posterior)
+    # def prior_probability(self, posterior):
+    #     return self.structural_prior.probability_of(posterior)
 
-    def posterior_covariance(self):
-        return self.structural_prior.get_covariance()
+    # def posterior_covariance(self):
+    #     return self.structural_prior.get_covariance()
 
     def shock_covariance(self):
         return self.shock_prior.get_covariance()
@@ -192,5 +192,6 @@ class DsgeModel:
     def split_variables(self):
         return self.variables
 
+    # todo STRUCTURAL
     def noise_covariance(self, posterior):
         return self.measurement_noise_covariance
