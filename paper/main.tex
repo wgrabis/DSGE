@@ -1,0 +1,85 @@
+\documentclass[twoside,a4paper,12pt]{report} %--- Druk dwustronny: twoside. Druk jednostronny: ondeside
+\usepackage{import}
+
+\import{./}{header.tex}
+
+%%%%%%%%%%%%%%%%%%%%%% --- Wypełnia student --- %%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Implementacja modeli makroekonomicznych DSGE}
+\author{Wojciech Grabis}
+\date{2021}
+
+
+%%%%%%%%%%%%%%%%%%%%%%% --- Formatowanie strony tytułowej --- %%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\titleformat{\chapter}[display] {\normalfont\Huge\bfseries}{\chaptertitlename\ \thechapter}{0pt}{\Huge}
+\titlespacing{\chapter}{1cm}{2cm}{1cm}
+
+\thispagestyle{empty}
+\begin{center}{\sc \large
+Uniwersytet Jagielloński\par\vspace{0.2cm}\par}
+{\LARGE
+INSTYTUT INFORMATYKI ANALITYCZNEJ}\par\vspace{0.2cm}\par
+{\large
+Studia stacjonarne}\par\vspace{1cm}\par
+{\Large
+Praca magisterska}%--- Wypełnia student --- "Praca licencjacka" w przypadku prac licencjackich 
+\end{center}
+\vspace{1.5cm}
+\begin{flushleft}
+{\large
+Nr albumu: 1167995}%--- Wypełnia student
+\end{flushleft}
+\vspace{1.5cm}
+\begin{center}
+{\LARGE
+Wojciech Grabis
+}\par\vspace{0.9cm}\par
+{\huge
+Implementacja modeli makroekonomicznych DSGE
+}
+\end{center}
+\vspace{4cm}
+\begin{flushright}
+
+Opiekun pracy magisterskiej:\\
+dr inż. Krzysztof Turowski%--- Wypełnia student
+\end{flushright}
+\vfill
+\begin{center}
+Kraków 2021%--- Wypełnia student
+\end{center}
+
+\leavevmode\thispagestyle{empty}\newpage
+
+% \listoftheorems[ignoreall,show={defn}]
+% \renewcommand{\listtheoremname}{List of algorithms}
+\makeatletter
+% \renewcommand\thmt@listnumwidth{2.6em}
+\makeatother
+% \listoftheorems[ignoreall,show={alg}]
+\tableofcontents
+
+\pagebreak
+
+\chapter*{Wprowadzenie}
+\input{chapterI-intro}
+
+\chapter{Modele DSGE}
+\input{chapterII-dsge}
+
+\chapter{Implementacja rozwiązywania modeli}
+\label{chapter:implementation}
+\input{chapterIII-details}
+
+\chapter{Wyniki pracy}
+\label{chapter:results}
+\input{chapterIV-results}
+
+%5 rozdział - implementacja a 4
+
+\nocite{*}
+\bibliographystyle{plain} % We choose the &quot;plain&quot; reference style
+\bibliography{bibliografia.bib} % Entries are in the &quot;refs.bib&quot; file</code></pre>
+
+\end{document}

@@ -1,6 +1,10 @@
+import logging
+
 import numpy as np
 
 from util.NpUtils import to_np
+
+logger = logging.getLogger(__name__)
 
 
 def cast_to_vector(vector):
@@ -14,6 +18,11 @@ class PolicyFunction:
         self.gy_plus = np.array(g_y_plus, dtype="complex").astype(np.float32)
         self.gy_static = np.array(g_y_static, dtype="complex").astype(np.float32)
         self.gu = np.array(g_u, dtype="complex").astype(np.float32)
+
+        self.no_static = len(model.static_vars)
+        self.no_state = len(model.state_vars)
+        self.no_mixed = len(model.mixed_vars)
+        self.no_control = len(model.control_vars)
 
     def print(self):
         static_vars = self.model.static_vars
@@ -34,53 +43,40 @@ class PolicyFunction:
                 param=variable,
                 transition=policy_dict[variable]))
 
-    def gen_shock(self, time):
-        if time == 0:
-            return self.model.shock_prior.get_mean()
-        return np.zeros(len(self.model.shocks))
-
     def map_to_transition(self):
         var_count = len(self.model.ordered_variables)
-        no_static = len(self.model.static_vars)
-        no_state = len(self.model.state_vars)
 
         transition_matrix = np.zeros((var_count, var_count))
 
-        transition_matrix[:no_static, no_static:(no_static + no_state)] = self.gy_static
-        transition_matrix[no_static:(no_static + no_state), no_static:(no_static + no_state)] = self.gy_minus
-        transition_matrix[(no_static + no_state):, no_static:(no_static + no_state)] = self.gy_plus
+        non_control_count = self.no_static + self.no_state
+
+        transition_matrix[:self.no_static, self.no_static:non_control_count] = self.gy_static
+        transition_matrix[self.no_static:non_control_count, self.no_static:non_control_count] = self.gy_minus
+        transition_matrix[non_control_count:, self.no_static:non_control_count] = self.gy_plus
 
         return transition_matrix, to_np(self.gu)
 
-    def predict(self, time):
-        no_static = len(self.model.static_vars)
-        no_state = len(self.model.state_vars)
-        no_mixed = len(self.model.mixed_vars)
-        no_control = len(self.model.control_vars)
+    def get_start_x(self):
+        return np.zeros(self.no_state + self.no_mixed)
 
-        x_curr = np.zeros(no_state + no_mixed)
+    def get_x(self, full_vector):
+        return full_vector[:self.no_state + self.no_mixed]
 
-        calc_vectors = []
+    def predict(self, x_curr, curr_shock):
+        control_start = self.no_static + self.no_state + self.no_mixed
+        all_count = self.no_static + self.no_state + self.no_mixed + self.no_control
 
-        for i in range(time):
-            curr_shock = self.gen_shock(i)
+        calc_shock = self.gu @ curr_shock
 
-            calc_shock = self.gu @ curr_shock
+        x_next = self.gy_minus @ x_curr + calc_shock[self.no_static:control_start]
+        y_next = self.gy_plus @ x_curr + calc_shock[control_start:]
+        x_static = self.gy_static @ x_curr + calc_shock[:self.no_static]
 
-            x_next = self.gy_minus @ x_curr + calc_shock[no_static:no_static + no_state + no_mixed]
-            y_next = self.gy_plus @ x_curr + calc_shock[no_static + no_state + no_mixed:]
-            x_static = self.gy_static @ x_curr + calc_shock[:no_static]
+        var_vector = np.zeros(all_count)
 
-            var_vector = np.zeros(no_static + no_state + no_mixed + no_control)
+        var_vector[:self.no_static] = x_static[:]
+        var_vector[self.no_static: control_start] = x_next[:]
+        var_vector[control_start:] = y_next[:]
 
-            var_vector[:no_static] = x_static[:]
-            var_vector[no_static: no_static + no_state + no_mixed] = x_next[:]
-            var_vector[no_static + no_state + no_mixed:] = y_next[:]
+        return var_vector, x_next
 
-            x_curr = x_next
-
-            # print(var_vector)
-
-            calc_vectors.append(var_vector)
-
-        return calc_vectors

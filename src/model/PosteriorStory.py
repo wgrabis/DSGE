@@ -10,6 +10,7 @@ class PosteriorStory:
         self.posteriors = []
         self.posterior_values = []
         self.burnout = 0.4
+        self.burnout_max = 50
         self.len = 0
 
     def add(self, posterior, distribution, posterior_value):
@@ -22,6 +23,9 @@ class PosteriorStory:
 
         if self.len == 1:
             return self.posteriors
+
+        if int(self.len * self.burnout) > self.burnout_max:
+            return self.posteriors[self.burnout_max:]
 
         return self.posteriors[int(self.len * self.burnout):]
 

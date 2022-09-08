@@ -3,11 +3,9 @@ from sympy import Matrix, pprint
 import sympy as sym
 from scipy import linalg
 
-from forecast.BlanchardRaw import BlanchardRaw
+from solver.BlanchardRaw import BlanchardRaw
 from model.EquationNormalize import EquationNormalize
-from model.EstimationData import EstimationData
 from model.forecast.CalibrationForecastData import CalibrationForecastData
-from model.forecast.ForecastData import ForecastData
 
 debug_blanchard = True
 
@@ -152,23 +150,6 @@ class BlanchardKahnForecastOld:
         pprint(C, wrap_line=False)
         pprint(Cp, wrap_line=False)
         A, B, C = EquationNormalize.normalize(A, B, C)
-
-        # Ap = A[static_count:, static_count:]
-        # Bp = B[static_count:, static_count:]
-        # Cp = C[static_count:, :]
-        #
-        # print("Starting blanchard: A, B, C")
-        # pprint(Ap, wrap_line=False)
-        # pprint(Bp, wrap_line=False)
-        # pprint(Cp, wrap_line=False)
-
-        # todo fix after
-        # if A.det() == 0:
-        #     x, y = BlanchardRaw().singular_calculate(A, B, C, x0, shock, endogenous_count,
-        #                                              control_count, time)
-        # else:
-        #     x, y = BlanchardRaw().non_singular_calculate(A, B, C, x0, shock, endogenous_count,
-        #                                              control_count, time)
 
         x, y = BlanchardRaw().singular_calculate(model, A, B, C, x0, shock, endogenous_count,
                                                  control_count, time)

@@ -1,0 +1,1109 @@
+
+Ten rozdział poświęcony został wynikom implementacji oraz symulacji modeli DSGE. W części \ref{sec:results:model} został wyznaczony stan ustalony oraz obczliona aproksymacja liniowa dla modelu gospodarki z rozdziału \ref{sec:sample_models}. W sekcji \ref{sec:full_linear_model_sample} przedstawiony został pełny liniowy model wraz z kalibracją parametrów niezbędną do przeprowadzenia prognozowania metodą Blancharda-Kahna. Następna część \ref{sec:implementation_result} poświęcona jest przedstawieniu solucji implementującej metody z rozdziału \ref{chapter:implementation} rozpoczynając od struktury folderów repozytorium oraz krótkiego opisu wykorzystanych bibliotek, kończąc opisem pliku modelu na podstawie modelu zaprezentowanego na początku rozdziału.
+
+Zakończenie rozdziału zostało poświęcone opracowaniu wyników prognozowania dla wybranych modeli oraz różnych szoków impulsowych. Jako pierwszy przedstawiono model z rozdziału \ref{sec:results:model} dla dwóch szoków: produktywności oraz polityki monetarnej. Kolejnym jest model RBC, przedstawiony w sekcji \ref{sec:rbc_model_sample} i predykcje zachowania dla szoku produktywności. Na koniec zaprezentowano model gospodarki Irlandii z 2004 roku oparty o pracę \cite{NBERw10309} z estymacją bayesowską parametrów dla sekwencji kilkudziesięciu lat danych gospodarczych.
+
+\section{Linearyzacja modelu NEK}
+\label{sec:results:model}
+
+W celu prezentacji wyników pracy zostanie zastosowany model przedstawiony w rozdziale \ref{sec:nek_model_sample}. Poniżej postać modelu w postaci nieliniowej:
+\begin{itemize}
+    \item Układ równań problemu optymalizacji użyteczności gospodarstw domowych:
+        \begin{gather}
+            W_t = L_t^{\phi} C_t^{\sigma}, \\
+            \frac{1}{R^Q_t} = \beta \E_t \left( \left(\frac{C_t}{C_{t+1}}\right)^\sigma \frac{1}{\pi_{t+1}}\right), \\
+            \frac{1}{\beta}\E_t\left(\frac{C_{t+1}}{C_t}\right)^\sigma = (1-\delta) + \E_t R^K_{t+1}, \\
+            K_{t+1} = (1-\delta)K_t + I_t.
+        \end{gather}
+    \item Rozwiązanie komponentu firm:
+        \begin{align}
+            Y_{j,t} &= A_t K_{j,t}^\alpha L_{j,t}^{1-\alpha}, \\
+            L_{j,t} &= (1-\alpha) MC_{j,t} \frac{Y_{j,t}}{W_t},\\
+            K_{j,t} &= \alpha MC_{j,t} \frac{Y_{j,t}}{R^K_t},\\
+            \log{A_t} &= (1-\rho_A)\log{\steady{A}} + \rho_A \log{A_{t-1}} + \epsilon_{A,t}.
+        \end{align}
+    \item Układ równań opisujący poziom cen:
+        \begin{align}
+            \label{eq:price_level_firm_sample}
+            0 &= \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i Y_{j,t+i} \left( \frac{P^*_{j,t}}{P_{t+i}} - \frac{\psi}{\psi - 1} MC_{j,t+i}\right), \\
+            \label{eq:price_level_firm_all_sample}
+            P_t^{1-\psi} &= \theta P_{t-1}^{1-\psi} + (1-\theta) P_{t}^{*\;1-\psi}, \\ 
+            \Pi_t &= \frac{P_t}{P_{t-1}}.
+        \end{align}
+    \item Równanie czyszczenia rynku:
+        \begin{align}
+            Y_t &= C_t + I_t.
+        \end{align}
+    \item Polityka monetarna:
+        \begin{gather}
+            R^Q_t = R_t^{Q^*(1-\rho_Q)}R_{t-1}^{Q\rho_Q}, \\
+            R^{Q^*}_t = \steady{R^Q} \pi^* \left( \frac{\pi_t}{\pi^*}\right)^{\psi_1} \left(\frac{y_t}{\steady{y}}\right)^{\psi_2}.
+    \end{gather}
+\end{itemize}
+W kolejnych sekcjach zostanie przeprowadzony proces aproksymacji liniowej, rozpoczynając od obliczenia stanu ustalonego. W ostatniej sekcji \ref{sec:full_linear_model_sample} zaprezentowany został końcowy model. Warto w tym miejscu nadmienić, że zmienne indeksowane firmą $j$ zostaną sprowadzone do postaci bez indeksu $j$. Wynika to z faktu, że problem jest symetryczny dla każdej z firm i wystarczy przedstawić rozwiązanie dla jednej reprezentatywnej zmiennej.
+
+\subsection{Stan ustalony}
+\label{sec:results:steady_state_model}
+
+Pierwszym krokiem niezbędnym do ustalenia aproksymacji liniowej modelu jest znalezienie stanu ustalonego. Sprowadzamy zmienne do postaci bez sztywności, tj. podstawiamy $y^*_{t} = y_{t}$ a następnie zastępujemy $\steady{y} = \E_t y_{t+1} = y_t = y_{t-1}$, otrzymując układ równań:
+
+\begin{gather}
+    \label{eq:mc_consumption_solve}
+    \steady{W} = \steady{L}^{\phi} \steady{C}^{\sigma}, \\
+    \label{eq:steady_monetary_solve}
+    \frac{1}{\steady{R^Q}} = \beta  \left(\frac{\steady{C}}{\steady{C}}\right)^\sigma \frac{1}{\steady{\pi}}, \\
+    \label{eq:steady_r_solve}
+    \frac{1}{\beta}\left(\frac{\steady{C}}{\steady{C}}\right)^\sigma = (1-\delta) + \steady{R^K}, \\
+    \label{eq:capital_movement_steady_solve}
+    \steady{K} = (1-\delta)\steady{K} + \steady{I},\\
+    \label{eq:mc_production_solve}
+    \steady{Y} = \steady{A} \steady{K}^\alpha \steady{L}^{1-\alpha}, \\
+    \label{eq:mc_worktime_solve}
+    \steady{L} = (1-\alpha) \steady{MC} \frac{\steady{Y}}{\steady{W}},\\
+    \label{eq:mc_invest_solve}
+    \steady{K} = \alpha \steady{MC} \frac{\steady{Y}}{\steady{R}^K},\\
+    \log{\steady{A}} = (1-\rho_A)\log{\steady{A}} + \rho_A \log{\steady{A}},\\
+    \label{eq:mc_steady_solve}
+    0 = \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \steady{Y} \left( \frac{\steady{P}}{\steady{P}} - \frac{\psi}{\psi - 1} \steady{MC} \right), \\
+    \steady{P}^{1-\psi} = \theta \steady{P}^{1-\psi} + (1-\theta) \steady{P}^{1-\psi}, \\
+    \steady{\Pi} = \frac{\steady{P}}{\steady{P}},\\
+    \steady{Y} = \steady{C} + \steady{I}, \\
+    \steady{R^Q} = \steady{R}^{Q^*(1-\rho_Q)}\steady{R}^{Q\rho_Q}, \\
+    \steady{R}^{Q} = \steady{R}^Q \pi^* \left( \frac{\steady{\pi}}{\pi^*}\right)^{\psi_1} \left(\frac{\steady{y}}{\steady{y}}\right)^{\psi_2}.
+\end{gather}
+
+W pierwszym kroku wyeliminujemy trywialne równania oraz znormalizujemy zmienną produkcji. Możemy zauważyć że w stanie ustalonym cena nie zmienia się w czasie, stąd otrzymujemy:
+\begin{equation}
+    \steady{\Pi} = 1.
+\end{equation}
+Dodatkowo zgodnie ze wspomnianą normalizacją zakładamy:
+\begin{align}
+    \steady{A} &= 1.
+\end{align}
+Z tych zależności możemy następnie wyznaczyć stan ustalony dla pozostałych zmiennych. Korzystając z równania \eqref{eq:steady_r_solve} po uproszczeniu dostajemy:
+\begin{equation}
+    \steady{R}^K = \frac{1}{\beta} - (1 - \delta).
+\end{equation}
+Stopa procentowa w stanie ustalonym, korzystając z \eqref{eq:steady_monetary_solve}, wynosi:
+\begin{equation}
+    \steady{R}^Q = \frac{1}{\beta}.
+\end{equation}
+Następnie wychodząc z równania \eqref{eq:mc_steady_solve} otrzymujemy wartość stanu ustalonego zmiennej kosztu krańcowego $\steady{MC}$:
+\begin{equation}
+    \steady{MC} = \frac{\psi - 1}{\psi}.
+\end{equation}
+Korzystając kolejno z wartości $\steady{MC}$ oraz równań dla układu pracy \eqref{eq:mc_worktime_solve} i \eqref{eq:mc_invest_solve}, otrzymujemy:
+\begin{equation}
+    \steady{L}^{1-\alpha}\steady{K}^\alpha = (1-\alpha)^{(1-\alpha)} \alpha^\alpha \steady{MC} \steady{Y} \frac{1}{\steady{W}^{(1-\alpha)} \steady{R}^{K\alpha}}.
+\end{equation}
+Podstawiając równanie \eqref{eq:mc_production_solve}:
+\begin{equation}
+    \frac{\steady{Y}}{\steady{A}} = (1-\alpha)^{(1-\alpha)} \alpha^\alpha \steady{MC} \steady{Y} \frac{1}{\steady{W}^{(1-\alpha)} \steady{R}^{K\alpha}}.
+\end{equation}
+Po reorganizacji dostajemy stan ustalony dla realnej płacy:
+\begin{equation}
+    \steady{W} = (1-\alpha)\left(\steady{A} \steady{MC} \left(\frac{\alpha}{\steady{R}^{K}}\right)^\alpha\right)^{\frac{1}{1-\alpha}}.
+\end{equation}
+W celu znalezienia wartości stanu ustalonego dla produkcji $Y$, kapitału $K$, inwestycji $I$ oraz konsumpcji $C$, najpierw skorzystamy z równania opisującego prawo ruchu kapitału \eqref{eq:capital_movement_steady_solve}. Opiszmy stan ustalony kapitału przez inwestycje:
+\begin{equation}
+    \steady{K} = \frac{1}{\delta} \steady{I}.
+\end{equation}
+Następnie z równania \eqref{eq:mc_invest_solve} mamy:
+\begin{equation}
+    \steady{I} = \delta \alpha \steady{MC} \frac{\steady{Y}}{\steady{R}^K},
+\end{equation}
+a dla czasu pracy z równania \eqref{eq:mc_worktime_solve}:
+\begin{equation}
+    \steady{L} = (1-\alpha)\steady{MC}\frac{\steady{Y}}{\steady{W}}.
+\end{equation}
+Kolejnym krokiem jest podstawienie równania \eqref{eq:mc_worktime_solve} do równania \eqref{eq:mc_consumption_solve} i otrzymania:
+\begin{equation}
+    \steady{C} = \left( \steady{W} \left( \frac{\steady{W}}{\steady{Y}(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma}}.
+\end{equation}
+Pozostaje w powyższych zależność od stanu ustalonego produkcji $Y$, stąd skorzystamy z równania czyszczenia rynku \eqref{eq:mc_production_solve}:
+\begin{align}
+    \steady{Y} &= \steady{C} + \steady{I} \\ 
+    &= \left( \steady{W} \left( \frac{\steady{W}}{\steady{Y}(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma}} + \delta \alpha \steady{MC} \frac{\steady{Y}}{\steady{R}^K},
+\end{align}
+z którego po uporządkowaniu otrzymujemy:
+\begin{equation}
+    \steady{Y} = \left( \steady{W} \left( \frac{\steady{W}}{(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma + \phi}} \frac{\steady{R}^K}{\steady{R}^K - \delta \alpha \steady{MC}}^{\frac{\sigma}{\sigma + \phi}}
+\end{equation}
+Ostatecznie stan ustalony dla zmiennych modelu prezentuje się następująco:
+\begin{align}
+    \steady{A} &= 1, \\
+    \steady{\Pi} &= 1, \\
+    \steady{R}^Q &= \frac{1}{\beta}, \\
+    \steady{R}^K &= \frac{1}{\beta} - (1 - \delta), \\
+    \label{eq:mc_steady_solution}
+    \steady{MC} &= \frac{\psi - 1}{\psi}, \\
+    \steady{W} &= (1-\alpha)\left(\steady{A} \steady{MC} \left(\frac{\alpha}{\steady{R}^{K}}\right)^\alpha\right)^{\frac{1}{1-\alpha}}, \\
+    \steady{Y} &= \left( \steady{W} \left( \frac{\steady{W}}{(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma + \phi}} \frac{\steady{R}^K}{\steady{R}^K - \delta \alpha \steady{MC}}^{\frac{\sigma}{\sigma + \phi}}, \\
+    \steady{L} &= (1-\alpha)\steady{MC}\frac{\steady{Y}}{\steady{W}}, \\
+    \steady{C} &= \left( \steady{W} \left( \frac{\steady{W}}{\steady{Y}(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma}}, \\
+    \steady{I} &= \delta \alpha \steady{MC} \frac{\steady{Y}}{\steady{R}^K}, \\
+    \steady{K} &= \steady{I}\frac{1}{\delta}.
+\end{align}
+
+\subsection{Linearyzacja równań}
+
+Korzystając z wartości stanu ustalonego możemy przeprowadzić aproksymację liniową układu równań naszego modelu. Linearyzacja równania podaży pracy przebiega następująco:
+\begin{gather}
+    C_t^\sigma L_s^\phi = W_t, \\
+    \steady{C} e^{\sigma c_t} \steady{L} e^{\phi l_t} = \steady{W} e^{w_t}.
+\end{gather}
+Równanie dla stanu ustalonego $\steady{C}\steady{L} = \steady{W}$ pozwala uprościć równość do postaci:
+\begin{equation}
+    e^{\sigma c_t + \phi l_t} = e^{{w_t}}.
+\end{equation}
+Ostatnim krokiem jest zastosowanie reguły aproksymacji $e^{\hat{x}_t + \alpha \hat{y}_t} \approx 1 + \hat{x}_t + \alpha \hat{y}_t$:
+\begin{gather}
+    1 + \sigma c_t + \phi l_t = 1 + w_t, \\
+    \sigma c_t + \phi l_t = w_t.
+\end{gather}
+Sprowadzenie równania Eulera wiążącego obligacje przebiega następująco:
+\begin{gather}
+    \frac{1}{R^Q_t} = \beta \E_t \left( \left(\frac{C_t}{C_{t+1}}\right)^\sigma \frac{1}{\pi_{t+1}}\right), \\
+    \frac{1}{\steady{R}^Qe^{r^Q_t}} = \beta \E_t \left( \left(\frac{\steady{C}e^{c_t}}{\steady{C}e^{c_{t+1}}}\right)^\sigma \frac{1}{\steady{\pi}e^{\pi_{t+1}}}\right).
+\end{gather}
+Ponownie korzystamy z definicji stanu ustalonego $\steady{R}^Q = \frac{1}{\beta}$ oraz uporządkowujemy:
+\begin{equation}
+    e^{-r^Q_t} = \E_t \left( e^{\sigma c_t - \sigma c_{t+1}-\pi_{t+1}}\right).
+\end{equation}
+Korzystamy z przybliżenia przy pomocy szeregu Taylora:
+\begin{equation}
+    1 - r^Q_t = \E_t \left( 1 + \sigma(c_t - c_{t+1}) - \pi_{t+1}\right).
+\end{equation}
+Po reorganizacji postać liniowa prezentuje się następująco:
+\begin{equation}
+    \sigma(\E_t c_{t+1} - c_t) = r^Q_t - \E_t \pi_{t+1}.
+\end{equation}
+Aproksymacja liniowa równania Eulera dla kapitału przebiega w analogiczny sposób:
+\begin{gather}
+    \frac{1}{\beta} \left( \frac{\E_t C_{t+1}}{C_t}\right)^\sigma = (1-\delta) + \E_t R^K_{t+1}, \\
+    \frac{1}{\beta} \frac{\steady{C}^\sigma \E_t e^{\sigma c_{t+1}}}{\steady{C}^\sigma e^{\sigma c_t}} 
+    = 
+    (1-\delta) + \E_t \left( \steady{R}^K e^{r^K_{t+1}}\right), \\
+    \frac{1}{\beta} e^{\E_t\sigma c_{t+1} - \sigma c_t}
+    = 
+    (1-\delta) + \steady{R}^K e^{\E_t r^K_{t+1}}.
+\end{gather}
+Ponownie korzystamy z reguły aproksymacji:
+\begin{gather}
+    \frac{1}{\beta}\left(1 + \sigma(\E_t c_{t+1} - c_t)\right) =  (1 - \delta) + \steady{R}^K\left( 1 + \E_t r^K_{t+1}\right), \\
+    \frac{1}{\beta}\ + \frac{\sigma}{\beta} \left(\E_t c_{t+1} - c_t\right) = (1 - \delta) + \steady{R}^K + \steady{R}^K \E_t r^K_{t+1}.
+\end{gather}
+Ostatnim etapem jest uproszczenie równania, wiedząc że w stanie ustalonym zachodzi:
+\begin{equation}
+    \frac{1}{\beta} = (1-\delta) + \steady{R}^K,
+\end{equation}
+skąd dostajemy postać aproksymowaną:
+\begin{equation}
+    \frac{\sigma}{\beta}(\E_t c_{t+1} - c_t) = \steady{R}^K \E_t r^K_{t+1}.
+\end{equation}
+Ostatnim równaniem układu gospodarstw domowych jest reguła ruchu (deprecjacji) kapitału. Linearyzacja przebiega następująco:
+\begin{gather}
+     K_{t+1} = (1-\delta)K_t + I_t \\
+     \steady{K} e^{k_{t+1}} = (1-\delta)\steady{K} e^{k_t} + \steady{I} e^{i_t}.
+\end{gather}
+Korzystamy z reguły aproksymacji $e^{\hat{x}_t} \approx 1 + \hat{x}_t$:
+\begin{equation}
+    \steady{K} (1 + k_{t+1}) = (1-\delta)\steady{K} (1 + k_t) + \steady{I} (i_t + 1).
+\end{equation}
+Następnie dla stanu ustalonego mamy zachowane $\delta\steady{K} = \steady{I}$:
+\begin{gather}
+    \steady{K} (1 + k_{t+1}) = (1-\delta)\steady{K} (1 + k_t) + \delta\steady{K} (i_t + 1), \\
+    1 + k_{t+1} = (1-\delta)(1 + k_t) + \delta(i_t + 1), \\
+    1 + k_{t+1} = (1-\delta)k_t + \delta i_t + 1 - \delta + \delta.
+\end{gather}
+Końcowa postać liniowa:
+\begin{equation}
+    k_{t+1} = (1-\delta)k_t + \delta i_t.
+\end{equation}
+
+Kolejnym komponentem modelu jest układ równań problemu firm. Aproksymacja liniowa funkcji produkcji wokół stanu ustalonego prezentuje się następująco:
+\begin{gather}
+    Y_t = A_t K_t^\alpha L_t^{1-\alpha}, \\
+    \steady{Y} e^{y_t} = \steady{A} e^{a_t} \steady{K}^\alpha e^{\alpha k_t} \steady{L}^{1-\alpha} e^{(1-\alpha) l_t}, \\
+    \steady{Y} e^{y_t} = \steady{A} \steady{K}^\alpha \steady{L}^{1-\alpha} e^{a_t + \alpha k_t + (1-\alpha)l_t}, \\ 
+    \steady{Y} (1 + y_t) = \steady{A} \steady{K}^\alpha \steady{L}^{1-\alpha} \left( 1+ a_t + \alpha k_t + (1-\alpha)l_t \right).
+\end{gather}
+Analogicznie do poprzednich przykładów, skorzystamy z równowagi w stanie ustalonym $\steady{Y} = \steady{A} \steady{K}^\alpha \steady{L}^{1-\alpha}$ dostając liniowe równanie:
+\begin{equation}
+    y_t = a_t + \alpha k_t + (1-\alpha) l_t.
+\end{equation}
+Równanie zapotrzebowania na pracę, stosując dla stanu ustalonego $\steady{L} = (1-\alpha) \steady{MC} \frac{\steady{Y}}{\steady{W}}$, jest aproksymowane przez przekształcenia:
+\begin{gather}
+    L_t = (1 - \alpha)MC_t \frac{Y_t}{W_t}, \\
+    \steady{L} e^{l_t} = (1-\alpha) \steady{MC} e^{mc_t} \frac{\steady{Y} e^{y_t}}{\steady{W} e^{w_t}}, \\
+    \steady{L} e^{l_t} = (1-\alpha) \steady{MC}  \frac{\steady{Y}}{\steady{W}} e^{mc + y_t - w_t}, \\
+    1 + l_t = mc_t + y_t - w_t + 1, \\ 
+    l_t = mc_t + y_t - w_t.
+\end{gather}
+Kolejnym składnikiem komponentu jest równanie zapotrzebowania na kapitał, analogicznie aproksymowane z wykorzystaniem $\steady{K} = \steady{MC} \frac{\steady{Y}}{\steady{R}}$:
+\begin{gather}
+    K_t = \alpha MC_t \frac{Y_t}{R^K_t}, \\
+    \steady{K} e^{k_t} = \alpha \steady{MC} e^{mc_t} \frac{\steady{Y} e^{y_t}}{\steady{R}^K e^{r^K_t}}, \\
+    \steady{K} e^{k_t} = (1-\alpha) \steady{MC}  \frac{\steady{Y}}{\steady{R}^K} e^{mc + y_t - r^K_t}, \\
+    1 + k_t = 1+ mc_t + y_t - r^K_t, \\
+    k_t = mc_t + y_t - r^K_t.
+\end{gather}
+Równanie opisujące produktywność przy założeniu $\steady{A} = 1$:
+\begin{gather}
+    \log A_t = \log \steady{A} + \rho_A \log A_{t-1} + \epsilon_{A,t}, \\
+    \log e^{a_t} = \rho_A \log e^{a_{t-1}} + \epsilon_t, \\
+    a_t = \rho_A a_{t-1} + \epsilon_{A,t}.
+\end{gather}
+
+Komponent odpowiedzialny za poziom cen oraz inflację składa się z trzech równań, które zostaną uproszczone i połączone w jedno liniowe równanie. Rozpoczniemy od znalezienia równania dla poziomu cen ustalanego przez aktualizujące firmy \eqref{eq:price_level_firm_sample}:
+\begin{equation}
+    0 = \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i Y_{t+i} \left( \frac{P^*_{t}}{P_{t+i}} - \frac{\psi}{\psi - 1} MC_{t+i}\right).
+\end{equation}
+Wprowadzając zmienne odchylenia od stanu ustalonego:
+\begin{equation}
+    0 = \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \steady{Y} e^{y_{t+i}} \left( \frac{\steady{P}e^{p^*_{t}}}{\steady{P}e^{p_{t+i}}} - \frac{\psi}{\psi - 1} \steady{MC} e^{mc_{t+i}}\right).
+\end{equation}
+Porządkując oraz korzystając ze stanu ustalonego $1 = \frac{\psi}{\psi - 1} \steady{MC}$ dostajemy:
+\begin{equation}
+    0 = \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \left( e^{y_{t+i} + p^*_{t} - p_{t+i}} - e^{y_{t+i} + mc_{t+i}}\right).
+\end{equation}
+Następnie stosujemy aproksymację szeregiem Taylora:
+\begin{gather}
+    0 = \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \left( 1 + y_{t+i} + p^*_{t} - p_{t+i} - (1 + y_{t+i} + mc_{t+i})\right), \\
+    0 = p^*_{t} \sum_{i=0}^{\infty}\left( \beta \theta \right)^i - \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \left(  mc_{t+i} + p_{t+i} \right), \\
+    0 =  p^*_{t} \frac{1}{1-\beta\theta} - \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \left(  mc_{t+i} + p_{t+i} \right), \\
+    p^*_t = (1-\beta\theta)\E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \left(  mc_{t+i} + p_{t+i} \right)
+    \label{eq:price_level_approx_def}.
+\end{gather}
+Przed zastosowaniem powyższego potrzebujemy uprościć równanie reguły poziomu cen z wyceny Calvo \eqref{eq:price_level_firm_all_sample}:
+\begin{gather}
+    P_t^{1-\psi} = \theta P_{t-1}^{1-\psi} + (1-\theta) P_{t}^{*\;1-\psi}, \\
+    \steady{P}e^{p_t(1-\psi)} = \theta \steady{P}^{1-\psi} e^{p_{t-1}(1-\psi)} + (1-\theta) \steady{P}^{1-\psi} e^{p_t^*(1-\psi)}.
+\end{gather}
+Uproszczenie $\steady{P}$ oraz zastosowanie aproksymacji szeregiem Taylora:
+\begin{gather}
+    \left(1 + p_t + (1- \psi)\right) = \theta\left(1 + p_{t-1} + (1-\psi)\right) + (1-\theta)\left(1 + p_t^* + (1-\psi)\right),\\
+    p_t = \theta p_{t-1} + (1 - \theta)p_t^*.
+\end{gather}
+W tej postaci możemy podstawić wyrażenie dla $p_t^*$ z \eqref{eq:price_level_approx_def}:
+\begin{equation}
+    p_t = \theta p_{t-1} + (1 - \theta) \left( 1 - \beta \theta \right) \E_t \sum_{i=0}^{\infty} \left( \beta \theta \right)^i \left(  mc_{t+i} + p_{t+i} \right).
+\end{equation}
+Następnie zastosujemy metodę quasi-różniczkowania (\emph{quasi-differencing} \cite{costaBook}) w celu wyeliminowania sumy nieskończonej przewidywanych kosztów krańcowych z równania. W tym celu wprowadzimy operator opóźnienia $L^{-1}$, dla którego zachodzi $L^{-1} X_t = X_{t+1}$. Mnożąc obustronnie przez $(1-\beta\theta L^{-1})$ otrzymujemy:
+\begin{gather}
+    \nonumber p_t - \beta\theta p_{t+1} = \theta p_{t-1} - \beta \theta^2 p_t + (1 - \theta)(1 - \beta \theta) \E_t \sum_{i=0}^{\infty} \left( \beta \theta \right)^i \left(  mc_{t+i} + p_{t+i} \right)\\ - (1 - \theta)(1 - \beta \theta) \E_t \sum_{i=1}^{\infty} \left( \beta \theta \right)^i \left(  mc_{t+i} + p_{t+i} \right), \\
+    p_t - \beta\theta p_{t+1} = \theta p_{t-1} - \beta \theta^2 p_t + (1 - \theta)(1 - \beta \theta) \left(mc_t + p_t \right).
+\end{gather}
+Kolejno porządkujemy:
+\begin{gather}
+    \nonumber p_t - \beta\theta p_{t+1} = \theta p_{t-1} - \beta \theta^2 p_t + (1 - \theta)(1 - \beta \theta) mc_t \\ + (1 - \theta)(1 - \beta \theta) p_t, \\
+    \theta(p_t - p_{t-1}) = \beta \theta (p_{t+1} - p_t) + (1-\theta)(1-\beta \theta)mc_t, \\
+    \label{eq:phillips_equation}
+    p_t - p_{t-1} = \beta (p_{t+1} - p_t) + \frac{(1-\theta)(1-\beta \theta)}{\theta}mc_t.
+\end{gather}
+Powyższe równanie nazywane jest równaniem Phillipsa \cite{costaBook}. Ostatnim elementem komponentu poziomu cen jest równanie definiujące inflację, korzystamy z $\steady{\Pi} = 1$:
+\begin{gather}
+    \Pi_t = \frac{P_t}{P_{t-1}}, \\
+    \steady{\Pi} e^{\pi_t} = \frac{\steady{P}e^{p_t}}{\steady{P}e^{p_{t-1}}} = e^{p_t - p_{t-1}},\\ 
+    1 + \pi_t = 1 + p_t - p_{t-1}, \\
+    \pi_t = p_t - p_{t-1}.
+\end{gather}
+Uposażeni w postać liniową inflacji możemy uprościć zapis równania Philipsa \eqref{eq:phillips_equation}:
+\begin{equation}
+    \pi_t = \beta \pi_{t+1} + \frac{(1-\theta)(1-\beta \theta)}{\theta}mc_t.
+\end{equation}
+
+Pozostałą częścią modelu są równania polityki monetarnej oraz czyszczenia rynku. Aproksymacja tego ostatniego przebiega następująco:
+\begin{gather}
+    Y_t = C_t + I_t \\
+    \steady{Y}e^{y_t} = \steady{C}e^{c_t} + \steady{I}e^{i_t}, \\
+    \steady{Y}(1 + y_t) = \steady{C}(1 + c_t) + \steady{I}(1 + i_t), \\
+    \steady{Y}y_t = \steady{C} c_t + \steady{I} i_t,
+\end{gather}
+gdzie w ostatnim kroku skorzystaliśmy z równowagi stanu ustalonego $\steady{Y} = \steady{C} + \steady{I}$. 
+
+Reguła opóźnienia realnej stopy procentowej:
+\begin{gather}
+    R^Q_t = R_t^{Q^*1-\rho_Q} R_{t-1}^{Q\rho_Q}, \\
+    \steady{R}^Q e^{r^q_t} = \steady{R}^Q e^{r^{q^*}_t(1-\rho_Q)} e^{r^q_{t-1}\rho_Q}, \\
+    1 + r^q_t = 1 + (1-\rho_Q)r^{q^*}_t + r^q_{t-1} \rho_Q , \\
+    r^q_t = (1-\rho_Q)r^{q^*}_t + \rho_Q r^q_{t-1}.
+\end{gather}
+Ostatnim równaniem modelu jest równanie nominalnej stopy procentowej ustalanej przez bank centralny:
+\begin{gather}
+    R^{Q^*}_t = \steady{R}^Q \pi^* \left( \frac{\pi_t}{\pi^*}\right)^{\psi_1} \left(\frac{y_t}{\steady{y}}\right)^{\psi_2}, \\
+    \steady{R}^Q e^{r_t^{Q^*}} = \steady{R}^Q \pi^* \left( \frac{\steady{\pi} e^{\pi_t}}{\pi^*}\right)^{\psi_1} \left(\frac{\steady{y} e^{y^*_t}}{\steady{y}}\right)^{\psi_2}, \\
+    e^{r^{Q^*}_t} = \pi^{*1-\psi_1} \left(\steady{\pi} e^\pi_t\right)^{\psi_1} y_t^{*\psi_2}, \\
+    1 + r^{Q^*}_t = \pi^{*1-\psi_1} ( 1 + \psi_1 \pi_t + \psi_2 y^*_t).
+\end{gather}
+
+\subsection{Pełna postać modelu}
+\label{sec:full_linear_model_sample}
+
+Ostatecznie nasz model składa się z:
+\begin{enumerate}
+    \item Definicji wartości stanu ustalonego:
+        \begin{align}
+                \steady{A} &= 1, \\
+                \steady{\Pi} &= 1, \\
+                \steady{R}^Q &= \frac{1}{\beta}, \\
+                \steady{R}^K &= \frac{1}{\beta} - (1 - \delta), \\
+                \steady{MC} &= \frac{\psi - 1}{\psi}, \\
+                \steady{W} &= (1-\alpha)\left(\steady{A} \steady{MC} \left(\frac{\alpha}{\steady{R}^{K}}\right)^\alpha\right)^{\frac{1}{1-\alpha}}, \\
+                \steady{Y} &= \left( \steady{W} \left( \frac{\steady{W}}{(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma + \phi}} \frac{\steady{R}}{\steady{R} - \delta \alpha \steady{MC}}^{\frac{\sigma}{\sigma + \phi}}, \\
+                \steady{L} &= (1-\alpha)\steady{MC}\frac{\steady{Y}}{\steady{W}}, \\
+                \steady{C} &= \left( \steady{W} \left( \frac{\steady{W}}{\steady{Y}(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma}}, \\
+                \steady{I} &= \delta \alpha \steady{MC} \frac{\steady{Y}}{\steady{R}}, \\
+                \steady{K} &= \steady{I}\frac{1}{\delta}.
+        \end{align}
+    \item Układu liniowych równań modelu:
+    \begin{itemize}
+        \item Część gospodarstw domowych:
+        \begin{gather}
+            \sigma c_t + \phi l_t = w_t, \\
+            \sigma(\E_t c_{t+1} - c_t) = r^Q_t - \E_t \pi_{t+1}, \\
+            \frac{\sigma}{\beta}(\E_t c_{t+1} - c_t) = \steady{R}^K \E_t r^K_{t+1}, \\
+            k_{t+1} = (1-\delta)k_t + \delta i_t.
+        \end{gather} 
+        \item Część firm:
+        \begin{gather}
+            y_t = a_t + \alpha k_t + (1-\alpha) l_t,\\
+            k_t = mc_t + y_t - r^K_t,\\
+            l_t = mc_t + y_t - w_t,\\
+            a_t = \rho_A a_{t-1} + \epsilon_{A,t}.
+        \end{gather}
+        \item Poziom cen:
+        \begin{gather}
+            \pi_t = \beta \pi_{t+1} + \frac{(1-\theta)(1-\beta \theta)}{\theta}mc_t.
+        \end{gather}
+        \item Równanie czyszczenia rynku:
+        \begin{equation}
+            \steady{Y}y_t = \steady{C} c_t + \steady{I} i_t.
+        \end{equation}
+        \item Polityka monetarna:
+        \begin{gather}
+            r^q_t = (1-\rho_Q)r^{q^*}_t + \rho_Q r^q_{t-1}, \label{eq:monetary_nek_full_final}\\
+            1 + r^{Q^*}_t = \pi^{*1-\psi_1} ( 1 + \psi_1 \pi_t + \psi_2 y^*_t).
+        \end{gather}
+    \end{itemize}
+    \item Kalibracji parametrów, wziętej z literatury \cite{costaBook}, \cite{gali_gov_spending} oraz \cite{gali}:
+        \begin{center}
+            \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|}
+                \hline
+                Parametr & Wartość \\
+                \hline 
+                $\sigma$ & $2$\\
+                $\phi$ & $1.5$ \\
+                $\alpha$ & $0.35$ \\
+                $\beta$ & $0.985$ \\
+                $\delta$ & $0.035$ \\
+                $\rho_A$ & $0.95$ \\
+                $\psi$ & $3$ \\
+                $\theta$ & $0.75$ \\
+                $\psi_1$ & $1.5$ \\
+                $\psi_2$ & $0$ \\
+                $\rho_Q$ & $0.015$ \\
+                \hline 
+            \end{tabular} 
+         \end{center}
+    \item Kalibracji szoków (szok impulsowy):
+    \begin{gather}
+        \epsilon_{A,t} =
+        \begin{cases}
+            0.1 & \text{dla $t = 1$,} \\
+            0 & \text{dla $t > 1$.}
+        \end{cases}
+    \end{gather}
+\end{enumerate}
+
+\section{Opis implementacji}
+\label{sec:implementation_result}
+
+Implementacja została wykonana w języku Python 3.9. Decyzja na wykorzystanie tej technologii motywowana była dostępnością wielu bibliotek numerycznych oraz parserów równań, które ułatwią szeroko stosowane obliczenia macierzowe wykorzystywane w rozwiązaniach. Dodatkowo język pozwala na zwięzłe przedstawienie idei wykorzystanych metod. Zastosowane biblioteki zostały opisane w sekcji \ref{sec:used_libraries}. Dodatkowo w celu porównania rozwiązań została użyta platforma Dynare, udostępniająca implementacje narzędzi ekonomicznych. Do przygotowanej solucji zostały dołączone modele z rozszerzeniem \emph{.mod}, które mogą zostać uruchomione na wspomnianej platformie. 
+
+Repozytorium z kodem dostępne jest pod adresem \url{https://github.com/wgrabis/DSGE}. Platforma Dynare dostępna jest pod adresem \url{https://www.dynare.org/}. Uruchomienie programu odbywa się poprzez komendę:
+\begin{equation}
+    \texttt{program <model-file> [optional args]} \nonumber
+\end{equation}
+z następującymi argumentami:
+\begin{center}
+    \begin{tabular}{p{0.32\textwidth}p{0.58\textwidth}}
+          \texttt{-m}/\texttt{--mode} & Tryb uruchomienia programu dopuszczalne wartości to \emph{fblanchard} lub \emph{estimate} \\
+         \texttt{-d}/\texttt{--debug} & Ustawia flagę dla logowania dodatkowych informacji\\
+         \texttt{-t}/\texttt{--time} [liczba] & Czas prognozowania modelu w postaci liczby naturalnej \\
+         \texttt{-sp}/\texttt{--singlePlot} & Opcja włączająca wyświetlanie wykresów dla wszystkich zmiennych w jednym oknie \\
+         \texttt{-pdir}/\texttt{--plotDir} [ścieżka] & Ścieżka do zapisu dla wygenerowanych wykresów w formacie \emph{.png} \\
+         \texttt{-ds}/\texttt{--disableShow}  & Wyłączenie opcji renderowania okien z wykresami \\
+         \texttt{-ra}/\texttt{--runAgainst} [ścieżka]  & Uruchamia drugi plik modelu z tymi samymi argumentami i nakłada wyniki na wykresy obecnego modelu, dostępne jedynie dla opcji \emph{fblanchard}  \\
+    \end{tabular}
+\end{center}
+W przypadku uruchomienia bez opcji \texttt{--disableShow} program powinien zakończyć się pokazaniem wykresów dla zmiennych w kontekście odpalonego trybu (prognozy zmiennych obserwowanych lub prognozy parametrów).
+
+\subsection{Struktura repozytorium}
+
+Repozytorium podzielone jest na następujące katalogi:
+\begin{itemize}
+    \item \fpath{/src} -- katalog zawierający kod wykorzystywany w implementacji,
+    \item \fpath{/samples} -- folder z przykładowymi modelami, wśród modeli najbardziej istotnymi są:
+        \begin{itemize}
+            \item \fpath{rbcModelRe.json} -- plik z przykładowym modelem RBC,
+            \item \fpath{nekModel.json} -- plik z modelem ekonomii nowokeynesowskiej dla szoku produktywności,
+            \item \fpath{nekModelMonetary.json} -- plik z modelem ekonomii nowokeynesowskiej dla szoku polityki monetarnej,
+            \item \fpath{philipCurve.json} -- plik z modelem przedstawiającym krzywą Philipsa,
+            \item \fpath{ireland.json} -- plik z modelem przedstawiającym gospodarkę Irlandii,
+        \end{itemize}
+    \item \fpath{/dynare} -- folder zawierający przykładowe modele do wykorzystania w Dynare w celu porównania wyników implementacji z repozytorium z implementacją Dynare,
+    \item \fpath{/paper} -- folder zawierający tekst pracy magisterskiej.
+\end{itemize}
+
+Katalog zawierający kod podzielony jest na następujące części:
+\begin{itemize}
+    \item \fpath{/filter} -- pakiet kodu z implementacją dla algorytmu filtru wykorzystywanego w funkcji wiarygodności,
+    \item \fpath{/forecast} -- zawiera implementację metody Blancharda Kahna, uogólnionej metody rozwiązywania modeli DSGE oraz prognozowania losowymi ścieżkami,
+    \item \fpath{/format} -- implementacja parsowania plików modelu oraz danych estymowania,
+    \item \fpath{/helper} -- dodatkowe pomocnicze funkcjonalności m.in. wyświetlania wykresów przy pomocy biblioteki \emph{matplotlib},
+    \item \fpath{/likelihood} -- pakiet zawierający implementację funkcji wiarygodności w oparciu o dostarczony algorytm filtrowania,
+    \item \fpath{/metropolis\_hastings} -- katalog zawierający implementacje algorytmu Metropolisa-Hastingsa
+    \item \fpath{/model} -- zbiór implementacji pozwalający na budowanie modelu w oparciu o sparsowane dane oraz pomocnicze klasy służące do reprezentacji funkcji pomiaru oraz funkcji macierzy.
+\end{itemize}
+
+% + opisać pakiety kodu
+
+\subsection{Wykorzystane biblioteki}
+\label{sec:used_libraries}
+
+\begin{itemize}
+    \item \libname{Numpy} -- szeroko wykorzystywana biblioteka udostępniająca reprezentację wektorów i macierz oraz szereg metod numerycznych.
+    \item \libname{Sympy} -- biblioteka wykorzystywana do:
+        \begin{itemize}
+            \item parsowania równań -- równania w plikach modeli są parsowane przy pomocy \emph{Sympy} do postaci macierzy zmiennych, które następnie mogą być uzupełnione wartościami w celu wygenerowania macierzy liczb rzeczywistych, przykładowo udostępnia metody tworzenia macierzy równań liniowych postaci:
+            \begin{equation}
+                A \begin{bmatrix}
+                    x_1 \\
+                    x_2 \\
+                    \dots \\
+                    x_n
+                \end{bmatrix} = 0
+            \end{equation}
+            \item dodatkowe operacje na macierzach -- implementacja macierzy w \emph{Sympy} pozwala na zmianę na odpowiednią reprezentację w \emph{Numpy}, dzięki czemu można wykorzystywać przemiennie metody z obu bibliotek w celach obliczeń macierzowych,
+        \end{itemize}
+    \item \libname{Scipy} -- biblioteka udostępniająca implementację pewnych operacji macierzowych wykorzystywanych przy modelach, brakujących w pozostałych bibliotekach np. dekompozycję QZ,
+    \item \libname{Matplotlib} -- biblioteka udostępniająca metody generowania wykresów w Pythonie, wykorzystywana do wyświetlania wyników prognozowania dla modeli RBC i DSGE.
+\end{itemize}
+
+\subsection{Plik modelu}
+
+W tej części zostanie omówiony plik modelu wykorzystywany przez solucję. Poniższa struktura przestawia model zaprezentowany w sekcji \ref{sec:full_linear_model_sample}. Plik składa się z następujących części:
+\begin{itemize}
+    \item Nazwa modelu (\emph{name}).
+    \begin{lstlisting}[language=json,firstnumber=1]
+ "name": "nek model simple monetary"
+    \end{lstlisting}
+    
+    \item zmienne stanu (\emph{variables}) -- zmienne makroekonomiczne występujące w opisywanej gospodarce. Na tym etapie nie ma potrzeby rozdzielenia na zmienne stanu i kontrolne, ten podział odbywa się na bazie równań modelu.
+    \begin{lstlisting}[language=json,firstnumber=2]
+ "variables": ["YV", "IV", "CV", "RK", "KV", "WV", "LV", "MC", "PI", "AV", "RQ"]
+    \end{lstlisting}
+    \item zmienne strukturalne (\emph{structural}) -- parametry występujące w równaniach modelu, które są analogicznie przedstawione w postaci listy zmiennych:
+    \begin{lstlisting}[language=json,firstnumber=3]
+ "structural": ["sigmaSt", "phiSt", "alphaSt", "betaSt", "deltaSt", "rhoASt", "psiSt", "thetaSt", "phiPSt", "rhoQSt"]
+    \end{lstlisting}
+    W przypadku wykorzystania estymacji, reprezentacja dla pojedynczej zmiennej może zostać rozszerzona do postaci:
+    \begin{lstlisting}[language=json,firstnumber=2]
+{
+  "name": "rho_g",
+  "display": "\\rho_g"
+},
+    \end{lstlisting}
+    Nazwa zmiennej \emph{name} zostanie wykorzystana w równaniach oraz do nazwania pliku \emph{.png} z wykresem, natomiast \emph{display} zostanie wygenerowana na wykresie wykonanym przy wykorzystaniu rozszerzenia \libname{Matplotlib} przez \LaTeX.
+    \item Zmienne egzogeniczne (\emph{shocks}) -- zmienne odpowiadające szokom przekazane w postaci listy nazw zmiennych:
+    \begin{lstlisting}[language=json,firstnumber=4]
+ "shocks": ["eA"]
+    \end{lstlisting}
+    
+    \item Równania modelu (\emph{model}) -- podzielone na poszczególne kategorie równań:
+    \begin{lstlisting}[language=json,firstnumber=5]
+ "model": {
+    "definitions": [...],
+    "equations": [...],
+    "observables": [...]
+ },
+    \end{lstlisting}
+        \begin{itemize}
+            \item Równania opisujące stan ustalony (\emph{definitions}) -- równania opisujące dodatkowe zmienne dla stanu ustalonego, w celu uproszczenia definicji dla modelu
+            \begin{lstlisting}[language=json,firstnumber=6]
+ "definitions": [
+    "Rss = (1/betaSt)-(1-deltaSt)",
+    "MCss = (psiSt-1)/psiSt",
+    "Wss = (1-alphaSt)*(MCss*((alphaSt/Rss)^alphaSt))^(1/(1-alphaSt))",
+    "Yss = ((Rss/(Rss-deltaSt*alphaSt*MCss))^(sigmaSt/(sigmaSt+phiSt)))*((Wss)*(Wss/((1-alphaSt)*MCss))^phiSt)^(1/(sigmaSt+phiSt))",
+    "Kss = alphaSt*MCss*(Yss/Rss)",
+    "Iss = deltaSt*Kss",
+    "Css = (Wss*(Wss/(Yss*(1-alphaSt)*MCss))^phiSt)^(1/sigmaSt)",
+    "Lss = (1-alphaSt)*MCss*(Yss/Wss)"
+ ]
+            \end{lstlisting}
+            \item Równania modelu (\emph{equations}) -- równania w postaci liniowej opisujące stan równowagi opisywanej gospodarki, zmienne występujące w modelu mogą mieć postać:
+            \begin{itemize}
+                \item zmienne kontrolne z indeksem $(+1)$ np. $C(+1)$,
+                \item zmienne obecnego okresu bez indeksu np $C$,
+                \item zmienne poprzedniego okresu z indeksem $(-k)$ np. $A(-1), A(-3)$.
+            \end{itemize}
+            \begin{lstlisting}[language=json,firstnumber=16]
+ "equations": [
+    "sigmaSt*CV + phiSt*LV = WV",
+    "(sigmaSt/betaSt)*(CV(+1)-CV)=Rss*RK(+1)",
+    "KV = (1-deltaSt)*KV(-1) + deltaSt * IV",
+    "sigmaSt*(CV(+1) - CV) = RQ - PI(+1)",
+    "KV(-1) = MC + YV - RK",
+    "LV = MC + YV - WV",
+    "YV = AV + alphaSt*KV(-1) + (1-alphaSt)*LV",
+    "PI = betaSt*PI(+1)+((1-thetaSt)*(1-betaSt*thetaSt)/thetaSt)*MC",
+    "AV = rhoASt*AV(-1) + eA",
+    "Yss*YV = Css*CV + Iss*IV",
+    "RQ=(1-rhoQSt)*(1 + phiPSt * PI)  + rhoQSt * RQ(-1)"
+ ],
+            \end{lstlisting}
+            
+            
+            \item Równania definiujące zmienne obserwowalne (\emph{observables}) -- równania w postaci:
+            \begin{equation}
+                Y_{a} = f(t) + h(s_t) + g,
+            \end{equation}
+            gdzie funkcja $f$ reprezentuje zależność zmiennej obserwowalnej od obecnego czasu $t$, a $h$ służy mapowaniu wartości wektora $s_t$ na wartość zmiennej obserwowalnej i jako ostatnia g jest stałą. W przykładowym modelu zostaną wykorzystane jedynie proste definicje w celu przygotowania wykresów dla wszystkich zmiennych:
+            \begin{lstlisting}[language=json,firstnumber=29]
+"observables": [
+    "OL = LV",
+    "OC = CV",
+    "OPI = PI",
+    "OK = KV",
+    "OY = YV",
+    "OMC = MC",
+    "OIV = IV",
+    "OW = WV",
+    "ORQ = RQ",
+    "ORK = RK",
+    "OA = AV"
+]
+            \end{lstlisting}
+        \end{itemize}
+    \item Rozkład a priori (\emph{priors}) -- rozkład prawdopodobieńśtwa dla parametrów modelu (w przypadku szoków rozkład opisuje postać szoków dla obecnego momentu)
+    \begin{lstlisting}[language=json,firstnumber=43]
+ "priors": {
+    "eA": {
+        "distribution": "normal",
+        "mean": 1,
+        "variance": 0.1
+    },
+    "sigmaSt": {
+        "distribution": "normal",
+        "mean": 2,
+        "variance": 0.01
+    },
+        ...
+ },
+    \end{lstlisting}
+    Poszczególne elementy są opisane w jeden z następujących sposobów:
+    \begin{itemize}
+        \item jako parametry kalibrowane:
+            \begin{lstlisting}[language=json,firstnumber=43]
+"betaSt": {
+  "distribution": "calibration",
+  "value": 0.99
+},
+            \end{lstlisting}
+        \item jako parametry określone przez odpowiedni rozkład prawdopodobieństwa z dodatkową specyfikacją ograniczeń górnych i dolnych dla zmiennej:
+            \begin{lstlisting}[language=json,firstnumber=43]
+"alpha_x": {
+  "distribution": "normal",
+  "mean": 0.2028,
+  "variance": 0.1,
+  "lowerBound": 0,
+  "upperBound": 1
+},
+            \end{lstlisting}        
+    \end{itemize}
+    \item Dane do estymacji modelu (\emph{estimations}) -- opisane w osobnym pliku \emph{.csv} lub w postaci tablicy danych. Każda pozycja dla estymowanych danych musi definiować tyle wartości ile zmiennych obserwowalnych zdefiniowanych w pliku w sekcji \emph{observables}. Model z sekcji \ref{sec:full_linear_model_sample} został jedynie przygotowany pod prognozowanie, stąd poniższa reprezentacja pochodzi z innego modelu i nie odpowiada przykładowym wartością obserwowalnym:
+    \begin{lstlisting}[language=json,firstnumber=1]
+"estimations": {
+    "data": [
+        ["1.0", "1.0"],
+        ["2.0", "1.5"],
+        ["1.0", "1.0"],
+        ["1.5", "1.25"]
+    ]
+}
+    \end{lstlisting}
+    W celu specyfikacji pliku z danymi estymacji stosujemy poniższą reprezentację:
+    \begin{lstlisting}[language=json,firstnumber=1]
+"estimations": {
+    "name": "samples/ireland_data.csv"
+}
+    \end{lstlisting}
+\end{itemize}
+
+\section{Wyniki prognozowania i estymacji}
+
+W tej części pracy zostaną przedstawione wyniki dla zaprezentowanego modelu oraz pozostałych wykorzystanych w trakcie implementacji. Rozdział \ref{sec:results_nek_prod} opisuje wyniki modelu nowokeynesowskiego dla impulsowego szoku produktywności. Kolejna sekcja \ref{sec:results_nek_mon} poświęcona jest wynikom tego samego modelu w reakcji na impulsowy szok monetarny. W rozdziale \ref{sec:results_rbc_prod} przedstawione jest porównanie wyników szoku impulsowego z prostym modelem RBC w celu opisania różnic obu teorii. 
+
+\subsection{Wyniki prognozowania dla szoku produktywności w modelu NEK}
+\label{sec:results_nek_prod}
+
+Wykonano symulację prognoz modelu dla szoku impulsowego dla wartości wskazanej w kalibracji sekcji \ref{sec:full_linear_model_sample}. Poniżej zaprezentowane zostały wykresy dla prognozowanych zmiennych:
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/L.png}
+      \captionof{figure}{Czas pracy}
+      \label{fig:nek:L}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/C.png}
+      \captionof{figure}{Konsumpcja}
+      \label{fig:nek:C}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/PI.png}
+      \captionof{figure}{Inflacja}
+      \label{fig:nek:PI}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/K.png}
+      \captionof{figure}{Kapitał}
+      \label{fig:nek:K}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/Y.png}
+      \captionof{figure}{Produkcja}
+      \label{fig:nek:Y}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/MC.png}
+      \captionof{figure}{Koszt krańcowy}
+      \label{fig:nek:MC}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/I.png}
+      \captionof{figure}{Inwestycje}
+      \label{fig:nek:I}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/W.png}
+      \captionof{figure}{Realna płaca}
+      \label{fig:nek:W}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/RQ.png}
+      \captionof{figure}{Stopa procentowa}
+      \label{fig:nek:RQ}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/RK.png}
+      \captionof{figure}{Zwrot z kapitału}
+      \label{fig:nek:RK}
+    \end{minipage}%
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek/A.png}
+      \captionof{figure}{Produktywność}
+      \label{fig:nek:A}
+    \end{minipage}
+\end{center}
+
+Skutkiem szoku produktywności jest wzrost konsumpcji, produkcji, inwestycji oraz płac realnych w czasie zwiększonej produktywności. Gospodarstwa domowe reagują zwiększając konsumpcję oraz inwestycję w celu zbudowania kapitału. Chwilowo czas pracy jest zwiększony przez nagły wzrost zmiennych, jednak z czasem pasywny wpływ z większego kapitał prowadzi do większej użyteczności, stąd zmniejszenie czasu pracy poniżej oryginalnego poziomu. Krańcowa użyteczność konsumpcji względem czasu wolnego spada, ze względu na zwiększone zarobki, a gospodarstwa zarabiając tyle samu w mniejszym czasie pracy. Inflacja gospodarki początkowo wzrasta zgodnie ze wzrostem ilości dóbr na rynku, jednak z czasem spadku pracy oraz dużej ilości towarów na rynku odnotowujemy spadek cen w kolejnych okresach. Zmiana inflacji odpowiada korekcji na stopę procentową zgodnie z przyjętą regułą polityki monetarnej. Wraz ze wzrostem kapitału początkowy zwrot z kapitału spada do wartości poniżej stanu ustalonego, a co za tym idzie spadek zysku z inwestycji gospodarstw domowych. Ostatecznie szok produktywności prowadzi do wzrostu dla produkcji i użyteczności.
+
+\subsection{Wyniki prognozowania dla szoku monetarnego w modelu NEK}
+\label{sec:results_nek_mon}
+
+Dla wybranego modelu przeanalizowana również szok monetarny. Wprowadzenie go do modelu odbyło się poprzez zmianę równania polityki monetarnej \eqref{eq:monetary_nek_full_final}:
+\begin{equation}
+    r^q_t = (1-\rho_Q)r^{q^*}_t + \rho_Q r^q_{t-1} + \epsilon_{M,t},
+\end{equation}
+gdzie zmienna $\epsilon_{M,t}$ opisuje szok polityki monetarnej z kalibracją:
+\begin{gather}
+        \epsilon_{M,t} =
+        \begin{cases}
+            0.01 & \text{dla $t = 1$,} \\
+            0 & \text{dla $t > 1$.}
+        \end{cases}
+\end{gather}
+Poniższe wykresy prezentują rezultat prognozowania:
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/L.png}
+      \captionof{figure}{Czas pracy}
+      \label{fig:nek-monetary:L}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/C.png}
+      \captionof{figure}{Konsumpcja}
+      \label{fig:nek-monetary:C}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/PI.png}
+      \captionof{figure}{Inflacja}
+      \label{fig:nek-monetary:PI}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/K.png}
+      \captionof{figure}{Kapitał}
+      \label{fig:nek-monetary:K}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/Y.png}
+      \captionof{figure}{Produkcja}
+      \label{fig:nek-monetary:Y}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/MC.png}
+      \captionof{figure}{Koszt krańcowy}
+      \label{fig:nek-monetary:MC}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/I.png}
+      \captionof{figure}{Inwestycje}
+      \label{fig:nek-monetary:I}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/W.png}
+      \captionof{figure}{Realna płaca}
+      \label{fig:nek-monetary:W}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/RQ.png}
+      \captionof{figure}{Stopa procentowa}
+      \label{fig:nek-monetary:RQ}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/RK.png}
+      \captionof{figure}{Zwrot z kapitału}
+      \label{fig:nek-monetary:RK}
+    \end{minipage}%
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/nek-monetary/A.png}
+      \captionof{figure}{Produktywność}
+      \label{fig:nek-monetary:A}
+    \end{minipage}
+\end{center}
+
+Pierwszym z wniosków jaki nasuwają wyniki wpływu szoku monetarnego jest spadek wielu zmiennych w pierwszym okresie ze względu na nagłą zmianę stopy procentowej. Możemy zauważyć, że w reakcji na zdarzenie gospodarstwa domowe obniżają czas pracy, konsumpcję oraz inwestycje. W przypadku konsumpcji negatywna zmiana utrzymuje się długofalowo w odpowiedzi do podwyższonej stopy procentowej. Jedną z interpretacji tego faktu może być nagły spadek cen obligacji skarbowych, które okazują się dobrym źródłem lokowania zarobków i pozytywnego zysku, jako że model przedstawia wartość kosztu obligacji jako $\frac{1}{R_t^Q}$. Ta zmiana nie utrzymuje się w przypadku inwestycji, gdzie zwrot z kapitału powraca do normy po początkowym impulsowym spadku. Niestety deprecjacja kapitału sprawia, że powraca on do stanu równowagi w podobnym tempie jak konsumpcja oraz stopa procentowa. W przypadku firm szok monetarny nie wpływa na produktywność, stąd po impulsowym spadku produkcji sytuacja powraca do równowagi w kolejnych okresach, wszelkie długofalowe zmiany są ograniczone w problemie użyteczności gospodarstw domowych.
+
+\subsection{Wyniki prognozowania dla szoku produktywności w modelu RBC}
+\label{sec:results_rbc_prod}
+
+W rozdziale \ref{sec:rbc_model_sample} przedstawiono model RBC. W tej części zostanie przytoczona pełna postać tego modelu po przeprowadzeniu linearyzacji, skalibrowane wartości parametrów odpowiadają modelowi nowokeynesowskiemu \ref{sec:full_linear_model_sample}.
+
+Model prezentuje się następująco:
+\begin{enumerate}
+    \item Stan ustalony modelu:
+        \begin{align}
+                \steady{A} &= 1, \\
+                \steady{R}^K &= \frac{1}{\beta} - (1 - \delta), \\
+                \steady{W} &= (1-\alpha)\left(\steady{A} \left(\frac{\alpha}{\steady{R}^{K}}\right)^\alpha\right)^{\frac{1}{1-\alpha}}, \\
+                \steady{Y} &= \left( \steady{W} \left( \frac{\steady{W}}{1-\alpha}\right)^\phi\right)^{\frac{1}{\sigma + \phi}} \frac{\steady{R}}{\steady{R} - \delta \alpha}^{\frac{\sigma}{\sigma + \phi}}, \\
+                \steady{L} &= (1-\alpha)\frac{\steady{Y}}{\steady{W}}, \\
+                \steady{K} &= \alpha\frac{\steady{Y}}{\steady{R}^K},\\
+                \steady{I} &= \delta \steady{K}, \\
+                \steady{C} &= \steady{Y} - \steady{I}.
+        \end{align}
+    \item Równania modelu:
+    \begin{gather}
+        \sigma c_{t} + \phi l_t = w \\
+        \frac{\sigma}{\beta} (\E_t c_{t+1} - c_t) = \steady{R}^K \E_t r^K_{t+1} \\
+        k_t = (1 - \delta) k_{t-1} + \delta i_t \\ 
+        y_t = a_t + (1-\alpha) l_t + \alpha k_{t-1} \\
+        r^K_t = y_t - k_{t-1}   \\
+        w_t = y_t - l_t \\
+        \steady{Y} y_t = \steady{C} c_t + \steady{I} i_t \\
+        a_t = \rho a_{t-1} + \epsilon_{A,t}
+    \end{gather}
+    \item Kalibracji parametrów:
+        \begin{center}
+            \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|}
+                \hline
+                Parametr & Wartość \\
+                \hline 
+                $\sigma$ & $2$\\
+                $\phi$ & $1.5$ \\
+                $\alpha$ & $0.35$ \\
+                $\beta$ & $0.985$ \\
+                $\delta$ & $0.035$ \\
+                $\rho_A$ & $0.95$ \\
+                \hline 
+            \end{tabular} 
+         \end{center}
+    \item Kalibracja szoków (szok impulsowy):
+    \begin{gather}
+        \epsilon_{A,t} =
+        \begin{cases}
+            0.1 & \text{dla $t = 1$,} \\
+            0 & \text{dla $t > 1$.}
+        \end{cases}
+    \end{gather}
+\end{enumerate}
+
+Rezultaty prognozowania zostały wykonane ponownie dla 40 okresów. Na wykresach czerwoną linią zostały przedstawione wyniki modelu RBC, natomiast przerywaną linią zostały naniesione dla porównania wyniki modelu nowokeynesowskiego \ref{sec:full_linear_model_sample}. 
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/L.png}
+      \captionof{figure}{Czas pracy}
+      \label{fig:rbc:L}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/C.png}
+      \captionof{figure}{Konsumpcja}
+      \label{fig:rbc:C}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/K.png}
+      \captionof{figure}{Kapitał}
+      \label{fig:rbc:K}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/Y.png}
+      \captionof{figure}{Produkcja}
+      \label{fig:rbc:Y}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/I.png}
+      \captionof{figure}{Inwestycje}
+      \label{fig:rbc:I}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/W.png}
+      \captionof{figure}{Realna płaca}
+      \label{fig:rbc:W}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/RK.png}
+      \captionof{figure}{Zwrot z kapitału}
+      \label{fig:rbc:RK}
+    \end{minipage}%
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/rbc/A.png}
+      \captionof{figure}{Produktywność}
+      \label{fig:rbc:A}
+    \end{minipage}
+\end{center}
+Możemy zauważyć podobną reakcję zmiennych modelu na wystąpienie szoku produktywności co w modelu DSGE, jednak w przypadku modelu z konkurencją doskonałą odchylenia wartości zmiennych od stanu ustalonego są mniejsze. Z czasem zjawiska sztywności modelu nowokeynesowskiego wygasają i wartości obu modeli zbiegają do podobnego poziomu przed powrotem do stanu ustalonego. Produkcja w obu gospodarkach jest niemalże identyczna z ograniczeniem do potencjalnie innej wartości stanu ustalonego w zależności od wartości parametrów modelu.
+
+\subsection{Wyniki estymacji bayesowskiej dla modelu gospodarki Irlandii}
+
+W celu zaprezentowania wyników estymacji zostanie wykorzystany model Irlandii z pracy \cite{NBERw10309} opracowany w repozytorium \cite{Pfeifer_DSGE_mod_A_collection} razem z danymi estymacji oraz rozkładem a priori dla przedziału od 1940 do 2004 roku.
+
+Model prezentuje się następująco:
+\begin{enumerate}
+    \item Równania modelu:
+    \begin{gather}
+        a_{t} = \rho_A a_{t-1} + \epsilon_{A,t},\\
+        e_{t} = \rho_E e_{t-1} + \epsilon_{E,t},\\
+        z_{t} = \epsilon_{Z,t},\\
+        x_{t} = \alpha_X x_{t-1} + (1 - \alpha_X)\E_t x_{t+1} - (\hat{r} - \E_t \hat{\pi}_{t+1}) + (1-\omega) (1-\rho_A)a_{t},\\
+        \hat{\pi}_{t} = \beta(\alpha_\pi \hat{\pi}_{t-1} + (1-\alpha_\pi)\E_t \hat{\pi}_{t+1} + \psi x_{t} - e_{t},\\
+        x_{t} = \hat{y}_t - \omega a_{t},\\
+        \hat{g}_{t} = \hat{y}_{t} - \hat{y}_{t-1} + z_t,\\
+        \hat{r}_t - \hat{r}_{t-1} = \rho_\pi \hat{\pi}_t + \rho_g \hat{g}_t + \rho_X x_t + \epsilon_{R,t}.
+    \end{gather}
+    \item Zmienne obserwowalne:
+    \begin{gather}
+        g_{obs} = \hat{g}_t,\\
+        r_{obs} = \hat{r}_t,\\
+        \pi_{obs} = \hat{\pi}_t.
+    \end{gather}
+    \item Kalibracji parametrów:
+        \begin{center}
+            \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|}
+                \hline
+                Parametr & Wartość \\
+                \hline 
+                $\beta$ & $0.99$\\
+                $\psi$ & $0.99$ \\
+                \hline 
+            \end{tabular} 
+         \end{center}
+    \item Rozkład parametrów:
+        \begin{center}
+            \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|p{0.2\textwidth}|}
+                \hline
+                Parametr & A priori & Ograniczenia\\
+                \hline 
+                $\omega$ & $0.00001$ & brak\\
+                $\alpha_X$ & $0.2028$ & $[0,1]$\\
+                $\alpha_\pi$ & $0.00001$ & $[0,1]$ \\
+                $\rho_g$ & $0.2365$ & $[0,1]$ \\
+                $\rho_\pi$ & $0.3053$ & $[0,1]$ \\
+                $\rho_X$ & $0.00001$ & $[0,1]$ \\
+                $\rho_A$ & $0.9910$ & $[0,1]$ \\
+                $\rho_E$ & $0.5439$ & $[0,1]$ \\
+                \hline 
+            \end{tabular} 
+         \end{center}
+    \item Rozkład szoków:
+    \begin{gather}
+        \epsilon_{A,t} \sim  \mathcal{N}(0, 0.000912),\\
+        \epsilon_{E,t} \sim  \mathcal{N}(0, 0.000009),\\
+        \epsilon_{Z,t} \sim  \mathcal{N}(0, 0.000079),\\
+        \epsilon_{R,t} \sim  \mathcal{N}(0, 0.000008)
+    \end{gather}
+\end{enumerate}
+
+Przebieg zaakceptowanej przez algorytm próbki prezentuje się następująco:
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/omegaSt.png}
+      \captionof{figure}{$\omega$}
+      \label{fig:estimation:omega}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/alpha_x.png}
+      \captionof{figure}{$\alpha_X$}
+      \label{fig:estimation:alpha_x}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/alpha_pi.png}
+      \captionof{figure}{$\alpha_{\pi}$}
+      \label{fig:estimation:alpha_pi}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/rho_g.png}
+      \captionof{figure}{$\rho_g$}
+      \label{fig:estimation:rho_g}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/rho_pi.png}
+      \captionof{figure}{$\rho_{\pi}$}
+      \label{fig:estimation:rho_pi}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/rho_x.png}
+      \captionof{figure}{$\rho_X$}
+      \label{fig:estimation:rho_x}
+    \end{minipage}
+\end{center}
+
+\begin{center}
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/rho_a.png}
+      \captionof{figure}{$\rho_A$}
+      \label{fig:estimation:rho_A}
+    \end{minipage}%
+    \begin{minipage}{.4\textwidth}
+      \centering
+      \captionsetup{type=figure}
+      \includegraphics[width=.8\linewidth]{images/estimations/rho_e.png}
+      \captionof{figure}{$\rho_E$}
+      \label{fig:estimation:rho_E}
+    \end{minipage}
+\end{center}
+
+Estymacja została wykonana przy pomocy algorytmu \emph{RMWH} dla 1000 rund, ze zmiennym parametrem $c$ w czasie, tj. co 100 iteracji parametr $c$ zmniejszany jest o $75\%$. Pozwala to na zastrzeżenie wyników oraz poprawę parametrów, których duży skok prowadziłby do znaczącego spadku funkcji wiarygodności. Wynikowa kalibracja zmiennych (najlepszy wynik uzyskany w przebiegu) sugeruje spadek znaczenia zmiennych $\rho_g$ oraz $\rho_{\pi}$ odpowiadających za informację zwrotną z luki PKB oraz inflacji, dodatkowo możemy zauważyć znaczny wzrost wartości w pierwszych iteracjach. Parametr $\omega$ opisujący w modelu ocenę spadku użyteczności pracy był jednym z najbardziej niestabilnych, jego wartość pomiędzy rundami algorytmu znacznie się różniła. Parametr $\rho_A$ opisujący zwrot produktywności z poprzedniego przedziału zachowywał stałą wartość po wstępnym spadku.
+
+
+Jednym z problemów napotkanych przy przygotowaniu estymacji było wskazanie wejściowej macierzy kowariancji $\hat{\Sigma}$ dla algorytmu \emph{Random Walk MH}. Zastosowane parametry powstały na bazie rozkładu a prior wskazanego w pracy. Drugim z problemów był mały wpływ niektórych zmiennych na wartość funkcji wiarygodności, co połączone z dużą wartością macierzy kowariancji $\hat{\Sigma}$ prowadziło do dużej zmienności w wartości zaakceptowanej próbki. Ten efekt był najbardziej zauważalny dla wartości zmiennej $\omega$, która zmieniała się drastycznie w czasie działania estymacji nawet na etapie wygaszania aproksymacji, kiedy zmienna $c$ była już znacząco obniżona zgodnie ze zastosowaną wersją opisaną w \ref{sec:rwmh_algorithm}.
+
+Kolejnym z problemów był brak możliwości interpretacji wartości parametrów, które opisują własności agentów oraz komponentów modelu i nie są wartościami obserwowalnymi gospodarki. Dodatkowo model opierał się o rozbudowaną teorię ekonomiczną i realne dane gospodarcze, co znacznie utrudniało zrozumienie dostarczonych danych ekonomicznych. 
+
+Ostatnim z napotkanych problemów było wskazanie macierzy kowariancji szoku. W przypadku wykonania estymacji przy użyciu programu \emph{Dynare}, na wyjściu analizy modelu wskazana została przeskalowana macierz kowariancji, stąd pojawiło się pytanie, czy nie jest wymagany dodatkowy algorytm pozwalający na konstrukcję i poprawę szoków wprowadzanych do filtru z informacji uzyskanych w pracy. 
+
+% Jeden z problemów napotkanych przy wykonywaniu estymacji było wskazanie wejściowej macierzy kowariancji $\Sigma$ potrzebnej w tym wariancie algorytmu Metropolisa-Hastingsa. Zastosowane parametry wejściowe doprowadziły do dużej zmiany wartości parametrów z małą wartością w etapie wygaszania aproksymacji. Model opierał się o rozbudowaną teorię ekonomiczną, co prowadziło do dosyć trudnego wyszukiwania błędów i popraw oraz wykluczało prostą interpretację. Dodatkowo budowa macierzy kowariancji szoku z dostępnych danych doprowadziła do pytania, czy nie jest wymagany dodatkowy algorytm pozwalający na konstrukcję i poprawę szoków wprowadzanych do filtru z informacji uzyskanych w pracy.

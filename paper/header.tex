@@ -1,0 +1,169 @@
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage[protrusion=false]{microtype}
+\usepackage{fancyhdr}
+\usepackage{amssymb}
+\usepackage{url,hyperref}
+\hypersetup{
+    colorlinks = true,
+    linkcolor=.,
+    citecolor=.,
+    urlcolor = {blue}
+}
+\usepackage{multirow,multicol}
+\usepackage[singlelinecheck=false,skip=2pt]{caption}
+\usepackage{booktabs,float,tabularx,ltablex}
+\usepackage[flushleft]{threeparttable}
+\usepackage{enumitem}
+\usepackage{pstricks,graphicx}
+\usepackage{amsmath}
+\usepackage[nottoc]{tocbibind}
+\usepackage{natbib}
+% \bibliographystyle{apalike}%--- Styl bibliograficzny APA 6th
+\usepackage{lipsum}
+\usepackage{chngcntr}
+\counterwithout{table}{chapter}
+\counterwithout{figure}{chapter}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.14}
+\floatstyle{plaintop}
+\newfloat{wykres}{tbph}{loc}
+\floatname{wykres}{Wykres}
+\usepackage{cleveref}
+\crefname{wykres}{wykres}{wykres}
+\Crefname{wykres}{wykres}{Wykres}
+\newcommand\listofcharts{\listof{wykres}{Spis wykresów}}
+\usepackage{geometry}
+\newgeometry{tmargin=2.5cm, bmargin=2.5cm, headheight=16pt, inner=2.5cm, outer=2.5cm} 
+\usepackage{pdflscape}
+\usepackage{rotating}
+\usepackage{theorem}
+\theoremstyle{break}
+\theorembodyfont{\it}
+\newtheorem{definition}{Definicja}[section]
+\newtheorem{algDefinition}{Algorytm}[section]
+\theorembodyfont{\rm}
+
+\newtheorem{theorem}{Twierdzenie}
+\newtheorem{defi}{Definicja}[chapter]
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage[ruled,vlined,noend]{algorithm2e}
+\usepackage{minted}
+\usepackage{diagbox}
+\usepackage{todonotes}
+
+% \renewcommand{\thesection}{\arabic{section}}
+\SetAlgorithmName{Algorytm}{List of protocols}
+
+%%%%%%%%%%%%%%%%%%%%%%% --- Ustawienia układu strony --- %%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{fancy}
+%---Druk jednostronny. Aby wyłączyć należy dodać % przed \. Aby włączyć należy usunąć % prze \.
+
+%\fancyhead[C]{} 
+%\fancyfoot[R]{\thepage}
+%\fancyhead[L]{\scriptsize\leftmark}
+%\fancyhead[R]{\scriptsize\rightmark}
+%\cfoot[]{}
+%\fancypagestyle{plain}{%
+%\fancyhf{} % clear all header and footer fields
+%\fancyfoot[R]{\textbf{\thepage}} % except the center
+%\renewcommand{\headrulewidth}{0pt}
+%\renewcommand{\footrulewidth}{0pt}}
+
+\setcounter{secnumdepth}{4}
+%---Druk dwustronny. Aby wyłączyć należy dodać % przed \. Aby włączyć należy usunąć % prze \.
+
+\fancyhead[LE,RO]{\scriptsize\leftmark}
+\fancyhead[RE,LO]{{\scriptsize \rightmark}}
+\fancyfoot[CE,CO]{}
+\fancyfoot[LE,RO]{\thepage}
+\cfoot[]{}
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[LE,RO]{\textbf{\thepage}} % except the center
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+
+%%%% Komendy dodatkowe
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\dash}[1]{\hat{#1}}
+\newcommand{\ddash}[1]{\widetilde{\widetilde{#1}}}
+\newcommand{\Lagr}{\mathcal{L}}
+
+\newcommand{\fpath}[1]{\texttt{#1}}
+\newcommand{\libname}[1]{\textsc{#1}}
+
+\newcommand{\steady}[1]{\bar{#1}_s}
+\newcommand{\C}{\mathbb{C}} 
+
+%%%%%%%%%%%%%%%%%%%%%%% --- Koniec edycji układu strony. Proszę nie edytować --- %%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\chaptermark}[1]{%
+\markboth{\MakeUppercase{%
+\chaptername}\ \thechapter.%
+\ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection.\ #1}}
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{background},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+\usetikzlibrary{shapes, arrows, arrows.meta, calc,fit, backgrounds, shapes.multipart, positioning}
+\tikzset{box/.style={draw, rectangle, rounded corners, thick, node 
+distance=7em, 
+text width=6em, text centered, minimum height=3.5em}}
+%\tikzset{line/.style={draw, thick, -{Latex[length=2mm,width=1mm]}}}
+\tikzset{every node/.style={font=\scriptsize}}
+
+\lstdefinelanguage{args}{
+sensitive=false,
+alsoletter={.},
+moredelim=[s][\color{red}]{<}{>},
+moredelim=[s][\color{blue}]{[}{]},
+moredelim=[is][\color{orange}]{:}{:},
+keywords=[10]{...},
+keywordstyle=[10]{\color{magenta}},
+}
+
+\lstnewenvironment{arguments}
+{\lstset{language=args}}
+{}
+
+\makeatletter
+\renewcommand{\fnum@figure}{Rys. \thefigure}
+\makeatother

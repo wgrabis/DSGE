@@ -164,6 +164,6 @@
     }
   },
   "estimations": {
-    "name": "samples/ireland_data.csv"
+    "name": "../samples/ireland_data.csv"
   }
 }

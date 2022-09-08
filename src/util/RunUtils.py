@@ -5,6 +5,7 @@ class RunMode(Enum):
     forecastBlanchard = 'fblanchard'
     estimation = 'estimate'
     testEstimation = 'test_estimate'
+    forecastEstimation = 'festimate'
 
 
 class LogMode(Enum):

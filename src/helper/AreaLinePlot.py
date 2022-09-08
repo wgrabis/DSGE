@@ -12,7 +12,6 @@ class AreaLinePlot(BasePlot):
         self.y_name = y_name
 
     def draw_plot(self, axs):
-        # todo bugged
         axs.fill_between(self.data_x, self.bottom, self.top)
         axs.plot(self.data_x, self.average, color='r')
         axs.plot(self.data_x, [0 for _ in self.data_x], color='b')
@@ -25,7 +24,7 @@ class AreaLinePlot(BasePlot):
         max_y = max(0, max_y)
         min_y = min(0, min_y)
 
-        if min_y < 0 and max_y > 0:
+        if min_y < 0 < max_y:
             max_y = max(abs(min_y), max_y)
             min_y = -1 * max(abs(min_y), max_y)
 

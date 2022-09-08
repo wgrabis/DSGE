@@ -38,28 +38,6 @@ class LikelihoodAlgorithm:
         likelihood = 0.0
 
         for t in range(data.estimation_time):
-            # next_distribution = likelihood_filter.predict(
-            #     distribution.get_vectors(),
-            #     transition_matrix,
-            #     shock_matrix,
-            #     model.shock_prior.get_covariance(),
-            #     noise_covariance
-            # )
-            #
-            # logger.debug("Likelihood-update")
-            # logger.debug(next_distribution)
-            #
-            # distributions_history.append(next_distribution)
-            # measurement = data[t]
-            #
-            # updated_distribution, point_likelihood = likelihood_filter.update(
-            #     transition_matrix, t,
-            #     next_distribution.get_vectors(),
-            #     measurement_matrix,
-            #     measurement_function,
-            #     model.measurement_noise_covariance,
-            #     measurement
-            # )
             next_distribution, point_likelihood = likelihood_filter.filter(t, distribution.get_vectors(), data[t])
             distributions_history.append(next_distribution)
 
@@ -73,18 +51,14 @@ class LikelihoodAlgorithm:
         # distribution(posterior) * distribution(data)
         # (distribution(data)  = distribution1(y1)*distribution2(y2)*... )
 
-        # todo STRUCTURAL
         posterior_probability = model.structural_prior.probability_of(posterior)
 
         logger.info("posterior")
         logger.info(posterior)
         logger.info(model.structural_prior.ordered_params)
         logger.info(posterior_probability)
-        # print(math.exp(-likelihood))
-        posterior_probability += likelihood
 
-        # for t in range(1, data.estimation_time):
-        #     posterior_probability *= distributions_history[t - 1].probability_of(data.measurements[t - 1])
+        posterior_probability += likelihood
 
         logger.info("posterior probability")
         logger.info(posterior_probability)

@@ -1,6 +1,4 @@
 from filter.FilterFactory import KalmanFilterFactory
-from filter.KalmanFilter import KalmanFilter
-from filter.NewKalmanFilter import NewKalmanFilter
 from model.DefinitionSet import DefinitionSet
 from model.Distribution import NormalVectorDistribution
 from model.DsgeModel import DsgeModel

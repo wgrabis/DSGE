@@ -1,0 +1,958 @@
+\section{Wprowadzenie}
+\label{sec:models_intro}
+
+Dynamiczne Stochastyczne Modele Równowagi Ogólnej (DSGE, \emph{Dynamic Stochastic General Equilibrium}) są obecnie szeroko stosowanymi narzędziami makroekonomicznymi. Na strukturę modeli składają się zmienne oraz wiążące je równania w ramach pewnych praw i tożsamości ekonomicznych. W tym rozdziale zostanie szerzej omówiona konstrukcja modeli makroekonomicznych DSGE wraz z teoretycznymi podstawami prezentowanych równań. Poszczególne rozdziały omawiają różne komponenty składające się na typowy model. Dodatkowo w ramach podrozdziałów zostają przedstawione warianty równań wynikające z charakterystyk modelowanych instytucji lub podmiotów gospodarczych.
+
+Zmienne występujące w modelach DSGE można podzielić na następujące kategorię:
+\begin{itemize}
+    \item Zmienne endogeniczne -- zmienne opisujące wartości makroekonomiczne gospodarki takie jak konsumpcja, produkcja, inwestycje lub stopy procentowe. Zmienne endogeniczne będą nazywane także zmiennymi stanu oraz oznaczane wielkimi literami.
+    \item Parametry modelu -- zmienne opisujące pewne własności agentów i innych komponentów modelu. Zgodnie z wprowadzeniem są one w dużej mierze niezależne od przybranej polityki gospodarczej, pośród nich można wymienić parametry opisujące wpływ kapitału na produkcję oraz skłonność konsumentów do wymiany jednego produktu na inny. Parametry będą oznaczane literami alfabetu greckiego.
+    \item Zmienne egzogeniczne -- zmienne opisujące szoki, tj. procesy stochastyczne będące źródłem wahań na rynku. Celem rozwiązania modeli DSGE jest zbadanie wpływu szoków na modelowaną gospodarkę. Zostaną one wprowadzone w podrozdziale \ref{sec:shocks} oraz będą oznaczane przez zmienne $\epsilon_{X, j}$ z odpowiednim symbolem w miejscu $X$ w zależności od opisywanego zjawiska.
+\end{itemize}
+
+Powyższe zmienne i parametry są powiązane ze sobą w układzie równań modelu. Formy funkcyjne równań mają uzasadnienie ekonomiczne w istniejących uprzednio pracach teoretycznych lub są generalizacjami regularności wyprowadzonych z badań empirycznych zależności gospodarczych. Głównym zadaniem modeli DSGE jest wyznaczanie stanu gospodarki na bazie danych makroekonomicznych oraz odpowiedniego doboru lub wnioskowania parametrów, aby móc badać wpływ szoków na wartości zmiennych modelu.
+
+\subsection{Komponenty modeli DSGE}
+
+Modele DSGE powstały na bazie połączenia zachowań optymalizujących agentów, przejawiających pewne zachowania oraz oczekiwania, z elementami makroekonomicznymi, wyrażanymi przez zmienne agregujące opisujące stan całej gospodarki. Zgodnie z tym komponenty modelu można podzielić na elementy wywodzące się z perspektywy mikro oraz makro. Podstawowymi elementami skali mikro są gospodarstwa domowe oraz firmy. Gospodarstwa pełnią rolę siły roboczej oraz konsumentów, natomiast firmy są producentem dóbr na rynku. Następnie te elementy przekształcane są w agregatowe reguły makroekonomiczne oraz relacje, tworząc fundamenty mikroekonomiczne naszego modelu reprezentowane w skali makro. Łącząc te podstawy z pozostałymi komponentami makroekonomicznymi, takimi jak reguły prowadzonej polityki monetarnej lub interwencjonizm rządowy, tworzymy całościowy model gospodarki.
+
+W celu przybliżenia zależności pomiędzy elementami poniższy schemat prezentuje uproszczone relacje w gospodarce:
+\begin{center}
+    \input{diagram/diagramII-components}
+\end{center}
+Zgodnie z powyższym diagramem oraz wcześniejszymi informacjami, gospodarstwa przedstawiają siłę roboczą zatrudnioną w sektorze firm w celu produkcji dóbr. Następnie firmy gotowe dobra sprzedają na rynku gospodarstwom domowym, co przekłada się na konsumpcję oraz wzrost użyteczności. Obie strony płacą podatki, które zasilają budżet państwa. Zgromadzone środki w budżecie następnie zostają wydane na wsparcie sektora firm poprzez publiczne inwestycje oraz w celu wsparcia sektora gospodarstw poprzez publiczne zatrudnienie lub programy socjalne. Powyższy diagram służy jedynie schematycznemu ujęciu oddziaływania komponentów, nie uwzględnia on takich relacji jak m.in mechanizm inwestycji gospodarstw w firmy lub polityki banku centralnego, który wpływa na całość gospodarki poprzez ustalanie stóp procentowych oraz ustalanie zmian w zasobie pieniądza w gospodarce.
+
+\subsection{Podstawowe dobra rynkowe: konsumpcja oraz praca}
+
+W celu przedstawienia problemu gospodarstw domowych oraz firm, będziemy potrzebowali zdefiniować podstawowe dobra rynkowe w modelu: dobra konsumpcyjne oraz pracę.
+
+Dobra konsumpcyjne są produktami tworzonymi przez firmy, które konsumenci nabywają w celu zwiększenia swojej użyteczności, interpretowanej jako miara "szczęścia". Początkowe modele będą opierały się na nierozróżnialności dóbr konsumpcyjnych -- firmy produkują dobra ocenianie przez konsumentów jako identyczne. Następnie układy równań zostaną rozszerzone o reprezentację rozróżnialnych typów dóbr, jednej z charakterystycznych cech modeli nowokeynesowskich. W takim środowisku gospodarczym konsumenci zainteresowani są nabyciem różnorodnego pakietu dóbr rynkowych, które są do pewnego stopnia wymienialne między sobą.
+
+Drugim podstawowym dobrem jest wyżej wspomniana praca. Gospodarstwa domowe pełnią rolę siły roboczej na rynku, w związku z tym pracę możemy interpretować jako dobro konsumpcyjne. Pracownicy decydują ile czasu poświęcić pracy w danym okresie, co przekłada się na zmianę użyteczności. Zaoszczędzony czas w wyniku redukcji pracy poświęcony jest na zwiększenie szczęścia w postaci użyteczności, np. przeznaczając go na rozwój własnego hobby lub spędzenie czasu z rodziną. Natomiast zwiększenie czasu pracy wpływa na użyteczność negatywnie. Przykładowo badanie modeli DSGE pozwala zbadać zachowanie gospodarstw domowych, czy odkrycie nowej technologii usprawniającej produkcję przekłada się na skłonność do redukcji czasu pracy.
+
+\subsection{Reprezentatywny agent}
+
+Podmioty gospodarcze takie jak konsumenci lub firmy nie mogą być bezpośrednio traktowane jako jednorodne. Zróżnicowanie w preferencjach i oczekiwaniach pojedynczych agentów prowadzi do trudnej do opisania w efektywny sposób niejednorodności, przykładowo firmy produkujące unikalne dobra na rynek mogą przejawiać pewne monopolistyczne zachowania. W związku z tym w modelach makroekonomicznych stosowane jest uproszczenie poprzez zgrupowanie podmiotów w większe kategorie.
+
+Proces grupowania w kategorie nazywany jest wprowadzaniem podmiotów reprezentatywnych. Reprezentatywne podmioty gospodarcze będą w naszym modelu odpowiadały za pewne kategorie agentów ekonomicznych, np. wprowadzimy podmiot reprezentujący pewną gałąź firm produkujących określone dobra lub wprowadzimy reprezentanta dla pewnej grupy konsumentów takich jak klasa niższa (średnia, wyższa), którzy przejawiają podobne preferencje dóbr rynkowych. Podmioty reprezentatywne będą stosowały postaci agregujące, które zostaną przedstawione przy odpowiednich elementach modelu.
+
+\subsection{Teoria Realnego Cyklu Koniunkturalnego RBC}
+
+Teoria modeli realnego cyklu koniunkturalnego (RBC, \emph{Real Business Cycle}) była jedną z dominujących podstaw makroekonomicznych w latach po publikacji pracy Kydlanda i Prescotta \cite{prescott_kydland}, która doprowadziła do powstania i rozwoju metodyki modeli DSGE. Modele RBC były jednymi z pierwszych wprowadzających techniki łączące podstawy makroekonomiczne, tj. teorię cykli koniunkturalnych i agregaty makroekonomiczne, z fundamentami mikroekonomicznymi opisującymi zachowania agentów gospodarczych. Podmioty ekonomiczne są opisane jako optymalizujący agenci tj. konsumenci i firmy, którzy przejawiają pewne oczekiwania i zachowania oraz mają wpływ na gospodarkę poprzez dobieranie czasu pracy lub produkcji. Jednym z ważnych założeń modelu RBC jest założenie panowania doskonałej konkurencji na rynku gospodarczym, co przekłada się na sytuację w której agenci ekonomiczni będą reagować natychmiastowo na wahania, obrazowane poprzez zmianę zachowań oraz oczekiwań w sposób optymalny z równowagą rynkową. Modele RBC argumentują, że źródłem wahań na rynku są zewnętrzne procesy, tj. procesy nie będące wynikiem zachowania modelu gospodarczego, generujące nieprzewidziane zmiany wartości zmiennych ekonomicznych. Te zjawiska nazywane są szokami, jednym z kluczowych rozwiązań zaproponowanych w pracy Kydlanda i Prescotta było opisanie ich wartości poprzez procesy stochastyczne. Zgodnie z wcześniejszym wprowadzeniem, celem modelu jest przeprowadzenie analizy oddziaływania tych procesów na sytuację ekonomiczną w gospodarce.
+
+Podsumowując fundamentalne własności modeli RBC\cite{gali} mogą zostać opisane następująco:
+\begin{itemize}
+    \item Wydajność cyklu koniunkturalnego -- modele RBC zakładają strukturę doskonałej konkurencji wśród gospodarstw domowych i firm, więc pojedyncze podmioty rynkowe mają znikomy wpływ na cenę (wszyscy agenci są cenobiorcami), a cena jest narzucana poprzez stan równowagi rynku.
+    \item Podstawowym szokiem wpływającym na zmiany w produkcji oraz na inne zmienne makroekonomiczne jest szok technologiczny.
+    \item Ograniczona rola polityki monetarnej -- teoria RBC stara się wyjaśnić istnienie cykli koniunkturalnych w gospodarce niezależnie od reguł czy nawet obecności polityki monetarnej.
+\end{itemize}
+
+Modele RBC pozwolą nam przedstawić zależności występujące w podstawowym ujęciu gospodarki, które następnie zostaną wykorzystane w celu konstrukcji modeli ekonomii nowokeynesowskich. W celu przedstawienia doskonałej konkurencji wprowadzimy dwa reprezentatywne dobra konsumpcyjne: pracę oraz produkty tworzone przez firmy (wszystkie firmy produkują towary wyceniane przez konsumentów w identyczny sposób). Podstawowe wersje problemów optymalizujących agentów pozwolą nam opisać metodę przekształcenia problemów decyzyjnych, opisujących zachowania agentów, w warunki pierwszego rzędu w postaci układu równań definiującego stan równowagi ekonomicznej. Zastosowanie tych technik sprowadza zależności mikroekonomiczne do formy makroekonomicznej.
+
+W przedstawionych modelach pieniądz będzie reprezentowany w dosyć ograniczonym stopniu. Służyć on będzie jedynie do wyrażania wartości dóbr i kapitału na rynku, bez wprowadzenia ograniczeń na podaż pieniądza (ilość pieniądza w obiegu). Ta reprezentacja jest zgodna z ograniczoną rolą polityki monetarnej. Modele DSGE pozwalają w zwięzły sposób oddzielić abstrakcję reguł polityki monetarnej od podstawowego układu, opisującego zachowania optymalizujących podmiotów gospodarczych.
+
+\subsection{Teoria Nowej Ekonomii Keynesowskiej NEK}
+
+Współczesna teoria makroekonomii dzieli się na dwa główne nurty ekonomiczne, wcześniej wspomnianą teorię modeli realnego cyklu koniunkturalnego oraz teorię opartą o zasady keynesizmu zwaną Nową Ekonomią Keynesowską (\emph{ekonomia nowokeynesowska})\cite{costaBook}. Teoria ekonomii nowokeynesowskiej rozwijała się równolegle do metodyki RBC w latach 80. XX wieku, starając się wprowadzić fundamenty mikroekonomii do teorii wywodzących się z keynesizmu tj. nieefektywności wahań rynkowych, zjawiska sztywności cen i płac oraz znaczenia polityki monetarnej \cite{gali_gertler}. W związku z tym kluczowa różnica pomiędzy obiema szkołami makroekonomicznymi sprowadza się do podejścia do zjawisk recesji i ekspansji gospodarczych. Teoria realnych cykli koniunkturalnych argumentuje za tym, że te zjawiska są naturalną cykliczną częścią gospodarki i po każdej recesji nadchodzi wzrost, który następnie może doprowadzić do pojawienia się ekspansji. W związku z tym teoria RBC argumentuje, że agregowana gospodarka jest w konkurencji doskonałej, a agenci w optymalny sposób reagują na wahania rynkowe. Teoria modeli nowokeynesowskich w przeciwieństwie zakłada, że nagłe zmiany -- szoki rynkowe -- mogą prowadzić do nieefektywnej reakcji agentów ekonomicznych, objawiającej się wystąpieniem kryzysu ekonomicznego. Te zjawiska z kolei są źródłem napędzającym wahania rynkowe.
+
+Zmiana ta jest kluczowa w przypadku badania wpływu polityki monetarnej na sytuację ekonomiczną. W przypadku modeli RBC teoria argumentuje, że rząd nie ma wpływu na sytuację makroekonomiczną. Z każdą zmianą cen zmieniają się płace, a konsumenci są w stanie kupić tyle samo towarów co w przypadku zastosowania polityki stabilizującej inflację. Wahania są naturalnym elementem gospodarki, w związku z tym modele te często abstrahują od sektora monetarnego i rządowego. Nowa Ekonomia Keynesowska opierająca swe podstawy w teorii Keynesa stara się udowodnić znaczenie interwencji polityki monetarnej i rządowej w reakcji na zmiany gospodarcze. Przykładowo wystąpienie zjawiska sztywności płac może wymagać wprowadzenia do gospodarki programów socjalnych, w celu poprawienia sytuacji gospodarstw domowych.
+
+W związku z tym w modelach nowokeynesowskich charakterystyczną cechą gospodarki jest wystąpienie zjawiska konkurencji niedoskonałej. Gospodarka w środowisku konkurencji doskonałej prowadzi do sytuacji w której firmy mają znikomy na obecny stan cen -- dobra są nierozróżnialne, firmy w związku z tym biorą narzuconą cenę i zgodnie z nią ustalają produkcję. Konkurencja niedoskonała opiera się na wprowadzeniu rozróżnialności dóbr na rynku, a co za tym idzie firmy -- producenci nie zawsze będą chcieli zmieniać ceny zgodnie ze stanem równowagi rynkowej. Konsumenci będą dążyli do zaopatrzenia w pełen pakiet dóbr rynkowych, godząc się zapłacić nieoptymalną cenę w celu nabycia unikalnego dobra. Przedstawione modele w pracy będą opierały się na wprowadzeniu monopolistycznej konkurencji opisanej niżej w sekcji \ref{sec:monopol_comp}.
+
+Przedstawione w pracy modele Nowej Ekonomii Keynesowskiej będą charakteryzowały się następującymi cechami\cite{gali}:
+\begin{itemize}
+    \item Monopolistyczna konkurencja -- typ konkurencji niedoskonałej, która zostanie opisana przez modele ekonomii nowokeynesowskiej.
+    \item Sztywność cen -- zjawisko opisujące zachowanie cen na rynku.
+    \item Krótkoterminowy wpływ polityki monetarnej -- przez zaistnienie lepkości cen, krótkoterminowe zmiany nominalnej stopy nie odpowiadają natychmiastowym zmianom w inflacji, co prowadzi do zmienności realnej stopy procentowej. Ta zmienność prowadzi do zmian w konsumpcji oraz inwestycji gospodarstw domowych, prowadząc do krótkoterminowych zmian w produkcji i zatrudnienia w gospodarce. Jest to efekt krótko chwilowy, gdyż z czasem sztywności cen i płac zanikają, normalizując te wartości ze stanem równowagi gospodarczej.
+\end{itemize}
+
+Modele nowokeynesowskie DSGE mogą zostać opisane jako synteza teorii Nowej Ekonomii Keynesowskiej z modelami RBC \cite{gali_gertler}. Wprowadzenie optymalizujących agentów, takich jak domostwa, opiera się o te same techniczne podstawy, rozszerzając jedynie wykorzystane formy równań w celu zobrazowania różnorodności dóbr rynkowych. Oba typy modeli wykorzystują te same równania opisujące szoki ekonomiczne oraz współdzielą wykorzystywane agregaty ekonomiczne. Przedstawione w pracy formy funkcyjne będą opisywane rozpoczynając od podstawowych wariantów, rozróżniając formy wykorzystywane w modelach nowokeynesowskich.
+
+\subsubsection{Monopolistyczna konkurencja}
+\label{sec:monopol_comp}
+
+Monopolistyczna konkurencja jest szeroko stosowaną metodą przedstawienia konkurencji niedoskonałej we współczesnych modelach nowokeynesowskich. Historia teorii monopolistycznej konkurencji sięga pracy \emph{The Theory of Monopolistic Competition} Edwarda Chamberlina z 1933 roku. W przypadku teorii konkurencji doskonałej cena maksymalizująca zysk każdego producenta jest równa wartości w stanie równowagi ekonomicznej \cite{mono_comp_theory}, każde dobro rynkowe traktowane jest identycznie i ustalenie zawyżonej ceny doprowadziłoby do braku podaży na produkowane dobro. W związku z tym fundamentem monopolistycznej konkurencji jest wprowadzenie wielu rozróżnialnych dóbr na rynek, każde z nich będzie produkowane przez pewien sektor firm obrazowany w modelu poprzez pojedynczą reprezentatywną firmę. Rozróżnialne dobra będą charakteryzowały się parametrem substytucji dóbr, opisującym jak konsumenci oceniają zamianę dobra na inne. W takiej sytuacji ustalenie ceny niezgodnej z warunkami równowagi gospodarczej nie będzie przekładało się na brak podaży produktu, jako że konsumenci dążą do uzyskania pełnego pakietu dóbr. Przykładowo kupno samochodu nie może być zastąpione przez zwiększenie ilości wyjść do restauracji lub kina. Każda reprezentatywna firma będzie produkowała unikalne dobro i dążyła do maksymalizacji zysku w obrębie tego produktu, co zostanie opisane w sekcji \ref{sec:firms_nek}.
+
+Zastosowanie monopolistycznej konkurencji we współczesnych modelach DSGE można przypisać już wczesnym modelom, takim jak np. praca Blancharda i Kiyotakiego z roku 1987  \cite{blanchard_mono_comp}. W ramach tych badań przedstawiono modele z podstawami mikroekonomicznymi, które starały się wyjaśnić wpływ monopolistycznej konkurencji na zjawisko sztywności cen oraz efekt zastosowania polityki monetarnej. 
+
+\subsubsection{Sztywność/lepkość cen}
+
+Zjawiskiem sztywności cen nazywamy sytuację, kiedy ceny dóbr na rynku nie zmieniają się natychmiastowo wraz ze zmianą wartości wynikającej ze stanu równowagi modelu. Istnienie lepkości motywowane jest pewnymi realnymi obserwacjami niedoskonałości rynku, np. zmiana cen może nieść za sobą pewien koszt (np. zmiana menu w sieci restauracji) lub pewną trudność wprowadzenia nowej ceny w dużej firmie, stąd agenci nie będą chcieli w każdym okresie dostosować cenę swoich produktów.
+
+\subsubsection{Mechanizm wyceny Calvo}
+
+Szeroko stosowaną techniką, opisującą metodę ustalania cen w modelach z monopolistyczną konkurencją. jest mechanizm wyceny Calvo. Jego zastosowanie będzie służyło do opisania zjawiska sztywności w skali makro modelu, upraszając metodę wyznaczania cen przez firmy w celu zaprezentowania prostego procesu dla reprezentatywnych firm. Mechanizm wyceny Calvo zostanie szerzej zaprezentowany w rozdziale \ref{sec:price_level}.
+
+\section{Problem gospodarstw}
+
+Pierwszym elementem jaki zostanie wprowadzony są omówione wcześniej gospodarstwa domowe, które pełnią rolę siły roboczej oraz konsumentów dóbr produkowanych na rynku. Z problemem gospodarstw związana jest teoria wyboru konsumenta \cite{duesenberry}, która opisuje zachowania i zmiany oczekiwań tej grupy. Ten zbiór zachowań możemy podsumować następującymi własnościami:
+\begin{itemize}
+    \item maksymalizacja użyteczności -- konsumenci podejmują decyzje zapewniające im największy zysk,
+    \item niezaspokojenie potrzeb -- gospodarstwa zawsze zyskują na powiększeniu konsumpcji, czyli wzrostowi tej wartości będzie zawsze towarzyszył wzrost wartości użyteczności,
+    \item wraz ze zwiększaniem konsumpcji danego produktu, przyrost zadowolenia z towaru maleje, wynika to z faktu dążenia gospodarstw do uzyskania zróżnicowanego pakietu dóbr.
+\end{itemize}
+
+\subsection{Funkcja użyteczności gospodarstw domowych}
+
+Zachowanie gospodarstw domowych w modelu jest opisywane poprzez funkcję użyteczności. Docelowo gospodarstwa starają się dobrać odpowiednio zmienne ekonomiczne, tj. konsumpcja oraz czas pracy, w celu zmaksymalizowania swojej użyteczności. Ten problem można opisać w postaci znalezienia tych wartości dla których:
+\begin{equation}
+    \max_{C_t,L_t}\E \sum_{t=0}^{\infty} \beta^t\;U(C_t,L_t),
+\end{equation}
+gdzie w powyższym jako $U(C_t,L_t)$ oznaczamy wyżej wspomnianą funkcję użyteczności, natomiast poprzez $C_t$ i $L_t$ oznaczamy poszukiwaną konsumpcję oraz zatrudnienie w chwili $t$. Na koniec dodatkowo wprowadzamy parametr $\beta$ opisujący międzyokresowy czynnik dyskontowy -- jaką wagę przykładają gospodarstwa do użyteczności w kolejnych przyszłych okresach $t$. W przypadku rozbudowanych modeli powyższy problem zostaje rozszerzony także o maksymalizację względem innych zmiennych, m.in. wartości portfela obligacji oraz kapitału, co odpowiada sytuacji w której gospodarstwa mogą dodatkowo inwestować w zyski przyszłych okresów.
+
+Zgodnie z warunkami wynikającymi z teorii wyboru konsumenta, funkcja $U(C_t, L_t)$ musi spełniać następujące własności:
+\begin{itemize}
+    \item nienasycenie -- być rosnąca w kierunkach zmiennych konsumpcji $C_t$ : $\frac{\partial U}{\partial C_t} > 0$ oraz czasu wolnego $(H - L_t)$, czyli malejąca dla czasu pracy $L_t$ :  $\frac{\partial U}{\partial L_t} < 0$(jako $H$ została arbitralnie oznaczona ilość czasu w tygodniu),
+    \item wklęsła względem zmiennej konsumpcji $\frac{\partial ^2 U}{\partial C_t^2} < 0$ oraz wypukła dla pracy $\frac{\partial ^2 U}{\partial L_t^2} > 0$.
+\end{itemize}
+
+W kolejnej części zostaną przedstawione formy funkcyjne użyteczności gospodarstw domowych najczęściej spotykane w literaturze. Funkcje zostaną omówione rozpoczynając od podstawowej formy, opierającej się na pojedynczym dobrze konsumpcyjnym oraz pracy. Następnie zaprezentowana zostanie forma uwzględniająca rozróżnialność dóbr oraz dodatkowe rozszerzenie, m.in. w postaci funkcji uwzględniającej bilans pieniądza na rynku.
+
+\subsubsection{Funkcja użyteczności z pojedynczym dobrem}
+
+W przypadku modeli z pojedynczym dobrem konsumpcyjnym najczęściej stosowaną w literaturze formą funkcyjną użyteczności jest:
+\begin{equation}
+    U(C_t, L_t) = \frac{C^{1-\sigma}_{t}}{1-\sigma} - \frac{L^{1+\phi}_{t}}{1+\phi},
+\end{equation}
+gdzie poprzez parametry $\sigma$ oraz $\phi$ oznaczamy względną awersję do ryzyka dla odpowiednich zmiennych.
+
+Powyższa forma nazywana jest funkcją użyteczności ze stałą względną awersją do ryzyka (CRRA, \emph{Constant Relative Risk Aversion}) \cite{isoelastic}, której podstawową postać zapisujemy następująco:
+\begin{equation}
+    u(c) =
+     \begin{cases}
+       \frac{c^{1-\theta} - 1}{1-\theta} & \text{jeśli $\theta > 0, \theta \neq 1$,} \\
+       \ln c & \text{jeśli $\theta = 1$.} 
+     \end{cases}
+\end{equation}
+Na marginesie można zauważyć, że $\lim_{\theta \to 1} \frac{c^{1-\theta} - 1}{1-\theta} = \ln{c}$. Czynnik $-1$ w liczniku jest wartością stałą i jest najczęściej pomijany.
+
+W celu pokazania własności funkcji CRRA, rozważmy sytuację dwóch dóbr separowanych addytywnie. Zgodnie z tym użyteczność możemy zapisać jako:
+\begin{equation}
+    U = u(c_1) + u(c_2).
+\end{equation}
+Pierwszą pochodną funkcji CRRA jest:
+\begin{equation}
+    \frac{d u}{d c} = c^{-\theta}.
+\end{equation}
+Krańcowa stopa substytucji dóbr $c_1$ oraz $c_2$ może zostać wyrażona jako:
+\begin{equation}
+    \frac{d u/d c_1}{d u/d c_2} = \frac{c_1^{-\theta}}{c_2^{-\theta}} = \left(\frac{c_2}{c_1}\right)^\theta
+\end{equation}
+Rozwiązując dla względnego stosunku zmiennych konsumcji dóbr $\frac{c_2}{c_1}$ mamy:
+\begin{equation}
+    \frac{c_2}{c_1} = \left(\frac{d u/d c_1}{d u/d c_2}\right)^{1/\theta}
+\end{equation}
+Zgodnie z powyższym otrzymujemy stałą wartość dla ilorazu zmiennych $\frac{c_2}{c_1}$, a parametr $1/\theta$ opisuje elastyczność stosunku dóbr.
+
+\subsubsection{Funkcja użyteczności rozróżnialnych dóbr}
+
+W tej części zostanie zaprezentowana forma funkcyjna gospodarstw w modelu nowej ekonomii keynesowskiej, opisana na podstawie pracy \cite{gali}. Ten wariant zakłada przedstawienie reprezentacji wielu dóbr w postaci funkcji użyteczności. Inną metodą wprowadzenia założeń monopolistycznej konkurencji jest zastosowanie modelu firm detalicznych oraz hurtowych, który zostanie zaprezentowany w dalszej części pracy w sekcji \ref{sec:firms_nek}.
+
+Jedną z głównych własności teorii nowej ekonomii keynesowskiej jest wprowadzenie wielu dóbr. W tym celu przyjmijmy model w którym produkowane jest continuum rozróżnialnych dóbr indeksowanych poprzez $i \in [0,1]$. Gospodarstwa domowe ponownie wybierają konsumpcję oraz pracę w celu zmaksymalizowania $U(C_t, L_t)$, jednak konsumpcja $C_t$ reprezentowana jest poprzez złożony indeks konsumpcji, agregujący konsumpcję poszczególnych dóbr $C_t(i)$.
+
+Wykorzystywana forma funkcyjna agregującą konsumpcję dóbr jest dana poprzez funkcję agregującą CES (\emph{Constant Elasticity of Substitution}):
+\begin{equation}
+    \label{eqn:CES}
+    C_t = \left(\int^1_0 C_t(i)^{1-\frac{1}{\xi}}di\right)^{\frac{\xi}{\xi - 1}}.
+\end{equation}
+Najważniejszą właściwością funkcji CES jest zachowanie stałej substytucji dóbr, tj. proporcja zmian w cenach oraz zmiana w ilościach dóbr pozostaje zawsze stała \cite{mcFadden}. Została zaproponowana w pracy \cite{stiglitzCES} jako spełniająca powyższą własność, na bazie analizy gospodarek w których występuje zjawisko monopolistycznej konkurencji.
+
+Następnie mając dany indeks agregujący konsumpcje $C_t$, możemy przedstawić funkcję użyteczności $U(C_t, L_t)$ poprzez wcześniej zastosowaną formę CRRA:
+\begin{equation*}
+    U(C_t, L_t) =  \frac{C^{1-\sigma}_t}{1 - \sigma} - \frac{L_t^{1+\phi}}{1+\phi}.
+\end{equation*}
+
+\subsubsection{Użyteczność w modelu z pieniądzem}
+
+W przypadku wprowadzenia pieniędzy do modelu zmienia się sygnatura funkcji użyteczności:
+\begin{equation}
+    U\left(C_t, \frac{M_t}{P_t}, L_t\right).
+\end{equation}
+gdzie zmienna $M_t$ opisuje saldo pieniężne w okresie $t$, a $P_t$ to cena dobra konsumpcyjnego. Zakładamy, że funkcja użyteczności jest rosnąca i wklęsła względem wartości $\frac{M_t}{P_t}$, co przekłada się na sytuację w której gospodarstwa domowe zwiększają swoją użyteczność ze wzrostem siły pieniądza (salda pieniężnego) w stosunku do ceny dóbr.
+
+Następnie $U(C_t, \frac{M_t}{P_t}, L_t)$ może przybierać reprezentację z separowaną addytywnie użytecznością (czynniki odpowiedzialne za pracę, konsumpcję oraz realny balans są addytywne względem siebie w formie użyteczności) lub konsumpcja i realny balans są nieseparowane addytywnie. Zastosowana forma zależy w dużej mierze od modelowanej gospodarki, przykładowo w obszarze UE w okresie wprowadzenia waluty euro, zachowania konsumentów wskazywały na nieseparowalność bilansu pieniądza i konsumpcji \cite{RePEc:ecb:ecbwps:2006704}. 
+
+W przypadku zastosowania separowalnej formy stosowana jest funkcja CRRA:
+\begin{equation}
+    U\left(C_t, \frac{M_t}{P_t}, L_t\right) = \frac{C^{1-\sigma}_t}{1-\sigma} + \frac{(M_t/P_t)^{1-\nu}}{1-\nu} - \frac{L_t^{1+\varphi}}{1+\varphi},
+\end{equation}
+gdzie $\nu$ opisuje parametr względnej awersji do ryzyka dla bilansu pieniądza.
+
+W przypadku braku addytywnej separowalności, w literaturze stosowana jest forma stałej względnej awersji do ryzyka: \cite{gali}:
+\begin{equation}
+        U\left(C_t, \frac{M_t}{P_t}, L_t\right) = \frac{X^{1-\sigma}_t}{1-\sigma} - \frac{L_t^{1+\varphi}}{1+\varphi},
+\end{equation}
+gdzie jako $X_t$ opisujemy łączony indeks konsumpcji i  realnego bilansu, który przykładowo może przyjmować formę:
+\begin{equation*}
+    X_t \equiv \left[\left(1-\theta\right)C_t^{1-\nu} + \theta\left(\frac{M_t}{P_t}\right)^{1-\nu}\right]^{\frac{1}{1-\nu}}.
+\end{equation*}
+
+\subsection{Budżet}
+
+Z problemem decyzyjnym gospodarstw związane jest ograniczenie budżetowe. W każdym momencie $t$ możemy z jednej strony wyodrębnić zmienne składające się na wydatki, tj. konsumpcja, inwestycje lub zakup obligacji, oraz z drugiej strony  wyszczególnić wpływy oraz dochody gospodarstwa, m.in. zarobki z pracy, zwrot z kapitału oraz sprzedaż obligacji. Wiążąc te zmienne w postaci równania dostajemy budżet, który pozwoli nam ograniczyć, a następnie rozwiązać problem gospodarstw w celu wyznaczenia poszukiwanych warunków pierwszego rzędu.
+
+W najprostszym modelu, pozbawionym obligacji oraz inwestycji, równanie budżetowe przyjmuje następującą postać:
+\begin{equation}
+    \label{eqn:basicBudget}
+    P_t C_t = W_t P_t L_t,
+\end{equation}
+gdzie $P_t$ -- poziom cen dobra konsumpcyjnego oraz $W_t$ -- płaca realna. Jednym z założeń wprowadzonych do modelu jest reprezentacja płacy oraz zwrotu z kapitału w postaci realnej, tj. niezależnej od obecnego poziomu cen w gospodarce, stąd wystąpienie elementu $W_t P_t$. 
+
+Budżet w modelu, z możliwością akumulowania kapitału przez gospodarstwa prezentuje się jako równanie:
+\begin{equation}
+    \label{eq:budget_dividend}
+    P_t (C_t + I_t) = W_t P_t L_t + R^K_t P_t K_t + D_t,
+\end{equation}
+gdzie $I_t$ to inwestycja w danym okresie (wyprodukowane towary przeznaczone na akumulację kapitału), $D_t$ to wpływ z dywidend, a $R^K_t P_t K_t$ opisuje zysk z wygenerowanego kapitału $K_t$ przy $R^K_t$ będącym zmienną opisującą realny zwrot z kapitału.
+
+W przypadku rozszerzenia równania podstawowego modelu budżetu \eqref{eqn:basicBudget} o obligacje oraz podatki ryczałtowe (stałe podatki, które są niezależne od wartości produkcji lub konsumpcji), przedstawiamy to dodając zmienne odpowiadające obciążeniom fiskalnym oraz portfelowi obligacji:
+\begin{equation}
+    P_t C_t + Q_t B_{t+1} = B_{t} + W_t P_t L_t - T_t,
+\end{equation}
+gdzie $B_{t+1}$ -- ilość obligacji, które kupione w chwili $t$ w cenie $Q_t$, osiągają termin zapadalności w $t+1$. Każda z obligacji zapewnia jednostkę po dojrzewaniu (czynnik $B_{t}$) oraz $T_t$ -- podatki ryczałtowe.
+
+W przypadku dodania obligacji do modelu, musimy dołączyć dodatkowe ograniczenie, które ma w celu wyeliminowanie z modelu możliwości udziału w piramidach finansowych:
+\begin{equation}
+    \lim_{T\to\infty} \E_t\{B_T\} \geq 0 \text{, dla każdego } t \ge 0.
+\end{equation}
+Powyższe zapewnia że gospodarstwa domowe nie będą próbowały zaciągać nieograniczonego długu, który nigdy nie zostanie spłacony.
+
+Kolejnym wariantem reprezentacji budżetu jest równanie stosowane w przypadku modeli z rozróżnialnymi dobrami, ponownie mamy do czynienia z continuum dóbr indeksowanych przez $i \in [0,1]$:
+\begin{equation*}
+    \int_0^1 P_t(i)C_t(i)di + Q_t B_{t+1} = B_t + W_t P_t L_t,
+\end{equation*}
+gdzie $P_t(i)$ oznacza cenę dobra $i$, natomiast $C_t(i)$ jest konsumpcją tego dobra.
+
+W przypadku wprowadzenia pieniędzy do modelu, tj. wprowadzenie zmiennej $M_t$ -- salda pieniężnego oraz zastosowanie funkcji użyteczności o sygnaturze $U(C_t, \frac{M_t}{P_t}, L_t)$, budżet reprezentowany jest poprzez równanie:
+\begin{equation}
+    P_t C_t + Q_t B_{t+1} + M_t = B_{t} + M_{t-1} + W_t P_t L_t.
+\end{equation}
+Oznaczając $\mathcal{A}_t = B_{t} + M_{t-1}$ jako całkowite bogactwo na początku okresu $t$, powyższe przyjmuje postać:
+\begin{equation}
+    P_t C_t + Q_t \mathcal{A}_{t+1} + (1-Q_t)M_t = \mathcal{A}_t + W_t P_t L_t,
+\end{equation}
+wraz z analogiczną formą warunku na ograniczenie zaciągania długu:
+\begin{equation}
+    \lim_{T\xrightarrow{}\infty}\E_t\{\mathcal{A}_T\} \geq 0 \text{, dla każdego } t \ge 0.
+\end{equation}
+Tą reprezentację możemy interpretować jako: wszystkie finansowe aktywa $\mathcal{A}_t$ dostarczają nam rentowność $Q^{-1}_t$, gdzie agenci mogą kupować usługi pieniężne w cenie jednostkowej $(1-Q_t)$.
+
+\subsection{Kapitał}
+
+W modelach uwzględniających możliwość inwestowania w sektor firm, gospodarstwa domowe przeznaczają część swoich zysków w celu zakupu aktywów (będących wyprodukowanymi dobrami). Proces ten nazywany jest akumulacją kapitału oraz służy następnie generowaniu zysku w przyszłych okresach w postaci dywidend $D_t$. Ta relacja przedstawiona została w równaniu budżetu \eqref{eq:budget_dividend} jako zmienne: inwestycji $I_t$, kapitału $K_t$ i realnego zwrotu z kapitału $R^K_t$ (procent zysku z aktywów). Wpływ kapitału na funkcję produkcji zostanie ujęty w kolejnej sekcji przeznaczonej firmom \ref{sec:firms}.
+
+Z kapitałem związane jest dodatkowo prawu ruchu, zgodnie z którym zakłada się, że podlega on deprecjacji pomiędzy kolejnymi okresami zgodnie z mnożnikiem opisywanym przez parametr $\delta \in [0,1]$. W ogólnej postaci, zaprezentowanej w pracy \cite{gali_gov_spending}, przedstawiane jest to w postaci równania:
+\begin{equation}
+    K_{t+1} = (1-\delta)K_t + \Phi(\frac{I_t}{K_t})K_t.
+\end{equation}
+W kolejnych sekcjach zostanie zastosowana uproszczona postać z pracy \cite{COSTAJUNIOR2018424}:
+\begin{equation}
+    K_{t+1} = (1-\delta)K_t + I_t.
+\end{equation}
+
+\subsection{Rozwiązanie problemu gospodarstw}
+\label{sec:solve_household}
+
+Mając dane równanie budżetowe oraz ustaloną funkcję użyteczności, możemy zastosować metodę mnożników Lagrange'a w celu rozwiązania problemu maksymalizacji użyteczności gospodarstw domowych. Funkcja Lagrange'a przyjmuje postać:
+\begin{equation}
+    \Lagr(C_t, \dots) = E_t \sum_{t=0}^{\infty} \beta^t \left(u(C_t, L_t) - \lambda_t G(C_t, \dots)\right).
+\end{equation}
+W powyższym jako $G(C_t, \dots)$ oznaczymy równanie budżetowe, przekształcając je do postaci $G(C_t, \dots) = 0$.
+
+Następnie rozwiązując powyższy problem dostajemy równania -- warunki pierwszego rzędu, wynikające z pochodnych cząstkowych:
+\begin{align}
+    \frac{\partial \Lagr}{\partial C_t} &= \frac{\partial u}{\partial C_t} - \lambda_t \frac{\partial G}{\partial C_t} = 0,\\
+    \frac{\partial \Lagr}{\partial L_t} &= \frac{\partial u}{\partial L_t} - \lambda_t \frac{\partial G}{\partial L_t} = 0,\\
+    &\notag\dots
+\end{align}
+Po rozwiązaniu i przekształceniu powyższych dostajemy układ równań reprezentujący komponent gospodarstw domowych w modelu DSGE. W celu przedstawienia przekształceń posłużymy się przykładowymi równaniami modelującymi gospodarstwa. Problem maksymalizowania użyteczności jest dany poprzez:
+\begin{equation}
+    \max_{C_t, L_t, B_{t+1}, K_{t+1}} \E_t\sum_{t=0}^{\infty}\beta^t\left(\frac{C_t^{1-\sigma}}{1-\sigma} - \frac{L_t^{1+\phi}}{1+\phi}\right).
+\end{equation}
+Następnie wprowadzimy ograniczenia na budżet oraz równanie deprecjacji kapitału:
+\begin{itemize}
+    \item równanie budżetowe:
+        \begin{equation}
+            P_t(C_t + I_t) + Q_t B_{t+1} = B_{t} + W_t P_t L_t + R^K_t P_t K_t + D_t - T_t,
+        \end{equation}
+    \item równanie deprecjacji kapitału:
+        \begin{equation}
+            K_{t+1} = (1-\delta)K_t + I_t.
+        \end{equation}
+\end{itemize}
+Przekształcając równanie budżetowe oraz podstawiając $I_t = K_{t+1} - (1-\delta)K_t$ dostajemy:
+\begin{multline}
+    \Lagr = \max_{C_t, L_t, B_{t+1}, K_{t+1}} \E_t\sum_{t=0}^{\infty}\beta^t\left[\left(\frac{C_t^{1-\sigma}}{1-\sigma} - \frac{L_t^{1+\phi}}{1+\phi}\right) - \right. \\ \left. \lambda_t\left(P_t C_t + P_t K_{t+1} - P_t (1-\delta) K_t + Q_t B_{t+1} - B_t - W_t P_t L_t - R^K_t P_t K_t - D_t + T_t\right)\right].
+\end{multline}
+Następnie  obliczamy pochodne cząstkowe, w przypadku zmiennych z indeksem $t$ możemy pominąć $E_t$ ponieważ $E_t X_t = X_t$,  dostając:
+\begin{align}
+    \frac{\partial \Lagr}{\partial C_t} &= C_t^{-\sigma} - \lambda_t P_t = 0,\\
+    \frac{\partial \Lagr}{\partial L_t} &= -L_t^{\phi} + \lambda_t W_t P_t = 0,\\
+    \label{eqn:euler_B}\frac{\partial \Lagr}{\partial B_{t+1}} &= -\lambda_t Q_t + \beta \E_t \left( \lambda_{t+1}\right) = 0,\\
+    \label{eqn:euler_K}\frac{\partial \Lagr}{\partial K_{t+1}} &= -\lambda_t P_t + \beta \E_t \left( \lambda_{t+1} \left((1-\delta)P_{t+1} + R^K_{t+1} P_{t+1}\right)\right) = 0.\\
+\end{align}
+Łącząc dwa pierwsze równania otrzymujemy równanie podaży pracy:
+\begin{equation}
+    W_t = L_t^{\phi} C_t^{\sigma} \label{eqn:labor_supply}.
+\end{equation}
+Podstawiając z pierwszego równania $\lambda_t = \frac{C_t^{-\sigma}}{P_t}$ do \eqref{eqn:euler_B} otrzymujemy znaną w literaturze postać równania Eulera dla portfela obligacji:
+\begin{gather}
+    -\frac{C_t^{-\sigma}}{P_t} Q_t + \beta \E_t \left( \frac{C_{t+1}^{-\sigma}}{P_{t+1}}\right) = 0 \\
+    Q_t = \beta \E_t \left( \left(\frac{C_t}{C_{t+1}}\right)^\sigma \frac{1}{\pi_{t+1}}\right) \label{eqn:euler_b},
+\end{gather}
+gdzie jako $\pi_{t+1} = \frac{P_{t+1}}{P_t}$ oznaczamy inflację okresu $t+1$.
+
+Następnie postępujemy analogicznie dla równania \eqref{eqn:euler_K}, w celu uzyskania postaci równania Eulera dla kapitału:
+\begin{gather}
+    -\frac{C_t^{-\sigma}}{P_t} P_t + \beta \E_t \left( \frac{C_{t+1}^{-\sigma}}{P_{t+1}} \left(P_{t+1}(1-\delta) + R^K_{t+1} P_{t+1}\right)\right) = 0 \\
+    \frac{1}{\beta}\E_t\left(\frac{C_{t+1}}{C_t}\right)^\sigma = (1-\delta) + \E_t R^K_{t+1} \label{eqn:euler_k}.
+\end{gather}
+
+Powyższe równania \eqref{eqn:labor_supply}, \eqref{eqn:euler_b}, \eqref{eqn:euler_k} tworzą reprezentację problemu gospodarstw domowych w modelu DSGE.
+
+\subsection{Alternatywne rozwiązanie}
+
+Alternatywnie układ równań, będący rozwiązaniem problemu gospodarstw, może zostać wyprowadzony poprzez analizę odchylenia od optimum rozwiązania. Jeśli spojrzymy na to odchylenie jako zwiększenie konsumpcji o wartość $dC_t$ oraz zmniejszenie czasu pracy o $dL_t$ będziemy mieli zachowane:
+\begin{equation}
+    \frac{\partial U}{\partial C_t} dC_t + \frac{\partial U}{\partial L_t} dL_t = 0,
+\end{equation}
+dla każdej pary $dC_t, dL_t$ spełniającej równanie budżetowe:
+\begin{equation}
+    P_t dC_t = W_t P_t dL_t.
+\end{equation}
+Gdyby powyższe warunki nie były zachowane, to nie znajdowalibyśmy się w optimum, gdyż moglibyśmy zwiększyć użyteczność poprzez odpowiednią zmianę $C_t$ i $L_t$. 
+
+Łącząc uzyskane równania dostajemy rozwiązanie:
+\begin{equation}
+    \frac{\frac{\partial U}{\partial L_t}}{\frac{\partial U}{\partial C_t}} = -W_t.
+\end{equation}
+Rozważając analogicznie warunku dla pozostałych zmiennych możemy wyprowadzić pozostałe równania modelu.
+
+\section{Firmy}
+\label{sec:firms}
+
+Firmy pełnią rolę producenta dóbr w modelach DSGE. Wyprodukowane dobra są następnie przeznaczane na konsumpcję lub pod postacią inwestycji wykorzystywane w celu akumulacji kapitału. W modelach z jednym dobrem ten komponent będzie opisywany poprzez pojedynczą reprezentatywną firmę, natomiast w przypadku teorii nowokeynesowskiej reprezentacja przyjmie formę zbioru reprezentatywnych firm, gdzie pojedynczy reprezentanci odpowiadają produkcji jednego unikalnego dobra. Poprzez dobór odpowiednich zmiennych, takich jak siła robocza $L_t$ oraz kapitał $K_t$, ustalana jest produkcja $Y_t$ dla każdego okresu $t$. W ogólności możemy to przedstawić jako forma funkcyjna:
+\begin{equation}
+    Y_t = f(L_t, K_t).
+\end{equation}
+Celem firm jest odpowiednie dobranie zmiennych w celu maksymalizacji zysku, co reprezentujemy poprzez rozwiązanie następującego problemu:
+\begin{equation}
+\label{eqn:firmProblem}
+    \max\limits_{K_t, L_t} D_t = P_t Y_t - W_t P_t L_t - R^K_t P_t K_t,
+\end{equation}
+gdzie występujące zmienne odpowiadają poznanym wcześniej w ramach problemu gospodarstw domowych. Powyższe może zostać zinterpretowane jako: dochodem firmy jest sprzedaż dóbr w całkowitej cenie $P_t Y_t$, który pomniejszony jest o płacę pracowników $W_t P_t L_t$ oraz koszt obrotu kapitałem $R^K_t P_t K_t$.
+
+Powyższa forma funkcyjna może być rozszerzona o wprowadzenie dodatkowych form kapitału takich jak np. kapitał rządowy, który zostanie przedstawiony w sekcji \ref{gov_sector}.
+
+\subsection{Funkcja produkcji}
+
+% W modelach zakładamy że na rynek składa się continuum firm indeksowanych przez $j \in [0,1]$, które produkują kategorie dóbr (reprezentatywne dobro konsumenckie), które starają się maksymalizować swój zysk na rynku ekonomicznym. W przypadku modeli zakładających nierozróżnialność dóbr rynkowych zastosujemy reprezentatywną firmę pokrywającą pełen zbiór producentów.
+
+W literaturze najczęściej stosowaną funkcją do opisu produkcji reprezentatywnej firmy jest funkcja Cobba-Douglasa, która została opisana w pracy \cite{10.2307/1811556}. Na bazie aproksymacji danych ekonomicznych z początku XX wieku została wyznaczona forma prezentująca się następująco:
+\begin{equation}
+    \label{eqn:production_firm_base}
+    Y_{t} = A_t K_{t}^\alpha L^{1-\alpha}_{t},
+\end{equation}
+gdzie $A_t$ opisuje poziom produktywności w gospodarce. Jako parametr $\alpha$ oznaczamy elastyczność produkcji w odniesieniu do kapitału, co w tym przypadku przekłada się na $\alpha$ jako poziom udziału kapitału oraz $1-\alpha$ jako poziom udziału siły roboczej.
+
+\subsection{Poziom produktywności}
+
+Poziom produktywności jest zmienną opisującą status, jakość oraz stan wiedzy na temat procesów produkcyjnych. W modelach służy oddzieleniu informacji o zmianie stanu technologicznego w gospodarce od problemu firm. Dodatkowo pozwala odwzorować losowe pozytywne lub negatywne zjawiska, m.in. korzystne zmiany polityczne lub nagłe katastrofy, w postaci rozszerzenia tej formy funkcyjnej o czynnik szoku, co zostanie szerzej przedstawiony w sekcji \ref{sec:shocks_prod}. Najczęściej poziom produktywności reprezentujemy jako proces autoregresyjny pierwszego rzędu:
+\begin{equation*}
+    \log{A_t} = (1-\rho_A)\log{\steady{A}} + \rho_A \log{A_{t-1}},
+\end{equation*}
+gdzie w powyższym parametr $\rho_A$ opisuje zmianę produkcji względem poprzedniego przedziału, natomiast $1-\rho$ opisuje udział stanu ustalonego $\steady{A}$ w zmianie wartości. Stan ustalony zostanie dokładniej omówiony w rozdziale \ref{sec:steady_state}.
+
+\subsection{Warunek czyszczenia rynku}
+
+Warunek czyszczenia rynku opisuje zależność pomiędzy produkowanymi dobrami oraz konsumowanymi lub inwestowanymi dobrami, gdyż wszystkie dobra wyprodukowane przez firmy w gospodarce muszą być odpowiednio za-alokowane w każdym okresie. W najprostszym modelu bez możliwości inwestycji, opisujemy to jako równanie:
+\begin{equation}
+    Y_t = C_t.
+\end{equation}
+W przypadku wprowadzenia reprezentacji dla kapitału oraz inwestycji, powyższa forma może zawierać też dodatkowe powiązanie z inwestycjami:
+\begin{equation}
+    Y_t = C_t + I_t.
+\end{equation}
+Dodatkowo uwzględniając inwestycje publiczne $I^G_t$ oraz wydatki rządowe $G_t$, wprowadzone w rozdziale \ref{gov_sector}, równanie czyszczenia rynku przybiera postać:
+\begin{equation}
+    Y_t = C_t + I_t + G_t + I^G_t.
+\end{equation}
+
+\subsection{Rozwiązanie problemu firm w modelu RBC}
+\label{sec:solution_firms_rbc}
+
+Pozostałym do omówienia elementem jest konstrukcja równań, wynikających z komponentu firm w modelu. W tym celu potrzebujemy rozwiązać problem optymalizacyjny firm:
+\begin{equation}
+    \max_{L_t, K_t} D_t.
+\end{equation}
+W celu zaprezentowania powstałych równań posłużymy się modelem firm w środowisku doskonałej konkurencji z pojedynczą reprezentatywną firmą:
+\begin{gather}
+    Y_t = A_t L_t^{1-\alpha} K_t^{\alpha}, \\
+    \max_{L_t, K_t} D_t = Y_t P_t - W_t P_t L_t - R^K_t P_t K_t.
+\end{gather}
+Równania następnie konstruujemy obliczając pochodne w celu scharakteryzowania optimum:
+\begin{align}
+    \frac{\partial \Pi_t}{\partial L_t} &= (1-\alpha) A_t L_t^{-\alpha} K_t^{\alpha} P_t - W_t P_t = 0, \\
+    \frac{\partial \Pi_t}{\partial K_t} &= \alpha A_t L_t^{1-\alpha} K_t^{\alpha-1} P_t - R^K_t P_t = 0.\\
+\end{align}
+Reorganizując dostajemy ostateczne równania budujące komponent firm w modelu:
+\begin{align}
+    Y_t &= A_t L_t^{1-\alpha} K_t^{\alpha} \label{firms:eq1},\\
+    W_t &= (1-\alpha) A_t L_t^{-\alpha} K_t^{\alpha} = (1-\alpha) \frac{Y_t}{L_t} \label{firms:eq2},\\
+    R^K_t &= \alpha A_t L_t^{1-\alpha} K_t^{\alpha-1} = \alpha \frac{Y_t}{K_t} \label{firms:eq3},\\
+    Y_t &= C_t + I_t.
+\end{align}
+
+\subsection{Firmy w modelu nowokeynesowskim}
+\label{sec:firms_nek}
+
+Przed przejściem do pozostałych komponentów modelu DSGE, zostanie omówiona reprezentacja komponentu firm w modelach Nowej Ekonomii Keynesowskiej.
+
+Jedną z metod wprowadzenia do modelu wielu heterogenicznych dóbr konsumenckich oraz monopolistycznej konkurencji jest rozdzielenie firm na dwie kategorie: firmy produkujące dobra pośrednie -- sektor hurtowy oraz firmy produkujące dobra końcowe -- sektor detaliczny. Pod pojęciem produkcji dóbr końcowych rozumiane jest przygotowanie optymalnego pakietu, składającego się z różnorodnego zestawu dobranych poszczególnych dóbr pośrednich. W takim modelu firmy pośrednie są de facto jedynym producentem w modelu. Możemy zastosować, analogiczne dla gospodarstw domowych, reprezentację użyteczności z poprzednich rozdziałów i przenieść problem reprezentacji monopolistycznej konkurencji na sektor firm. Poniższe modele zostały opracowane na bazie prac \cite{nominal_rigidities}, \cite{gali_gov_spending} oraz \cite{costaBook}.
+
+Zakładamy że w sektorze detalicznym mamy zachowane warunki doskonałej konkurencji. Każda firma tego sektora postępuje zgodnie z warunkami stanu równowagi modelu, a co za tym idzie wszystkie są cenobiorcami tj. poszczególne nie mają wpływu na cenę. Zgodnie z tym firmy produkujące dobra końcowe będą reprezentowane poprzez pojedynczą reprezentatywną firmę. W przypadku sektora hurtowego zakładamy, że istnieje continuum firm indeksowanych przez $j \in [0,1]$, każda produkująca pewne unikalne dobro. 
+
+Najczęściej stosowaną formą funkcyjną do przedstawienia produkcji reprezentatywnej firmy sektora końcowego jest agregator Dixita-Stiglitza\cite{stiglitzCES}:
+\begin{equation}
+    \label{eqn:final_good_production}
+    Y_t = \left(\int_0^1 Y_{j,t}^{\frac{\psi-1}{\psi}}dj\right)^{\frac{\psi}{\psi-1}},
+\end{equation}
+gdzie $Y_{j,t}$ oznacza produkcję firmy $j$ ze zbioru continuum sektora hurtowego $[0,1]$, natomiast parametr $\psi$ opisuje elastyczność substytucji. Agregator Dixita-Stiglitza został wcześniej wykorzystany do alternatywnej metody wprowadzenia niedoskonałej konkurencji, korzystającej z reprezentacji gospodarstw domowych.
+
+Wprowadzając następnie jako zmienną $P_{j,t}$ cenę dobra produkowanego przez firmę $j$, celem sektora produkującego dobra końcowe będzie rozwiązanie problemu:
+\begin{equation}
+    \label{eqn:final_good_problem}
+    \max_{Y_{j,t}} P_t Y_t - \int_0^1P_{j,t}Y_{j,t} dj,
+\end{equation}
+gdzie poprzez problem $\max_{Y_{j,t}}$ rozważamy problem maksymalizacji dla wszystkich $j \in [0,1]$.
+
+Następnie będziemy chcieli przedstawić sektor firm pośrednich -- producentów dóbr na rynku, które zgodnie z założeniami  będą miały wpływ na ustalanie cen produkowanego dobra. Produkcja firmy $j$ z sektora hurtowego opisywana jest poprzez funkcję Cobba-Douglasa, analogicznie do wcześniejszej reprezentacji z modelu RBC:
+\begin{equation}
+    \label{eqn:wholesale_condition}
+    Y_{j,t} = A_t K_{j,t}^\alpha L_{j,t}^{1-\alpha}.
+\end{equation}
+gdzie $K_{j,t}$ jest zmienną kapitału firmy $j$, a $L_{j,t}$ jest zatrudnieniem tej firmy. 
+
+Celem firmy hurtowej jest rozwiązanie problemu minimalizacji kosztów:
+\begin{equation}
+    \label{eqn:wholesale_problem}
+    \min_{L_{j,t},K_{j,t}} W_t P_t L_{j,t} + R^K_t P_t K_{j,t}.
+\end{equation}
+Powyższa różni się od optymalizacji zysku firm z równania \eqref{eqn:firmProblem}, zw względu na fakt, że produkcja w przypadku firm pośrednich jest narzucona przez rozwiązanie problemu firm dóbr końcowych \eqref{eqn:final_good_problem}.
+
+\subsection{Rozwiązanie problemu firm w modelu NEK}
+\label{sec:firms_nek_solve}
+
+W celu rozwiązania problemu firm dóbr pośrednich zostanie zastosowana metoda mnożników Lagrange dla \eqref{eqn:wholesale_problem}, przy ograniczeniu \eqref{eqn:wholesale_condition}:
+\begin{equation}
+    \Lagr_j = W_t P_t L_{j,t} + R^K_t P_t K_{j,t} + \mu_{j,t}\left( Y_{j,t} - A_t K_{j,t}^\alpha L_{j,t}^{1-\alpha} \right).
+\end{equation}
+Obliczając pochodne cząstkowe powyższego, dostajemy następujące równania charakteryzujące stan równowagi modelu:
+\begin{align}
+    \frac{\partial \Lagr_j}{\partial L_{j,t}} &= W_t P_t - (1-\alpha) \mu_{j,t} A_t K_{j,t}^\alpha L_{j,t}^{-\alpha} = 0, \\
+    \frac{\partial \Lagr_j}{\partial K_{j,t}} &= R^K_t P_t - \alpha \mu_{j,t} A_t K_{j,t}^{\alpha - 1} L_{j,t}^{1-\alpha} = 0.
+\end{align}
+Przekształcając oraz podstawiając równanie \eqref{eqn:wholesale_condition} dostajemy:
+\begin{align}
+    L_{j,t} &= (1-\alpha) \frac{\mu_{j,t}}{P_t} \frac{Y_{j,t}}{W_t}, \label{eq:firmNEK:L}\\
+    K_{j,t} &= \alpha \frac{\mu_{j,t}}{P_t} \frac{Y_{j,t}}{R^K_t}. \label{eq:firmNEK:K}
+\end{align}
+Mnożnik Lagrange'a z powyższych równań będziemy traktowali jako realny koszt krańcowy, który oznaczymy jako:
+\begin{equation}
+    MC_{j,t} = \frac{\mu_{j,t}}{P_t}.
+\end{equation}
+
+Następnie rozważmy problem sektora firm dóbr końcowych dany poprzez maksymalizację zysku \eqref{eqn:final_good_problem}:
+\begin{equation}
+    \max_{Y_{j,t}} P_t Y_t - \int_0^1P_{j,t}Y_{j,t} dj.
+\end{equation}
+Podstawmy do powyższego produkcję z równania \eqref{eqn:final_good_production}:
+\begin{equation}
+    \max_{Y_{j,t}} P_t \left(\int_0^1 Y_{j,t}^{\frac{\psi-1}{\psi}}dj\right)^{\frac{\psi}{\psi-1}} - \int_0^1P_{j,t}Y_{j,t} dj = \max_{Y_{j,t}} D_t.
+\end{equation}
+Następnie zauważmy że powyższy problem jest symetryczny dla każdej firmy $z \in [0,1]$, w związku z czym rozważmy jedną firmę $z$. Warunek optimuum dla powyższego problemu jest dany poprzez:
+\begin{equation}
+    \frac{\partial \Pi_t}{\partial Y_{z,t}} = \frac{\psi}{\psi-1} P_t \left(\int_0^1 Y_{j,t}^{\frac{\psi-1}{\psi}}dj\right)^{\frac{\psi}{\psi-1} - 1} \frac{\psi-1}{\psi} Y_{z,t}^{\frac{\psi-1}{\psi} - 1}- P_{z,t} = 0.
+\end{equation}
+Porządkując:
+\begin{gather}
+    P_t \left(\int_0^1 Y_{j,t}^{\frac{\psi-1}{\psi}}dj\right)^{\frac{1}{\psi-1}} Y_{z,t}^{\frac{-1}{\psi}} = P_{z,t}, \\
+    P_t \left(\left(\int_0^1 Y_{j,t}^{\frac{\psi-1}{\psi}}dj\right)^{\frac{\psi}{\psi-1}}\right)^{\frac{1}{\psi}} Y_{z,t}^{\frac{-1}{\psi}} = P_{z,t}. \\
+\end{gather}
+W powyższym mamy agregator wykorzystany w równania produkcji \eqref{eqn:final_good_production}, stąd podstawmy $Y_t$:
+\begin{equation}
+    P_t Y_t^{\frac{1}{\psi}} Y_{z,t}^{\frac{-1}{\psi}} = P_{z,t}.
+\end{equation}
+Rozwiązując dla $Y_{z,t}$ dostajemy:
+\begin{equation}
+    \label{eqn:solution-final-good}
+    Y_{z,t} = Y_t \left(\frac{P_t}{P_{z,t}}\right)^\psi.
+\end{equation}
+Obliczone równanie nie jest częścią finalnego układu równań dla problemu firm NEK, zostanie natomiast wykorzystane do wyznaczenia poziomu cen dla dóbr w modelu.
+
+
+\section{Poziom cen}
+\label{sec:price_level}
+
+Kolejnym niezbędnym elementem modelu gospodarki jest układ równań reprezentujący poziom cen $P_t$ na rynku. Ta część zostanie omówiona początkowo dla pojęcia kosztu krańcowego w gospodarce z jednym dobrem RBC, w celu stworzenia podstaw, które zostaną wykorzystane do analizy modeli Nowej Ekonomii Keynesowskiej. W sytuacji gospodarki nowokeynesowskiej wartość poziomu cen będzie odnosiła się do średniej cen dóbr na rynku. Dodatkowo zostanie omówione zjawisko sztywności cen, które zostanie wprowadzone przy pomocy mechanizmu Calvo.
+
+\subsection{Koszt krańcowy w modelu RBC}
+\label{sec:rbc_price_level}
+
+W celu wyprowadzenia równania opisującego realny koszt krańcowy $MC_t$, będziemy potrzebowali na początku znaleźć postać dla całkowitego kosztu produkcji $TC_t$. W tej części zostanie zastosowany model firm RBC zaprezentowany wcześniej w sekcji \ref{sec:solution_firms_rbc}, zgodnie z tym całkowity oraz krańcowy koszt produkcji są zdefiniowane jako:
+\begin{align}
+    TC_t P_t &= W_t P_t L_t + R^K_t P_t K_t, \label{priceLevel:tc}\\
+    MC_t &= \frac{\partial TC_t}{\partial Y_t}. \label{priceLevel:mc}
+\end{align}
+Następnie potrzebujemy wyprowadzić postać dla $L_t$ oraz $K_t$ przy pomocy zmiennych $W_t$, $R^K_t$, $Y_t$ oraz $A_t$, co zostanie następnie podstawione do postaci $TC_t$. 
+
+Korzystając z równań \eqref{firms:eq2} oraz \eqref{firms:eq3}, wyprowadzając $L_t$ dostajemy:
+\begin{equation}
+    L_t = \frac{1-\alpha}{\alpha}K_t \frac{R^K_t}{W_t} \label{priceLevel:eq_l}.
+\end{equation}
+Podstawiając powyższą postać do wzoru opisującego produkcję \eqref{firms:eq1} możemy wyznaczyć wartość $K_t$:
+\begin{align}
+    Y_t &= A_t\left(\frac{1-\alpha}{\alpha}\frac{R^K_t}{W_t}K_t \right)^{1-\alpha}K_t^\alpha \\
+    K_t &= \frac{Y_t}{A_t} \left( \frac{\alpha W_t}{(1-\alpha)R^K_t}\right)^{1-\alpha} \label{priceLevel:eq_k}.
+\end{align}
+Następnie podstawiając z powrotem $K_t$ do równania \eqref{priceLevel:eq_l} otrzymujemy postać dla $L_t$:
+\begin{equation}
+    L_t = \frac{Y_t}{A_t} \left( \frac{\alpha W_t}{(1-\alpha)R^K_t}\right)^{-\alpha}\label{priceLevel:eq_lf}.
+\end{equation}
+Koszt całkowity po podstawieniu \eqref{priceLevel:eq_lf} oraz \eqref{priceLevel:eq_k} do postaci \eqref{priceLevel:tc}, po przekształceniach wyraża się jako:
+\begin{equation}
+    TC_t = \frac{Y_t}{A_t} \left( \frac{W_t}{1-\alpha} \right)^{1-\alpha} \left( \frac{\alpha}{R^K_t} \right)^{-\alpha}.
+\end{equation}
+Powyższa postać pozwala nam ostatecznie wyrazić koszt krańcowy jako:
+\begin{equation}
+    MC_t = \frac{1}{A_t} \left( \frac{W_t}{1-\alpha} \right)^{1-\alpha} \left( \frac{\alpha}{R^K_t} \right)^{-\alpha}.
+\end{equation}
+W przypadku modeli RBC powyższe równanie pozwala znaleźć stan ustalony dla poziomu płac realnych $W_t$. Stosuje się w tym przypadku zależność teoretyczną dla teorii RBC $\bar{MC}_t = P_t$, co w przypadku zastosowania realnego kosztu krańcowego możemy sprowadzić jako $MC_t = \frac{\bar{MC}_t}{P_t} = 1$, dzięki czemu dostajemy postać wiążącą zmienne $R^K_t$, $W_t$ oraz $A_t$. Poza tym to równanie nie jest częścią układu równań modelu.
+
+% Korzystając z wyżej wspomnianego wyniku teoretycznego dla modeli RBC $P_t = MC_t$ otrzymujemy ostatecznie postać dla $P_t$
+% \begin{equation}
+%     P_t = \frac{1}{A_t} \left( \frac{W_t}{1-\alpha} \right)^{1-\alpha} \left( \frac{\alpha}{R^K_t} \right)^{-\alpha}.
+% \end{equation}
+
+\subsection{Poziom cen w modelu NEK}
+\label{sec:nek_price_level}
+
+W przypadku modeli Nowej Ekonomii Keynesowskiej problem wyznaczenia poziomu cen komplikuje się o rozważenie problemu wyceny w środowisku heterogenicznych dóbr. Podstawowym założeniem modeli nowokeynesowskich jest wprowadzenie niedoskonałej konkurencji do gospodarki, która opiera się o nadanie firmom możliwości ustalania cen. Zgodnie z tym ceny dóbr nie zawsze będą równe stanowi równowagi modelu. Odpowiada to realnej sytuacji, kiedy firmy preferują utrzymanie poprzednich cen, gdyż zmiana ceny może nieść dodatkowe koszta np. zmiana cenników lub w przypadku monopolistycznych firm preferencyjne jest utrzymanie wysokich marży na produkty. To zjawisko nazywane jest sztywnością cen oraz zostanie opisane poprzez zastosowanie mechanizmu Calvo \cite{CALVO1983383}.
+
+\begin{definition}[Wycena Calvo]
+
+W każdym okresie $t$, pewien ułamek $\left( 1 - \theta \right)$ firm  jest losowany w celu zmiany cen, dla $0 < \theta < 1$. Pozostałe firmy $\theta$ pozostawiają swoje ceny zgodnie z zastosowaną regułą sztywności cen:
+\begin{itemize}
+    \item pozostawienie takich samych cen jak w poprzednim okresie:
+    \begin{equation}
+        \label{eqn:calvo_first_rule}
+        P_{j,t} = P_{t-1},
+    \end{equation},
+    \item zaktualizowanie cen przez współczynnik inflacji stanu ustalonego $\steady{\pi}$:
+    \begin{equation}
+        P_{j,t} = \steady{\pi} P_{t-1},
+    \end{equation}
+    \item zaktualizowanie cen korzystając ze współczynnika inflacji poprzedniego okresu $\pi_{t-1}$:
+    \begin{equation}
+        P_{j,t} = \pi_{t-1}P_{t-1}.    
+    \end{equation}
+\end{itemize}
+\end{definition}
+
+\subsubsection{Poziom cen firm producentów dóbr pośrednich}
+
+Podobnie jak w przypadku kosztu krańcowego, w celu wyznaczenia poziomu cen skorzystamy z równania reprezentującego całkowity koszt produkcji \eqref{priceLevel:tc}, za pomocą którego następnie wyznaczymy równanie kosztu krańcoweo z postaci \eqref{priceLevel:mc}. Przekształcając równania \eqref{eq:firmNEK:L} oraz \eqref{eq:firmNEK:K} uzyskujemy:
+\begin{equation}
+    L_{j,t} = \frac{1-\alpha}{\alpha}K_{j,t} \frac{R^K_t}{W_t}
+\end{equation}
+W związku z czym możemy zastosować wyprowadzenie z poprzedniego rozdziału dla modelu firm z jednym dobrem konsumpcyjnym:
+\begin{equation}
+    MC_{j,t} = \frac{1}{A_t} \left( \frac{W_t}{1-\alpha} \right)^{1-\alpha} \left( \frac{\alpha}{R^K_t} \right)^{-\alpha}.
+\end{equation}
+Kolejnym krokiem będzie zastosowanie reguły Calvo do ustalenia poziomu cen $P_{j,t}$. W przypadku tego modelu użyta zostanie pierwsza reguła mechanizmu \eqref{eqn:calvo_first_rule}. W celu odróżnienia ceny wynikającej z równowagi $P_{j,t}$ od ceny ustalonej z reguły Calvo, wprowadzimy oznaczenie $P^*_{j,t}$ dla sztywnej ceny. Problem firmy $j \in [0,1]$ produkującej dobra pośrednie może być alternatywnie opisany jako:
+\begin{equation}
+    \max_{P^*_{j,t}}\E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i\left( \frac{P^*_{j,t}Y_{j,t+i}}{P_{t+i}} - TC_{j,t+i}\right).
+\end{equation}
+Dodatkowo skorzystamy z wyznaczonego równania \eqref{eqn:solution-final-good} uogólniając je do postaci:
+\begin{equation}
+    \label{eqn:solution-final-good-general}
+    Y_{j,t+i} = Y_{t+i} \left(\frac{P^*_{j,t}}{P_{t+i}}\right)^{-\psi}.
+\end{equation}
+Następnie podstawimy postać dla kosztu całkowitego $TC_{j,t+i} = Y_{j,t+1} MC_{j,t+1}$ w celu przygotowania postaci do obliczenia pochodnej cząstkowej:
+\begin{equation}
+    \max_{P^*_{j,t}}\E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i\left( \frac{P^*_{j,t}}{P_{t+i}}Y_{t+i}\left(\frac{P^*_{j,t}}{P_{t+i}}\right)^{-\psi} - Y_{t+i}\left(\frac{P^*_{j,t}}{P_{t+i}}\right)^{-\psi} MC_{j,t+i}\right).
+\end{equation}
+Rozwiązanie powyższego problemu jest opisane przez warunek:
+\begin{equation}
+    \frac{\partial *}{\partial P^*_{j,t}} = \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i\left( (1-\psi)\frac{1}{P_{t+i}}Y_{t+i}\left(\frac{P^*_{j,t}}{P_{t+i}}\right)^{-\psi} + \psi \frac{1}{P^*_{j,t}} Y_{t+i} \left(\frac{P^*_{j,t}}{P_{t+i}}\right)^{-\psi} MC_{j,t+i}\right) = 0
+\end{equation}
+Upraszając postać przez podstawienie \eqref{eqn:solution-final-good-general} oraz dodatkowe przekształcenia:
+\begin{equation}
+    \label{eq:price_level_final_company}
+    \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i Y_{j,t+i} \left( \frac{P^*_{j,t}}{P_{t+i}} - \frac{\psi}{\psi - 1} MC_{j,t+i}\right) = 0
+\end{equation}
+Do powyższej postaci wrócimy później w rozdziale \ref{sec:results:model}, gdzie przy pomocy aproksymacji logarytmicznej równanie zostanie uproszczone do postaci liniowej.
+% Po przekształceniach równanie poziomu cen wyrażone jest jako:
+% \begin{equation}
+%     P^*_{j,t} = \frac{\psi}{\psi - 1}\frac{\E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i Y_{j,t+i} MC_{j,t+i}}{\E_t \sum_{i=0}^{\infty} \left( \beta \theta \right)^i Y_{j,t+i}}
+% \end{equation}
+
+\subsubsection{Rynkowy poziom cen}
+
+Pozostałym do przedstawienia jest rynkowy poziom cen $P_{t}$. W tym celu wyjdziemy z równania opisującego agregowaną produkcję dóbr końcowych opisywanych przez agregator Dixita-Stiglitza \eqref{eqn:final_good_production}:
+\begin{equation}
+    Y_t = \left(\int_0^1 Y_{j,t}^{\frac{\psi-1}{\psi}}dj\right)^{\frac{\psi}{\psi-1}}.
+\end{equation}
+Do powyższego podstawiamy \eqref{eqn:solution-final-good}:
+\begin{equation}
+    Y_t = \left(\int_0^1 \left(Y_t \left(\frac{P_t}{P_{z,t}}\right)^\psi \right)^{\frac{\psi-1}{\psi}}dj\right)^{\frac{\psi}{\psi-1}}.
+\end{equation}
+Przekształcamy oraz porządkujemy
+\begin{gather}
+    Y_t = Y_t P_t^\psi \left(\int_0^1 \left( \frac{1}{P_{z,t}^\psi} \right)^{\frac{\psi-1}{\psi}}dj\right)^{\frac{\psi}{\psi-1}}, \\
+    P_t = \left(\int_0^1 \left( \frac{1}{P_{z,t}} \right)^{\psi-1}dj\right)^{\frac{1}{1-\psi}}
+\end{gather}
+dostając ostatecznie:
+\begin{equation}
+    P_t^{1-\psi} = \int_0^1 P_{j,t}^{1-\psi}dj
+\end{equation}
+Następnie stosując regułę mechanizmu Calvo \eqref{eqn:calvo_first_rule} rozbijamy w powyższym całkę na $\theta$ firm które pozostawiają swoją poprzednią cenę, oraz firmy które aktualizują cenę:
+\begin{equation}
+    P_t^{1-\psi} = \int_0^\theta P_{t-1}^{1-\psi}dj + \int_\theta^1 P_{t}^{*\;1-\psi}dj
+\end{equation}
+Rozwiązujemy:
+\begin{equation}
+    P_t^{1-\psi} = \left[j P_{t-1}^{1-\psi}\right]_0^\theta + \left[j P_{t}^{*\;1-\psi}\right]_\theta^1
+\end{equation}
+Dostając równanie opisujące rynkowy poziom cen:
+\begin{equation}
+    P_t^{1-\psi} = \theta P_{t-1}^{1-\psi} + (1-\theta) P_{t}^{*\;1-\psi}
+\end{equation}
+W powyższych przekształceniach możemy porzucić indeksowanie cen przez $j$ jako, że problem jest symetryczny dla każdej firmy $j \in [0,1]$.
+
+\subsubsection{Inflacja}
+Pozostałym równaniem związanym z poziomem cen w modelach nowokeynesowskich jest równanie na stopę inflacji:
+\begin{equation}
+    \Pi_t = \frac{P_t}{P_{t-1}}.
+\end{equation}
+
+\section{Polityka monetarna}
+\label{sec:monetary_policy}
+
+W celu zaprezentowania polityki monetarnej posłużymy się prostym modelem gospodarki z obligacjami państwowymi. W związku z tym zastosujemy wcześniej przedstawiony problem gospodarstw domowych z portfelem obligacji $B_t$ oraz ze zmienną $Q_t$ opisującą cenę nabycia obligacji w okresie $t$. Zostało to ujęte w postaci równania budżetowego:
+\begin{equation}
+    P_t C_t + Q_t B_{t+1} = B_{t} + W_t P_t L_t.
+\end{equation}
+Następnie zastąpimy zmienną $Q_t$ przez nową zmienną $R^Q_t$ reprezentującą realną stopę procentową:
+\begin{equation}
+    Q_t = \frac{1}{R^Q_t}.
+\end{equation}
+Korzystając z wyprowadzonych wcześniej równań dla rozwiązania problemu gospodarstw, zmienne te będą związane z resztą układu modelu poprzez równanie \eqref{eqn:euler_b}:
+\begin{equation}
+    \frac{1}{R^Q_t} = \beta \E_t \left( \left(\frac{C_t}{C_{t+1}}\right)^\sigma \frac{1}{\pi_{t+1}}\right).
+\end{equation}
+Kolejnym etapem jest związanie realnej stopę procentowej z nominalną stopą procentową:
+\begin{equation}
+    \label{eq:nominal_interest_rate}
+    R^Q_t = R_t^{Q^*(1-\rho_Q)}R_{t-1}^{Q\rho_Q},
+\end{equation}
+gdzie $\rho_Q$ jest nazywane parametrem wygładzającym, natomiast $R^{Q^*}_t$ jest nominalną stopą procentową.
+
+Celem polityki monetarnej jest stabilizowanie cen na rynku, czemu odpowiada niska inflacja. Podstawowym narzędziem banku centralnego będzie ustalanie nominalnej stopy procentowej, zdefiniowanej poprzez $R^{Q^*}_t$. W kolejnej części zostaną opisane reguły ustalania nominalnej stopy procentowej bazujące na inflacji i luce produktu krajowego brutto(\emph{PKB}), tj. ilorazowi wartości produkcji na rynku ze stanem równowagi modelu pozbawionego sztywności, tj. stanu ustalonego produkcji.
+
+W przypadku stosowania modelu z reprezentacją zasobu pieniądza na rynku, polityka monetarna dodatkowo ustala reguły ilości zasobu pieniężnego na rynku. W pracy prezentacja reguł ustalania podaży pieniądza $M_t$ została pominięta, przykładowe reguły i ich oddziaływanie na gospodarkę zostały omówione m.in. w pracy \cite{gali}.
+
+\subsection{Reguła ustalania stopy procentowej}
+
+Szeroko stosowana w modelach reguła ustalania nominalnej stopy procentowej, wykorzystywana między innymi w pracach \cite{costaBook} oraz \cite{herbst}, jest dana poprzez następujący wzór:
+\begin{equation}
+    \label{eq:base_modified_taylor}
+     R^{Q^*}_t = \steady{R^Q} \pi^* \left( \frac{\pi_t}{\pi^*}\right)^{\psi_1} \left(\frac{y_t}{\steady{y}}\right)^{\psi_2},
+\end{equation}
+gdzie zmienna $\steady{R^Q}$ to stan ustalony stopy procentowej, $\pi^*$ opisuje docelową wartością inflacji(\emph{targeted inflation rate}), stosunek $\frac{y_t}{\steady{y}}$ nazywany jest luką PKB, natomiast $\psi_1$ oraz $\psi_2$ to dodatkowe kontrolujące parametry.
+
+W celu wyjaśnienia genezy zaprezentowanego wzoru po zlogarytmowaniu równanie \eqref{eq:base_modified_taylor} przybiera postać:
+\begin{equation}
+    \log{R_t^{Q^*}} = \log{\left(\steady{R^Q} \pi^*\right)} + \psi_1\log{\frac{\pi_t}{\pi^*}} + \psi_2 \log{\frac{y_t}{\steady{y}}}.
+\end{equation}  
+Reorganizując dostajemy:
+\begin{equation}
+    \label{eq:taylor_modified}
+    \log{R_t^{Q^*}} = \log{\steady{R^Q}} + \left(1 - \psi_1\right)\log{\pi^*} + \psi_1\log{\pi_t} + \psi_2 \log{\frac{y_t}{\steady{y}}}.
+\end{equation}
+Powyższy wzór nazywany jest "zmodyfikowaną regułą Taylora". Podstawiając nowe zmienne w miejsce logarytmów zmiennych otrzymujemy postać oryginalnej reguły Taylora, która została opisana w pracach \cite{taylor} \cite{gali_gov_spending}. Ogólną formę tej metody ustalania nominalnej stopy procentowej możemy przepisać następująco:
+\begin{equation}
+    \label{eq:taylor_gen}
+    R^{Q^*}_t = \theta + \psi_1 \pi_t + \psi_2 y^x_t,
+\end{equation}
+gdzie wartość $y^x_t$ opisuje lukę PKB (opisywaną w postaci \eqref{eq:taylor_modified} poprzez logarytm ilorazu obecnej produkcji do stanu ustalonego), natomiast jako $\theta = \steady{R^Q} + (1-\psi_1)\pi^*$ został opisany czynnik stały modelu reprezentowany przez parametry, docelową wartość inflacji oraz stan ustalony stopy procentowej. W przypadku gdy $\psi_1 > 0$ oraz $\psi_2 > 0$ wtedy realna stopa procentowa dostosowuję się, zapewniając stabilizację inflacji oraz produkcji \cite{costaBook}.
+
+Innym wariantem upraszającym regułę Taylora jest specjalny przypadek eliminujący zależność od luki PKB:
+\begin{equation}
+    R^{Q^*}_t = \steady{R^{Q}} + \psi_1 \pi_t
+\end{equation}
+% powyższy wzór 
+Powyższa postać została zastosowana w modelu z pracy \cite{gali_gov_spending} oraz \cite{gali}, gdzie dodatkowo została szerzej opisana teoria ekonomiczna związana z zastosowaniem tej reguły.
+
+\section{Sektor rządowy}
+\label{gov_sector}
+
+Sektor rządowy w gospodarce odpowiada za politykę fiskalną. Rząd ustala rodzaje i kwoty podatków, z których wpływy  następnie są przeznaczane na programy socjalne oraz dofinansowanie sektora firm. Zazwyczaj w modelach DSGE podatki dzieli się na dwie kategorie:
+\begin{itemize}
+    \item podatki ryczałtowe -- podatek w formie stałej opłaty,
+    \item podatki zaburzające -- podatki nakładane na konsumpcję oraz przepracowany czas.
+\end{itemize}
+
+Podatki ryczałtowe są ustalane jako obciążenie stałą kwotą i nie wpływają na zmianę oczekiwań i zachowań agentów ekonomicznych a podatek nakładany jest na całą grupę agentów\cite{costaBook}. Wprowadzenie tych zobowiązań nie zaburza efektywności działania gospodarki. Natomiast w przypadku podatków zaburzających, zmiana kwoty będzie niosła za sobą zmiany w zachowaniach agentów. Podatki nakładane na dochody domostw mogą prowadzić do sytuacji zmieniającej dynamikę cen na rynku, w której konsumenci są w gorszej pozycji niż płacąc to samo obciążenie w postaci podatku ryczałtowego \cite{distortionary_taxes}. 
+
+Przedstawione postaci funkcyjne dla podatków, budżetu i wydatków rządu opierają się o model przedstawiony w pracach \cite{costaBook} i \cite{gali_gov_spending}. W następnych sekcjach zostaną przedstawione formy funkcyjne pozwalająca na dofinansowanie firm i wsparcie sektora domostw, odpowiednio w postaci kapitału publicznego oraz emitowania obligacji. Alternatywne metody przedstawienia sektora rządowego tj. wprowadzenie pomocy socjalnej oraz publicznego zatrudnienia są przedstawione w pracy \cite{costaBook}.
+
+\subsection{Podatki}
+
+Wprowadzenie podatków ryczałtowych do modelu gospodarki odbywa się poprzez dodanie nowej wartości ekonomicznej $Tr_t$, która jest kwotą obciążenia ryczałtowego. Ta zmienna może być wprowadzona do formy odpowiadającej ograniczeniu budżetu gospodarstw w najprostszym wariancie w postaci:
+\begin{equation}
+    P_t C_t = W_t P_t L_t - Tr_t.
+\end{equation}
+W przypadku drugiej kategorii porządków zaburzających wyróżniamy:
+\begin{itemize}
+    \item Podatki nakładane na dochody -- wprowadzimy dodatkowy parametr $\tau^T$ opisujący opodatkowanie dochodu. Następnie zostanie on wprowadzony do równania budżetu w postaci mnożnika dla wpływów gospodarstw:
+    \begin{equation}
+        P_t C_t = (1-\tau^Y)W_t P_t L_t.
+    \end{equation}
+    Inną metodą wprowadzenia podatków dochodowych jest osobne opodatkowanie każdego źródła dochodu wprowadzając do równania budżetu odpowiednie pomniejszenie o obciążenia dla każdej kategorii:
+    \begin{equation}
+        P_t\left(C_t + I_t\right) = (1-\tau^L)W_T P_t L_t + (1 - \tau^K)R^k_t P_t K_t 
+    \end{equation}
+    W tym przypadku kategorie podatków są reprezentowane przez opodatkowanie pracy $\tau^L$ oraz wpływu z kapitału $\tau^K$.
+    \item Podatki nakładane na konsumpcję -- w podobny sposób jak w przypadku podatków dochodowych, wprowadzamy nowy parametr opodatkowania $\tau^C$ odpowiednio zmieniając równanie budżetu:
+    \begin{equation}
+        (1+\tau^C)P_t\left(C_t + I_t\right) = W_t P_t L_t.
+    \end{equation}
+\end{itemize}
+
+\subsection{Budżet rządowy}
+
+Podatki następnie trafiają do budżetu rządu, który jest reprezentowany, podobnie jak w przypadku gospodarstw domowych, poprzez równanie budżetowe. W pracy zostanie przedstawiony model oparty o następującą postać:
+\begin{equation}
+    \label{eq:goverment_budget}
+    B_{t+1}Q_t + TAX_t = B_{t} +  P_t G_t + P_t I^G_t.
+\end{equation}
+W powyższym lewa strona reprezentuje przychody rządu, $B_{t+1}$ odpowiada portfelowi obligacji zakupionemu przez gospodarstwa domowe. Rząd wypuszcza $B_{t+1}$ obligacji w momencie $t$, za które gospodarstwa płacą jednostkowo $Q_t$. Portfel obligacji oraz cena jednostkowa została szerzej opisany w poprzedniej sekcji poświęconej polityce monetarnej \ref{sec:monetary_policy}. Ostatnim elementem jest $TAX_t$ opisujący całkowity podatek wpływający do budżetu:
+\begin{equation}
+    TAX_t = \tau_t^C P_t (C_t + I_t) + \tau^L W_T P_t L_t + \tau^K R^K_t P_t K_t + Tr_t.
+\end{equation}
+Prawa strona równania budżetowego \eqref{eq:goverment_budget} opisuje obciążenia rządowe. Rząd wykupuje od gospodarstw domowych obligacje państwowe $B_{t}$, zakupione w poprzednim okresie po jednostkowej cenie. Wartość $G_t$ opisuje wydatki rządowe, a zmienna $I^G_t$ reprezentuje kwotę inwestycji w obecnym okresie czasu. Wartości $G_t$ oraz $I^G_t$ są ilością dóbr w danym przedziale czasowym, stąd uzyskanie kwoty kosztów wymaga przemnożenia przez cenę dóbr $P_t$.
+
+\subsection{Dofinansowanie sektora firm}
+
+W tej części zostanie przedstawiona reprezentacja inwestycji rządowych w sektor firm. W tym celu rozszerzymy funkcję produkcji dóbr na rynku\eqref{eqn:production_firm_base} oraz \eqref{eqn:wholesale_condition}, poprzez wprowadzenie dodatkowego czynnika odpowiedzialnego zakumulowanemu kapitałowi rządowemu:
+\begin{equation}
+    Y_t = A_t K_t^{{\alpha_1}}L_t^{\alpha_2}K_t^{G^{\alpha_3}},
+\end{equation}
+gdzie w powyższym zmienna $K_t^{G}$ jest zmienną kapitału rządowego, a $K_t$ jest poprzednio opisaną zmienną odpowiadającą wpływowi z kapitału sektora prywatnego -- gospodarstw domowych. Parametry $\alpha_1$, $\alpha_2$ oraz $\alpha_3$ opisują udział poszczególnych czynników na produkcję. 
+
+Dla kapitału rządowego dodatkowo dokładamy, analogicznie jak dla kapitału prywatnego, równanie ruchu:
+\begin{equation}
+    K_{t+1}^G = (1 - \delta_g)K_{t}^{G} + I_t^G,
+\end{equation}
+gdzie $\delta_g$ jest współczynnikiem deprecjacji kapitału rządowego.
+
+\section{Import}
+
+Wszystkie poprzednie komponenty skupiały się na stworzeniu modelu gospodarki zamkniętej, w którym firmy oraz gospodarstwa domowe nie mogły sprzedawać oraz kupować towarów na zagranicznym rynku. W tej części zostanie omówione przedstawienie gospodarki otwartej, wprowadzając podstawowy element handlu międzynarodowego -- reprezentacje importu oraz eksportu dóbr. Dodatkowo zostanie założone, że zaprezentowana gospodarka ma znikomy wpływ na rynek światowy, czyli że skala produkcji krajowej jest znikoma w porównaniu do rozmiaru rynku. Taki system ekonomiczny jest nazywany małą gospodarką otwartą, wśród przykładowych krajów spełniających te cechy można wymienić Polskę.
+
+W celu zaprezentowania komponentu skorzystamy z modeli opracowanych dla Polski w pracach \cite{grabek2007soe} oraz \cite{nbpKoloch}, dodatkowo posiłkując się uwagami zamieszczonymi w książce \cite{gali}.
+
+Gospodarka światowa w zaprezentowanym modelu zostanie przedstawiona w postaci continuum gospodarek krajowych indeksowanych przez $i \in [0, 1]$. Możemy tą reprezentacje interpretować jako odcinek $[0,1]$, w którym pojedyncze punkty odpowiadają małym krajowym rynkom. W takim modelu zachowania oraz wydajność pojedynczych gospodarek nie wpływa na gospodarkę światową, gdyż każda z nich odpowiada punktowi miary zero (korzystając np. z miary Leebsgue'a). 
+
+Wprowadzenie importowanych dóbr jest dokonane poprzez wprowadzenie podziału konsumpcji $C_t$ na: konsumpcję dóbr krajowych $C_{H,t}$ oraz indeks agregujący dobra importowane $C_{F,t}$. Konsumpcja $C_t$ jest zdefiniowana przez łączony indeks konsumpcji:
+\begin{equation}
+    \label{eq:index_cons_open}
+    C_t = [(1 - \alpha)^{\frac{1}{\eta}}(C_{H,t})^{\frac{\eta-1}{\eta}} + \alpha^{\frac{1}{\eta}}(C_{F,t})^{\frac{\eta-1}{\eta}}]^{\frac{\eta}{\eta-1}},
+\end{equation}
+gdzie przyjmujemy $\eta > 0$ oraz $\alpha \in [0,1]$. Parametr $\alpha$ może być interpretowany jako miarę otwartości gospodarki krajowej \cite{nbpKoloch}, w przypadku gdy $\alpha = 0$ równanie \eqref{eq:index_cons_open} sprowadza się do równania gospodarki zamkniętej, natomiast $\alpha = 1$ opisuje sytuację w której cała konsumpcja pochodzi z importu.
+
+W przypadku konsumpcji dóbr krajowych dla kategorii dóbr $j \in [0,1]$ stosujemy funkcję agregującą CES daną wzorem:
+\begin{equation}
+    \label{eqn:impcht}
+    C_{H,t} = (\int^1_0 C_{H,t}(j)^{\frac{\xi - 1}{\xi}}dj)^{\frac{\xi}{\xi - 1}}.
+\end{equation}
+Indeks konsumpcji dóbr importowanych $C_{F,t}$ podobnie reprezentujemy przez funkcję agregującą CES:
+\begin{equation}
+    C_{F,t} = (\int^1_0 C_{i,t}^{\frac{\gamma - 1}{\gamma}}dj)^{\frac{\gamma}{\gamma - 1}}.
+\end{equation}
+Poszczególne indeksy dla gospodarek $C_{i,t}$ dane są przez funkcję agregującą CES analogiczną do postaci \eqref{eqn:impcht} przy konsumpcji $C_{i,t}(j)$ dóbr $j \in [0,1]$:
+\begin{equation}
+    C_{i,t} = (\int^1_0 C_{i,t}(j)^{\frac{\xi - 1}{\xi}}dj)^{\frac{\xi}{\xi - 1}}
+\end{equation}
+Parametr $\xi$, zastosowany w powyższych funkcjach agregujących dobra konsumowane, opisuje elastyczność substytucji dóbr produkowanych w dowolnym kraju produkcji. Parametr $\gamma$ opisuje elastyczność substytucji dóbr produkowanych przez różne kraje, natomiast parametr $\eta$ opisuje elastyczność substytucji dóbr produkowanych na rynku krajowym z zagranicznymi.
+
+Równanie budżetu gospodarstw zostaje rozszerzone o wydatki poświęcone dobrom importowanym z rynku światowego:
+\begin{equation}
+    \int_0^1 P_{H,t}(j)C_{H,t}(j)dj + \int_0^1\int_0^1 P_{i,t}(j)C_{i,t}(j) dj di + \E_t (Q_{t+1} D_{t+1}) 
+    = D_t + W_t L_t
+\end{equation}
+W powyższym $P_{H,t}(j)$ jest ceną dobra $j$ na rynku krajowym, analogicznie $P_{i,t}(j)$ jest ceną dobra $j$ na rynku kraju opisywanego przez $i$. Czynnik $D_t$ opisuje zysk z portfela (obligacji oraz udziałów) w czasie $t$, natomiast $Q_{t+1}$ jest zmienną opisującą czynnik dyskontujący pomiędzy okresem $t$ a $t+1$ na rynku krajowym.
+ 
+Dobra eksportowane są ujęte w postaci równania czyszczenia rynku, rozszerzonego o konsumpcję towarów krajowych na rynkach zagranicznych:
+\begin{equation}
+    Y_t = C_{H,t} + \int_{[0,1]} C^i_{H,t} di
+\end{equation}
+gdzie $C^i_{H,t}$ opisuje popyt kraju $i \in [0,1]$ na produkcję dobra produkowanego w gospodarce krajowej w okresie $t$.
+
+\section{Szoki}
+\label{sec:shocks}
+
+Szoki w modelu pełnią rolę zewnętrznych niezależnych procesów, których dynamika zmian nie jest efektem konstrukcji równań modelu. Zmienne opisujące te zjawiska są nazywane zmiennymi egzogenicznymi modelu DSGE. Szoki są głównym źródłem procesów stochastycznych i są one opisane jako zmienne losowe odwzorowujące pewne procesy świata realnego np. szok technologiczny może być nagłym odkryciem w dziedzinie inżynierii produkcji, szok surowcowy opisujący nagłe zmiany u dostawców, zmiany atmosferyczne lub katastrofy klimatyczne.
+
+
+\subsection{Szok produktywności}
+\label{sec:shocks_prod}
+
+Szok produktywności jest jednym z podstawowych szoków wykorzystywanych w modelach. Odpowiada zjawisku wzrostu jakości oraz efektywności procesów produkcyjnych. W pierwszych modelach miał na celu przedstawienie głównej siły napędzającej dynamikę zmian gospodarczych. 
+
+Wprowadzenie szoku do modelu odbywa się poprzez dodanie do formy funkcyjnej produktywności zmiennej losowej $\epsilon_{A,t}$. Zachowujemy założenie, że na zmianę produktywności nie ma efektu działanie polityki monetarnej oraz fiskalnej. Rozkład zmiennej szoku jest jednym z parametrów wejściowych modelu, stąd poniższa forma nie wprowadza dodatkowych ograniczeń. Rozszerzoną definicję produktywności przedstawia równanie:
+\begin{equation}
+        \log{A_t} = (1-\rho_A)\log {\steady{A}} + \rho_A \log {A_{t-1}} + \epsilon_{A,t}.
+\end{equation}
+
+\subsection{Szok gospodarstw domowych}
+
+Problem gospodarstw domowych jest innym z elementów, które mogą zostać rozszerzone o zewnętrzny szok. Interpretacją takiego zjawiska jest np. wariancja w niecierpliwości gospodarstw do konsumpcji. W przypadku badania wpływu tego szoku na parametry ekonomiczne gospodarki, zmieniamy sygnaturę funkcji użyteczności gospodarstw do przykładowej postaci:
+\begin{equation}
+    U(C_t, L_t, {g_C}_t) = {g_C}_t\frac{C_t^{1-\sigma}}{1-\sigma} - \frac{L^{1+\phi}}{1+\phi},
+\end{equation}
+gdzie w powyższym ${g_C}_t$ jest procesem opisującym niecierpliwość konsumpcji, który występuje jako dodatkowy mnożnik użyteczności. W przypadku tej zmiennej, podobnie jak w przypadku szoku produktywności, zastosujemy postać autoregresyjną pierwszego rzędu:
+\begin{equation}
+        \log{{g_C}_t} = (1-\rho_C)\log {\steady{g_C}} + \rho_C \log {{g_C}_{t-1}} + \epsilon_{C,t}.
+\end{equation}
+
+\subsection{Szok polityki monetarnej}
+
+Szok polityki monetarnej związany jest z równaniem ustalającym realną stopę procentową $R_t$ z postaci \eqref{eq:nominal_interest_rate}. Wprowadzony zostaje jako dodatkowy czynnik zaburzający wartość realnej stopy procentowej:
+\begin{equation}
+    R_t = R_t^{*1-\rho_R}R_{t-1}^{\rho_R} S^m_{t}.
+\end{equation}
+W przypadku szoku monetarnego może on zostać opisany bezpośrednio przez wartość szoku jak ma to miejsce w modelu z pracy \cite{herbst}:
+\begin{equation}
+    S^m_{t} = \epsilon_{R,t}.
+\end{equation}
+Inną stosowaną postacią szoku monetarnego jest znana postać procesu autoregresyjnego pierwszego rzędu, zgodnie z modelem zaprezentowanym w pracy \cite{costaBook}:
+\begin{equation}
+    \log{S^m_t} = (1-\rho_m)\log {\steady{S^m}} + \rho_m \log {S^m_{t-1}} + \epsilon_{R,t}.
+\end{equation}
+
+\section{Przykładowe modele gospodarek}
+\label{sec:sample_models}
+
+Jako podsumowanie zostaną przedstawione dwa pełne przykłady modeli, które wykorzystują formy funkcyjne oraz komponenty przedstawione wcześniej: pierwszy opisujący podstawowy wariant teorii RBC i drugi dla Nowej Ekonomii Keynesowskiej.
+
+\subsection{Model RBC}
+\label{sec:rbc_model_sample}
+
+Zaprezentowany w tej części model RBC postara się przedstawić złożenie wprowadzonych wcześniej komponentów w celu zobrazowania prostej gospodarki. Jedynym źródłem wahań zmiennych ekonomicznych będzie zastosowanie szoku technologicznego w ramach produktywności.
+
+Reprezentatywne gospodarstwa optymalizują funkcję użyteczności poprzez odpowiedni dobór konsumpcji, pracy oraz rozmiaru kapitału kolejnego okresu. co przedstawia następujący problem:
+\begin{equation}
+    \max_{C_{t}, L_{t}, K_{t+1}}\E \sum_{t=0}^{\infty} \beta^t(\frac{C^{1-\sigma}_{t}}{1-\sigma} - \frac{L^{1+\phi}_{t}}{1+\phi})
+\end{equation}
+Funkcjonał maksymalizujący jest następnie poddany ograniczeniu budżetowemu, które reprezentowane jest przez równanie:
+\begin{equation}
+    P_t(C_{t} + I_{t}) = W_t P_t L_{t} + R^K_t P_t K_{t} + D_t
+\end{equation}
+Rozwiązanie problemu, dodatkowo rozszerzone o prawo ruchu kapitału, daje nam następujący układ równań:
+\begin{gather}
+    K_{t+1} = (1-\delta)K_t + I_t \\
+    W_t = L_t^{\phi} C_t^{\sigma}\\
+    \frac{1}{\beta}\E_t\left(\frac{C_{t+1}}{C_t}\right)^\sigma = (1-\delta) + \E_t R^K_{t+1}.
+\end{gather}
+
+Rynek modelowanej gospodarki opiera się o doskonałą konkurencję z jednym dobrem rynkowym, stąd w celu zobrazowania sektora firm zostanie wprowadzona pojedyncza reprezentatywna firma, której produkcja opisana jest przez: 
+\begin{equation}
+    Y_{t} = A_t K_{t}^\alpha L^{1-\alpha}_{t}.
+\end{equation}
+Celem firmy jest maksymalizacja zysku:
+\begin{equation}
+    \max_{L_t, K_t} A_t K_{t}^\alpha L^{1-\alpha}_{t} P_t - W_t P_t L_t - R^K_t P_t K_t.
+\end{equation}
+Rozwiązanie powyższego problemu optymalizacyjnego jest wyrażone przez następujący układ równań:
+\begin{gather}
+    W_t = (1-\alpha)\frac{Y_t}{L_t},\\
+    R^K_t = \alpha \frac{Y_t}{K_t}.
+\end{gather}
+Równanie czyszczenia rynku w gospodarce łączy konsumpcję i inwestycję, z produkcją:
+\begin{equation}
+    Y_t = C_t + I_t.
+\end{equation}
+Ostatnim elementem jest produktywność, która jest jedynym źródłem wahań w modelowanej gospodarce. Równanie produktywności opisane jest procesem autoregresyjnym:
+\begin{equation}
+    \log{A_t} = (1-\rho_A)\log{\steady{A}} + \rho_A \log{A_{t-1}} + \epsilon_{A,t}.
+\end{equation}
+
+\subsection{Model NEK}
+\label{sec:nek_model_sample}
+
+W tej części zostanie przedstawiony model Nowej Ekonomii Keynesowskiej, który zostanie później wykorzystany w rozdziale \ref{sec:results:model} w celu przedstawienia wyników przedstawionych w pracy metod. Zastosowany zostanie wariant z rozdzieleniem rynku firm na producentów dóbr pośrednich oraz producentów dóbr końcowych, upraszczając problem gospodarstw domowych. Dodatkowo model zostanie rozszerzony o prosty system polityki monetarnej, który został oparty o wprowadzenie portfela obligacji oraz banku centralnego, korygującego nominalną stopę procentową zgodnie ze zmodyfikowaną regułą Taylora.
+
+Reprezentatywne gospodarstwo będzie opierało się o problem przedstawiony oraz rozwiązany w \ref{sec:solve_household}:
+\begin{equation}
+    \max_{C_{t}, L_{t}, B_{t+1}, K_{t+1}}\E \sum_{t=0}^{\infty} \beta^t(\frac{C^{1-\sigma}_{t}}{1-\sigma} - \frac{L^{1+\phi}_{t}}{1+\phi}),
+\end{equation}
+przy ograniczeniach:
+\begin{gather}
+    P_t(C_t + I_t) + Q_t B_{t+1} = B_{t} + W_t P_t L_t + R^K_t P_t K_t + D_t - T_t, \\
+    K_{t+1} = (1-\delta)K_t + I_t.
+\end{gather}
+Rozwiązaniem powyższego jest układ równań:
+\begin{gather}
+    \label{eq:nek_sample_household_start}
+    K_{t+1} = (1-\delta)K_t + I_t,\\
+    W_t = L_t^{\phi} C_t^{\sigma}, \\
+    Q_t = \beta \E_t \left( \left(\frac{C_t}{C_{t+1}}\right)^\sigma \frac{1}{\pi_{t+1}}\right), \\
+    \label{eq:nek_sample_household_end}
+    \frac{1}{\beta}\E_t\left(\frac{C_{t+1}}{C_t}\right)^\sigma = (1-\delta) + \E_t R^K_{t+1}.
+\end{gather}
+
+Sektor firm modelu będzie opierał się o reprezentację opisaną w części \ref{sec:firms_nek} z rozwiązaniem zaprezentowanym w \ref{sec:firms_nek_solve}. Producenci dóbr końcowych przekształcają dobra pośrednie w końcowe zgodnie z funkcją:
+\begin{equation}
+    Y_t = (\int_0^1 Y_{j,t}^{\frac{\psi-1}{\psi}}dj)^{\frac{\psi}{\psi-1}},
+\end{equation}
+w celu maksymalizacji zysku:
+\begin{equation}
+    \max_{Y_{j,t}} P_t Y_t - \int_0^1P_{j,t}Y_{j,t} dj.
+\end{equation}
+Sektor firm--producentów dóbr pośrednich wytwarza dobra zgodnie z funkcją produkcji:
+\begin{equation}
+    Y_{j,t} = A_t K_{j,t}^\alpha L_{j,t}^{1-\alpha}.
+\end{equation}
+w celu minimalizacji kosztów produkcji:
+\begin{equation}
+    \min_{L_{j,t},K_{j,t}} W_t P_t L_{j,t} + R^K_t P_t K_{j,t}.
+\end{equation}
+Rozwiązanie powyższego tworzy podstawę równań komponentu firm:
+\begin{align}
+    Y_{j,t} &= A_t K_{j,t}^\alpha L_{j,t}^{1-\alpha}, \\
+    L_{j,t} &= (1-\alpha) MC_{j,t} \frac{Y_{j,t}}{W_t},\\
+    K_{j,t} &= \alpha MC_{j,t} \frac{Y_{j,t}}{R^K_t}.
+\end{align}
+
+Wyznaczenie poziomu cen oraz odpowiadających równań zostało zaprezentowane w \ref{sec:nek_price_level}. Układ równań opisujący poziom cen prezentuje się następująco:
+\begin{align}
+    0 &= \E_t \sum_{i=0}^{\infty}\left( \beta \theta \right)^i Y_{j,t+i} \left( \frac{P^*_{j,t}}{P_{t+i}} - \frac{\psi}{\psi - 1} MC_{j,t+i}\right) \\
+    P_t^{1-\psi} &= \theta P_{t-1}^{1-\psi} + (1-\theta) P_{t}^{*\;1-\psi}, \\ 
+    \Pi_t &= \frac{P_t}{P_{t-1}}.
+\end{align}
+
+Dodatkowo do modelu dokładamy równanie czyszczenia rynku oraz funkcję produktywności:
+\begin{align}
+    Y_t &= C_t + I_t, \\
+    \log{A_t} &= (1-\rho_A)\log{\steady{A}} + \rho_A \log{A_{t-1}} + \epsilon_{A,t}.
+\end{align}
+
+Ostatnim elementem modelu będzie układ odpowiadający polityce monetarnej prowadzonej przez bank centralny. Zastosowana zostanie reprezentacja realnej stopy procentowej wraz ze "zmodyfikowaną regułą Taylora", opisana odpowiednio poprzez równania \eqref{eq:nominal_interest_rate} i \eqref{eq:base_modified_taylor}. W związku z tym zastępujemy zmienną $Q_t$ przez $\frac{1}{R^Q_t}$ oraz dokładamy do modelu:
+\begin{gather}
+    R^Q_t = R_t^{Q^*(1-\rho_Q)}R_{t-1}^{Q\rho_Q}, \\
+    R^{Q^*}_t = \steady{R^Q} \pi^* \left( \frac{\pi_t}{\pi^*}\right)^{\psi_1} \left(\frac{y_t}{\steady{y}}\right)^{\psi_2}.
+\end{gather}
+Powyższy model zostanie następnie opracowany w rozdziale \ref{sec:results:model}.
+ 

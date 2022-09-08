@@ -1,0 +1,47 @@
+\tikzset{
+    %Define standard arrow tip
+    >=stealth',
+    %Define style for boxes
+    punkt/.style={
+           rectangle,
+           rounded corners,
+           draw=black, very thick,
+           text width=6.5em,
+           font=\small,
+           minimum height=4em,
+           text centered},
+    % Define arrow style
+    pil/.style={
+           ->,
+           thick,
+           shorten <=3pt,
+           shorten >=3pt,}
+           
+    edgePunkt/.style={
+        font=\normalsize,
+    }
+}
+
+
+\begin{tikzpicture}[node distance=1cm, auto,]
+ %nodes
+ 
+ \node[punkt] (household) {Gospodarstwa domowe};
+ \node[punkt, inner sep=5pt,right=5cm of household] (firms) {Firmy};
+ \coordinate (CENTER) at ($(household)!0.5!(firms)$);
+ \node[punkt, below=3cm of CENTER] (gov) {Rząd / Bank centralny};
+ 
+ \path[draw,->] ([yshift= 14pt] household.south east) -- ([yshift= 14pt] firms.south west) 
+    node [midway, above] {Siła robocza};
+ \path[draw,->] ([yshift= -14pt] firms.north west) -- ([yshift= -14pt] household.north east) 
+    node [midway, above] {Konsumpcja dóbr};
+ \path[draw,->] ([xshift= -14pt] household.south east) -- ([xshift= -14pt] gov.north) 
+    node [midway, above, sloped] {Podatki};
+ \path[draw,->] ([xshift= -35pt] gov.north) -- ([xshift= -35pt] household.south east) 
+    node[text width=2cm,align=center] [midway, below, sloped] {Zatrudnienie publiczne};
+ \path[draw,->] ([xshift= 35pt] gov.north) -- ([xshift= 35pt] firms.south west) 
+    node[text width=2cm,align=center] [midway, below, sloped] {Publiczne inwestycje};
+ \path[draw,->] ([xshift= 14pt] firms.south west) -- ([xshift= 14pt] gov.north) 
+    node [midway, above, sloped] {Podatki};
+ 
+\end{tikzpicture}

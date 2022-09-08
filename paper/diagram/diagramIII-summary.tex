@@ -1,0 +1,81 @@
+% \tikzset{%
+%   >={Latex[width=2mm,length=2mm]},
+%   % Specifications for style of nodes:
+%             base/.style = {rectangle, rounded corners, draw=black,
+%                           minimum width=4cm, minimum height=1cm,
+%                           text centered, font=\sffamily},
+%   activityStarts/.style = {base, fill=blue!30},
+%       startstop/.style = {base, fill=red!30},
+%     activityRuns/.style = {base, fill=green!30},
+%          process/.style = {base, minimum width=2.5cm, fill=orange!15,
+%                           font=\ttfamily},
+% }
+
+\tikzset{block/.style={rectangle split, draw, rectangle split parts=2,
+text width=14em, text centered, rounded corners, minimum height=4em},
+grnblock/.style={rectangle, draw, fill=green!20, text width=10em, text centered, rounded corners, minimum height=4em}, 
+whtblock/.style={rectangle, draw, fill=white!20, text width=16em, text centered, minimum height=3em}, 
+smallblock/.style={rectangle, draw, fill=white!20, text width=12em, text centered, minimum height=3em},   
+line/.style={draw, -{Latex[length=2mm,width=1mm]}},
+cloud/.style={draw, ellipse,fill=white!20, node distance=3cm,    minimum height=4em},  
+container/.style={draw, rectangle,dashed,inner sep=0.28cm, rounded
+corners,fill=yellow!20,minimum height=2cm}}
+
+\begin{tikzpicture}[node distance = 1.25cm, auto, align=center]
+
+  \node [whtblock, node distance=2.5cm]  (start) {Model DSGE};
+  
+  \node [whtblock, below=of start, yshift=-5mm] (steadyModel) 
+        {Stan ustalony modelu};
+  \node [whtblock, below=of steadyModel, yshift=8mm] (linearModel) 
+        {Aproksymowany model liniowy \\[0.5em] Model liniowy w postaci LRE};
+%   \node [whtblock, below=of linearModel] (qzDecomposition) 
+%         {Dekompozycja QZ \\[0.5em] budowanie odpowiedniej reprezentacji macierzy, omijając problem nieodwracalności macierzy modelu};
+  \node [whtblock, below=of linearModel, yshift=-10mm, , xshift=40mm] (bkSolution) 
+        {Proces tworzenia postaci macierzowej \emph{VAR} dla wartości parametrów $\theta$};
+  \node [whtblock, left=of bkSolution, yshift=-15mm] (likelihoodFunction)
+        {Funkcja likelihood modelu \\[0.5em] Funkcja wyceny dla wektora parametrów};
+  \node [whtblock, below=of likelihoodFunction, yshift=8mm] (mhAlgorithm) 
+        {Algorytm Metropolis Hastings \\[0.5em] Algorytm próbkowania z rozkładu posterior};
+  \node [whtblock, right=of mhAlgorithm, yshift=-20mm] (randomPathForecast)
+        {Prognoza modelu \\[0.5em] Iteracja układu \emph{VAR} dla wartości skalibrowanej lub \\ algorytm generowania losowych ścieżek z rozkładu a posterior};  
+  \node [smallblock, below=of bkSolution, yshift=5mm] (calibrationNode)
+        {Kalibracja parametrów $\theta$}; 
+        
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   CONTAINERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{scope}[on background layer]
+  \coordinate (aux1) at ([yshift=3mm]steadyModel.north);
+  \node [container,fit=(aux1) (linearModel)] (LOGLINEARIZE) {};
+  \node at (LOGLINEARIZE.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] (LOGLINEARIZE_NORTH) {\textbf{Linearyzacja}};
+  
+  \coordinate (aux1) at ([yshift=3mm]bkSolution.north);
+  \node [container,fit=(aux1) (bkSolution)] (BKSOLVE) {};
+  \node at (BKSOLVE.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] (BKSOLVE_NORTH) {\textbf{Rozwiązanie modelu}};
+  
+  \coordinate (aux1) at ([yshift=3mm]likelihoodFunction.north);
+  \node [container,fit=(aux1) (mhAlgorithm)] (BAYESIAN) {};
+  \node at (BAYESIAN.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] {\textbf{Wnioskowanie Bayesowskie}};
+  
+  \coordinate (aux1) at ([yshift=3mm]randomPathForecast.north);
+  \node [container,fit=(aux1) (randomPathForecast)] (FORECAST) {};
+  \node at (FORECAST.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] (FORECAST_NORTH) {\textbf{Prognozowanie}};
+\end{scope}
+                                                                
+                                                                
+      \draw[->]      (start) -- (LOGLINEARIZE_NORTH);
+      \draw[->]      (steadyModel) -- (linearModel);
+      \draw[->]      (linearModel) -- (BKSOLVE_NORTH);
+      \draw[->]      (bkSolution) -- (likelihoodFunction);
+      \draw[->]      (likelihoodFunction) -- (mhAlgorithm);
+      \draw[->]      (mhAlgorithm) -- (randomPathForecast);
+    %   \draw[->]      (bkSolution) -- (FORECAST_NORTH);
+      \draw[->]      (bkSolution) -- (calibrationNode);
+      \draw[->]      (calibrationNode) -- (FORECAST_NORTH);
+      
+    %   \path[draw,->] (bkSolution) -- (FORECAST_NORTH) 
+    % node[text width=2cm,align=center] [midway, below, xshift=10mm] {Kalibracja parametrów $\theta$};
+    
+\end{tikzpicture}

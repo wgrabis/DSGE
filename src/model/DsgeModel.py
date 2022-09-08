@@ -4,15 +4,11 @@ import sympy as sym
 
 from sympy import Matrix
 
-from forecast.BlanchardKahnForecast import BlanchardKahnForecast
-from forecast.BlanchardKahnPolicyFactory import BlanchardKahnPolicyFactory
+from solver.BlanchardKahnPolicyFactory import BlanchardKahnPolicyFactory
 from model.MeasurementFunction import MeasurementFunction
 from util.NpUtils import to_np
 
 logger = logging.getLogger(__name__)
-
-
-#todo remove mixed variables, theyre already empty
 
 
 def c_inv(Z):

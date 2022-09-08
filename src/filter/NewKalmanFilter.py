@@ -10,35 +10,31 @@ logger = logging.getLogger(__name__)
 
 
 class NewKalmanFilter(Filter):
-    def predict(self, prev_distribution, transition, shock_matrix, shock_covariance, noise_covariance):
-        x_k, p_k = prev_distribution
+    def filter(self, time, prev_distribution, measurement_vector):
+        x_prev, p_prev = prev_distribution
 
-        x_next = dot(transition, x_k)
-        p_next = dot(dot(transition, p_k), transition.T) + shock_matrix @ shock_covariance @ shock_matrix.transpose()
+        x_k = dot(self.transition, x_prev)
+        p_k = dot(dot(self.transition, p_prev), self.transition.T) \
+                 + self.shock_matrix @ self.shock_covariance @ self.shock_matrix.transpose()
 
         logger.debug("kalman-predict-from")
-        logger.debug(x_k)
+        logger.debug(x_prev)
         # logger.debug(p_k)
         logger.debug("kalman-predict-to")
-        logger.debug(x_next)
+        logger.debug(x_k)
         # logger.debug(p_next)
 
-        assert x_next.shape == x_k.shape
-        assert p_k.shape == p_next.shape
-
-        return NormalVectorDistribution(x_next, p_next)
-
-    def update(self, transition, time, prev_distribution, measurement_matrix, measurement_function, measurement_noise_covariance,
-               measurement_vector):
-        x_k, p_k = prev_distribution
+        assert x_prev.shape == x_k.shape
+        assert p_prev.shape == p_k.shape
 
         y = measurement_vector
-        y_hat = measurement_function(x_k, time)
+        y_hat = self.measurement_function(x_k, time)
 
         assert y_hat.shape == measurement_vector.shape
 
         y_diff = y - y_hat
-        y_cov = dot(dot(measurement_matrix, p_k), measurement_matrix.transpose()) + measurement_noise_covariance
+        y_cov = dot(dot(self.measurement_matrix, p_k), self.measurement_matrix.transpose()) \
+                + self.measurement_noise_covariance
 
         y_cov = 0.5 * (y_cov.transpose() + y_cov)
 
@@ -55,12 +51,12 @@ class NewKalmanFilter(Filter):
         # iFtnut = np.linalg.solve(y_cov, y_diff)
         iFtnut = np.linalg.inv(y_cov)
 
-        kalman_gain = dot(transition, dot(p_k, measurement_matrix.transpose()))
+        kalman_gain = dot(self.transition, dot(p_k, self.measurement_matrix.transpose()))
 
         # x_updated_k = x_k + dot(kalman_gain, iFtnut)
 
         x_updated_k = x_k + dot(kalman_gain, y_diff)
-        # p_updated_k = p_k - kalman_gain @ np.linalg.solve(y_cov, kalman_gain.transpose())
+        p_updated_k = p_k - kalman_gain @ np.linalg.solve(y_cov, kalman_gain.transpose())
         # p_updated_k =
 
         assert x_updated_k.shape == x_k.shape, "Wrong shape of updated vector"

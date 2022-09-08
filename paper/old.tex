@@ -1,0 +1,1007 @@
+% \tikzset{%
+%   >={Latex[width=2mm,length=2mm]},
+%   % Specifications for style of nodes:
+%             base/.style = {rectangle, rounded corners, draw=black,
+%                           minimum width=4cm, minimum height=1cm,
+%                           text centered, font=\sffamily},
+%   activityStarts/.style = {base, fill=blue!30},
+%       startstop/.style = {base, fill=red!30},
+%     activityRuns/.style = {base, fill=green!30},
+%          process/.style = {base, minimum width=2.5cm, fill=orange!15,
+%                           font=\ttfamily},
+% }
+
+% Docelowo będzie ona wyznaczała użyteczność gospodarstw domowych przy wartościach zmiennych ekonomicznych, tj. konsumpcja oraz czas pracy. Następnie problem będzie sprowadzał się do znalezienie tych wartości zmiennych które maksymalizują oczekiwaną wartość:
+
+% todo move
+% Następnie przyjmuje się, że prognozowanie rozpoczyna się od stanu ustalonego, czyli stanu stabilnego gospodarki bez wpływu żadnych szoków. W związku z tym jako wartość $x_0$ przyjmowana jest wartość stanu ustalonego $\steady{x}$. Z uwagi na fakt, że model jest w postaci liniowej DSGE, gdzie wartości zmiennych opisują logarytm odchylenia od stanu ustalonego, początkowy wektor $x_0$ będzie wektorem $\vec{0}$.
+
+\tikzset{block/.style={rectangle split, draw, rectangle split parts=2,
+text width=14em, text centered, rounded corners, minimum height=4em},
+grnblock/.style={rectangle, draw, fill=green!20, text width=10em, text centered, rounded corners, minimum height=4em}, 
+whtblock/.style={rectangle, draw, fill=white!20, text width=10em, text centered, minimum height=4em},    
+line/.style={draw, -{Latex[length=2mm,width=1mm]}},
+cloud/.style={draw, ellipse,fill=white!20, node distance=3cm,    minimum height=4em},  
+container/.style={draw, rectangle,dashed,inner sep=0.28cm, rounded
+corners,fill=yellow!20,minimum height=4cm}}
+
+\begin{tikzpicture}[node distance = 1.25cm, auto, align=center]
+
+  \node [whtblock, node distance=2.5cm]  (start) {Model \\[0.5em] DSGE};
+  
+  \node [whtblock, below=of start] (steadyModel) 
+        {Stan ustalony \\[0.5em] modelu};
+  \node [whtblock, below=of steadyModel] (linearModel) 
+        {Aproksymowany model liniowy \\[0.5em] model liniowy w postaci LRE};
+  \node [whtblock, below=of linearModel] (qzDecomposition) 
+        {Dekompozycja QZ \\[0.5em] budowanie odpowiedniej reprezentacji macierzy, omijając problem nieodwracalności macierzy modelu};
+  \node [whtblock, left=of qzDecomposition,yshift=-3cm] (bkSolution) 
+        {Prognoza modelu \\[0.5em] prognoza modelu dla szoków impulsowych};
+  \node [whtblock, right=of qzDecomposition, yshift=-3cm] (likelihoodFunction)
+        {Funkcja likelihood modelu \\[0.5em] funkcja wyceny dla wektora parametrów};
+  \node [whtblock, below=of likelihoodFunction] (mhAlgorithm) 
+        {Algorytm Metropolis Hastings \\[0.5em] algorytm próbkowania z rozkładu posterior};
+  \node [whtblock, below=of mhAlgorithm] (randomPathForecast)
+        {Prognoza modelu \\[0.5em] algorytm na bazie próbek z rozkładu generuje prognozowane ścieżki};       
+        
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   CONTAINERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{scope}[on background layer]
+  \coordinate (aux1) at ([yshift=3mm]steadyModel.north);
+  \node [container,fit=(aux1) (linearModel)] (LOGLINEARIZE) {};
+  \node at (LOGLINEARIZE.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] {\textbf{Linearyzacja}};
+  
+  \coordinate (aux1) at ([yshift=3mm]bkSolution.north);
+  \node [container,fit=(aux1) (bkSolution)] (BKSOLVE) {};
+  \node at (BKSOLVE.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] {\textbf{Rozwiązanie modelu}};
+  
+  \coordinate (aux1) at ([yshift=3mm]likelihoodFunction.north);
+  \node [container,fit=(aux1) (mhAlgorithm) (randomPathForecast)] (BAYESIAN) {};
+  \node at (BAYESIAN.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] {\textbf{Wnioskowanie Bayesowskie}};
+\end{scope}
+                                                                
+                                                                
+      \draw[->]      (start) -- (LOGLINEARIZE);
+      \draw[->]      (steadyModel) -- (linearModel);
+      \draw[->]      (linearModel) -- (qzDecomposition);
+      \draw[->]      (qzDecomposition) -- (bkSolution);
+      \draw[->]      (qzDecomposition) -- (likelihoodFunction);
+      \draw[->]      (likelihoodFunction) -- (mhAlgorithm);
+      \draw[->]      (mhAlgorithm) -- (randomPathForecast);
+    
+\end{tikzpicture}
+
+Algorytm próbkowania opiera się na dobieraniu losów wartości parametrów modelu $\theta$. W związku z tym posłużymy się postacią kanoniczną modelu zaprezentowaną w \eqref{eqn:canonic}, w postaci skróconej:
+\begin{equation}
+    \label{eqn:bayes_canonic}
+    \Gamma_1(\theta) s_t = \Gamma_2(\theta) s_{t-1} + \Psi(\theta) \epsilon_t,
+\end{equation}
+gdzie w celu uproszczenia oznaczamy wektory:
+\begin{align}
+    s_t &= \begin{bmatrix}x_{t} \\ \E_t y_{t+1}\end{bmatrix}, \\
+    s_{t-1} &= \begin{bmatrix}x_{t-1} \\ y_{t}\end{bmatrix}. \
+\end{align}
+Algorytm będzie opierał się na przekształceniu powyżej postaci do postaci modelu wektorowej autoregresji(VAR):
+\begin{equation}
+\label{eqn:varModel}
+    s_t = \Phi_1(\theta)s_{t-1}+\Phi_{\epsilon}(\theta)\epsilon_t.
+\end{equation}
+W przebiegu algorytmu nie potrzebujemy mieć powyżej postaci jawnie, dla danego wektora $\theta$ będziemy przekształcali uzyskane macierze w celu przekształcenia do powyżej postaci. Gdy macierz $\Gamma_1$ jest nieosobliwa powyższa postać wymaga jedynie przemnożenia przez $\Gamma_1^{-1}$. 
+
+Pozostałą do omówienia kwestią jest przypadek, gdy macierz $\Gamma_1$  jest osobliwa. Mając dany wektor wartości $\theta$ podstawiamy wartości do macierzy z postaci \eqref{eqn:bayes_canonic}:
+\begin{equation}
+    \Gamma_1 s_t = \Gamma_2 s_{t-1} + \Psi \epsilon_t.
+\end{equation}
+Następnie stosujemy analogiczną metodę jak w przypadku uogólnionej metody Blancharda-Kahna. Poprzez zastosowanie dekompozycji z twierdzenia \ref{theorem:schur}, ustalając porządek wartości własnych $|\frac{t_{11}}{s_{11}}| < |\frac{t_{22}}{s_{22}}| < \dots < |\frac{t_{nn}}{s_{nn}}|$ otrzymujemy:
+\begin{equation}
+    Q S Z s_t = Q T Z s_{t-1} + \Psi \epsilon_t.
+\end{equation}
+Następnie przemnażając przez $Q^T$ oraz wprowadzając wektor transformowanych zmiennych $s'_t = Z s_{t}$, dostajemy postać:
+\begin{equation}
+    S s'_t = T s'_{t-1} + Q^T \Psi \epsilon_t.
+\end{equation}
+Macierz $S$ jest odwracalna przez konstrukcję z twierdzenia \ref{theorem:schur}, przemnażając przez $S^{-1}$ dostajemy postać poszukiwaną:
+\begin{equation}
+    s'_t = S^{-1} T s'_{t-1} + Q^T \Psi \epsilon_t.
+\end{equation}
+Powyższy układ razem ze zmiennymi $s'_t$ zastosujemy zamiennie z oryginalnym modelem, pamiętając aby w odpowiednich miejscach dodać odpowiednią transformację zmiennych.
+
+% Korzystając kolejno ze stanu ustalonego $MC$ dostajemy wartość dla płac $W$ z \eqref{eq:mc_wage_solve}:
+% \begin{equation}
+%     \steady{W} = \left(\steady{MC} \steady{A}\right)^{\frac{1}{1-\alpha}}(1 - \alpha) \left( \frac{\alpha}{\steady{R}}\right)^{\frac{\alpha}{1-\alpha}}.
+% \end{equation}
+% W przypadku tego równania zastosujemy aproksymacje przez szereg Taylora pierwszego rzędu wokół stanu ustalonego opisanego w poprzedniej sekcji. Zgodnie z tym mamy:
+% \begin{gather}
+%     \nonumber \sum_{i=0}^{\infty}\left( \beta \theta \right)^i \steady{Y} \left( \steady{P} - \frac{\psi}{\psi - 1} \steady{MC}\right) + \E_t \sum_{i=0}^{\infty}(y_{j, t+i} - \steady{Y}) \left( \beta \theta \right)^i \left( \steady{P} - \frac{\psi}{\psi - 1} \steady{MC}\right) \\ + (p^*_t - \steady{P}) \sum_{i=0}^{\infty} \left( \beta \theta \right)^i \steady{Y} - \E_t \sum_{i=0}^{\infty}(mc_{t+i} - \steady{MC}) \left( \beta \theta \right)^i \steady{Y} \frac{\psi}{\psi - 1} = 0
+% \end{gather}
+% Pierwszym krokiem w celu uproszczenia powyższej postaci będzie zastosowanie równania opisującego stan ustalony \eqref{eq:mc_steady_solution}, dzięki czemu wiemy, że $\steady{P} = \frac{\psi}{\psi - 1} \steady{MC}$, eliminując dwa pierwsze czynniki równania. Kolejno stosując $\sum_{i=0}^{\infty}\left( \beta \theta \right)^i = \frac{1}{1 - \beta \theta}$, uproszczając i reorganizując dostajemy:
+% \begin{equation}
+%     (p^*_t - \steady{P}) \frac{1}{1 - \beta \theta} = \E_t \sum_{i=0}^{\infty} \left( \beta \theta \right)^i mc_{t+i} - \steady{MC} \frac{\psi}{\psi - 1} \frac{1}{1 - \beta \theta},
+% \end{equation}
+% gdzie po ponownym skróceniu korzystając ze stanu ustalonego końcowa forma ma postać:
+% \begin{equation}
+%     \label{eq:price_level_approx_def}
+%     p^*_t = \left( 1 - \beta \theta \right) \E_t \sum_{i=0}^{\infty} \left( \beta \theta \right)^i mc_{t+i}.
+% \end{equation}
+
+% Rozpoczynając od aproksymacji równania kosztu marginalnego wykonujemy następujące przekształcenia:
+% \begin{gather}
+%     MC_t = \frac{1}{A_t}\left(\frac{W_t}{1-\alpha}\right)^{1-\alpha}\left(\frac{\alpha}{R_t}\right)^{-\alpha}, \\
+%     \steady{MC}e^{mc_t} = \frac{1}{\steady{A}e^{a_t}}\left(\frac{\steady{W}e^{w_t}}{1-\alpha}\right)^{1-\alpha}\left(\frac{\alpha}{\steady{R}e^{r_t}}\right)^{-\alpha}, \\
+%     \steady{MC}e^{mc_t} = \frac{1}{\steady{A}} \left(\frac{\steady{W}}{1-\alpha}\right)^{1-\alpha}\left(\frac{\alpha}{\steady{R}}\right)^{-\alpha}e^{-a_t}e^{w_t(1-\alpha)}e^{r_t\alpha}, \\
+% \end{gather}
+% Korzystamy podobnie jak w poprzednich przypadkach z równania w stanie ustalonym $\steady{MC} = \frac{1}{\steady{A}}\left(\frac{\steady{W}}{1-\alpha}\right)^{1-\alpha}\left(\frac{\alpha}{\steady{R}}\right)^{-\alpha}$:
+% \begin{equation}
+%     e^{mc_t} = e^{-a_t + w_t(1-\alpha) + r_t\alpha},
+% \end{equation}
+% oraz reguły aproksymacji dostając:
+% \begin{equation}
+%     mc_t = -a_t + w_t(1-\alpha) + r_t\alpha.
+% \end{equation}
+% W przypadku kolejnych dwóch równań aproksymacja pozwoli uprościć postać, a następnie definicja wartości zmiennej zostanie następnie podstawiona w drugie równanie modelu, eliminując zmienną z modelu. 
+
+% linearyzacja reguły ruchu(deprecjacji) kapitału przebiega następująco:
+% \begin{gather}
+%      K_{t+1} = (1-\delta)K_t + I_t \\
+%      \steady{K} e^{k_{t+1}} = (1-\delta)\steady{K} e^{k_t} + \steady{I} e^{i_t}.
+% \end{gather}
+% Korzystamy z reguły aproksymacji $e^{\hat{x}_t} \approx 1 + \hat{x}_t$:
+% \begin{equation}
+%     \steady{K} (1 + k_{t+1}) = (1-\delta)\steady{K} (1 + k_t) + \steady{I} (i_t + 1).
+% \end{equation}
+% Następnie dla stanu ustalonego wiemy że $\delta\steady{K} = \steady{I}$:
+% \begin{gather}
+%     \steady{K} (1 + k_{t+1}) = (1-\delta)\steady{K} (1 + k_t) + \delta\steady{K} (i_t + 1), \\
+%     1 + k_{t+1} = (1-\delta)(1 + k_t) + \delta(i_t + 1), \\
+%     1 + k_{t+1} = (1-\delta)k_t + \delta i_t + 1 - \delta + \delta, \\
+%     k_{t+1} = (1-\delta)k_t + \delta i_t.
+% \end{gather}
+% Uproszczenie równania podaży pracy:
+% \begin{gather}
+%     C_t^\sigma L_s^\phi = \frac{W_s}{P_s}, \\
+%     \steady{C} e^{\sigma c_t} \steady{L} e^{\phi l_t} = \frac{\steady{W} e^{w_t}}{\steady{P} e^{p_t}}.
+% \end{gather}
+% Następnie korzystamy z równania równowagi dla stanu ustalonego $\steady{C}\steady{L} = \frac{\steady{W}}{\steady{P}}$ upraszając do postaci:
+% \begin{equation}
+%     e^{\sigma c_t + \phi l_t} = e^{{w_t} - p_t}.
+% \end{equation}
+% Korzystając z reguły aproksymacji $e^{\hat{x}_t + \alpha \hat{y}_t} \approx 1 + \hat{x}_t + \alpha \hat{y}_t$:
+% \begin{gather}
+%     1 + \sigma c_t + \phi l_t = 1 + w_t - p_t, \\
+%     \sigma c_t + \phi l_t = w_t - p_t.
+% \end{gather}
+
+Następnie stosując teoretyczny wynik dotyczący poziomu cen w modelach RBC, tj. koszt marginalny musi być równy poziomowi cen $P_t = MC_t$ otrzymamy ostatecznie równanie opisujące $P_t$.
+
+% Następnie korzystamy z analogicznej reguły dla stanu ustalonego $\steady{C}\steady{L} = \frac{\steady{W}}{\steady{P}}$:
+
+% Linearyzacja dla równania podaży pracy przebiega następująco:
+
+% \begin{gather}
+%     C_t^\sigma L_s^\phi = \frac{W_s}{P_s} \\
+%     \steady{C} e^{\sigma c_t} \steady{L} e^{\phi l_t} = \frac{\steady{W} e^{w_t}}{\steady{P} e^{p_t}}
+% \end{gather}
+
+% Następnie korzystamy z równania równowagi dla stanu ustalonego $\steady{C}\steady{L} = \frac{\steady{W}}{\steady{P}}$:
+
+% \begin{equation}
+%     e^{\sigma c_t + \phi l_t} = e^{{w_t} - p_t}
+% \end{equation}
+
+% Korzystając z reguły aproksymacji $e^{\hat{x}_t + \alpha \hat{y}_t} \approx 1 + \hat{x}_t + \alpha \hat{y}_t$:
+
+% \begin{gather}
+%     1 + \sigma c_t + \phi l_t = 1 + w_t - p_t \\
+%     \sigma c_t + \phi l_t = w_t - p_t
+% \end{gather}
+
+% Linearyzacja deprecjacji kapitału przebiega w analogiczny sposób:
+
+% \begin{gather}
+%      K_{t+1} = (1-\delta)K_t + I_t \\
+%      \steady{K} e^{k_{t+1}} = (1-\delta)\steady{K} e^{k_t} + \steady{I} e^{i_t}
+% \end{gather}
+
+% Korzystamy z reguły aproksymacji:
+
+% \begin{equation}
+%     \steady{K} (1 + k_{t+1}) = (1-\delta)\steady{K} (1 + k_t) + \steady{I} (i_t + 1)
+% \end{equation}
+
+\subsection{Podstawowe równania}
+
+Poniższe formy są formami odziedziczonymi po modelu RBC prezentowanym w rozdziale TODO:ref Reprezentatywne gospodarstwo domowe rozwiązuje problem:
+
+\begin{equation}
+    \max_{C_t, L_t, K_t} \E_t \sum_{t=0}^{\infty} \beta^t \left( \frac{C^{1-\sigma}_t}{1-\sigma} - \frac{L_t^{1+\phi}}{1+\phi}\right)
+\end{equation}
+
+Równanie budżetowe łączące wydatki oraz zysk gospodarstw jest reprezentowane poprzez:
+
+\begin{equation}
+    P_t(I_t + C_t) = W_t L_t + R_t K_t
+\end{equation}
+
+Deprecjacja kapitału oraz jego akumulacja dana jest równaniem:
+
+\begin{equation}
+    K_{t+1} = (1-\delta)K_t + I_t
+\end{equation}
+
+Równanie podaży pracy mamy następnie dane wedłyg wyprowadzenia z mnożników Lagrange'a:
+\begin{equation}
+    -C_t^\sigma L_t^\phi = -\frac{W_t}{P_t}
+\end{equation}
+
+Równanie Eulera dla tego modelu mamy dane poprzez:
+
+\begin{equation}
+    \left( \frac{\E_t C_{t+1}}{C_t}\right)^\sigma = \beta \left( (1-\delta) + \E_t \left( \frac{R_{t+1}}{P_{t+1}} \right) \right)
+\end{equation}
+
+Poziom produktywności jako model autoregresji 1 rzędu:
+
+\begin{equation}
+    \log A_t = (1 - \rho_A)\log A_{ss} + \rho_A A_{t-1} + \epsilon_{A,t}
+\end{equation}
+
+Równanie równowagi rynku łączy produkcję z konsumpcją/inwestycjami:
+
+\begin{equation}
+    Y_t = C_t + I_t
+\end{equation}
+
+\subsection{Firmy}
+
+Firmy w tym modelu są reprezentowane przez podział na sektor hurtowy i detaliczny.
+
+% Następnie zakładamy stan ustalony produktywności $\steady{A} = 1$ oraz w celu normalizacji $\steady{P} = 1$. Za pomocą tych wartości rozwiązujemy równanie dla $\steady{R}$ oraz $\steady{MC}$:
+
+% \begin{gather}
+%     \steady{R} = \frac{1}{\beta} - (1 - \delta) \\ 
+%     \steady{MC} = \left( \frac{\psi-1}{\psi}\right) \left( 1-\beta\theta\right)
+% \end{gather}
+
+% Następnie możemy rozwiązać równanie dla $W_t$:
+
+% \begin{gather}
+%     \steady{MC} = \frac{1}{\steady{A}}\left( \frac{\steady{W}}{1-\alpha} \right)^{1-\alpha}\left( \frac{R}{\alpha}\right)^\alpha \\
+%     \steady{MC}\left( \frac{R}{\alpha}\right)^\alpha = \left( \frac{\steady{W}}{1-\alpha} \right)^{1-\alpha} \\
+%     \frac{\steady{W}}{1-\alpha} = \left(\steady{MC}\left( \frac{R}{\alpha}\right)^\alpha\right)^{\frac{1}{1-\alpha}} \\
+%     \steady{W} = (1-\alpha)\left(\steady{MC}\left( \frac{R}{\alpha}\right)^\alpha\right)^{\frac{1}{1-\alpha}}
+% \end{gather}
+
+% Następnie znajdziemy stan ustalony $\steady{Y}$:
+
+% \begin{gather}
+%     \steady{Y} = \steady{A} \steady{K}^\alpha \steady{L}^{1-\alpha} 
+% \end{gather}
+
+%todo: notes->removed
+
+% 2 przykłady lub osobno wzbogacony model z bayesem
+
+% opis repozytorium oraz solucji (pliki, klasy + odwołania)
+% opisywanie detali implementacyjnych + przykłady prostych gospodarek
+% uruchomić profiler i poprawienie/optymalizacje kodu
+
+% piatek:
+% dać strukture repozytorium
+% uzyte biblioteki
+% opisać format plików wejściowych
+
+% detale implementacyjne
+% rozpiske rozdziałów
+% rozdział z wynikami
+% modele/wyniki czy w ogole powinny byc rozdzialy czy podrozdzial?
+
+% powinn
+
+Firmy hurtowe produkują dobra zgodnie z funkcją Cobba Douglasa:
+
+\begin{equation}
+    Y_t = A_t K_t^\alpha L_t^{1-\alpha}
+\end{equation}
+
+W celu minimalizacji kosztów produkcji:
+
+\begin{equation}
+    \min_{L_t, K_t} W_t L_t + R_t K_t
+\end{equation}
+
+%todo opisać proces
+
+Rozwiązanie problemu firm hurtowych przy pomocy metody mnożników daje nam następujące równania:
+
+\begin{align}
+    L_t &= (1 - \alpha)MC_t \frac{Y_t}{W_t} \\
+    K_t &= \alpha MC_t \frac{Y_t}{R_t}
+\end{align}
+
+W powyższym poprzez $MC_t$ oznaczamy marginalny koszt. Marginalny koszt z modelu RBC może być ponownie wykorzystany w formie:
+
+\begin{equation}
+    MC_t = \frac{1}{A_t}\left( \frac{W_t}{1-\alpha} \right)^{1-\alpha} \left( \frac{R_t}{\alpha} \right)^\alpha
+\end{equation}
+
+%todo 2 rozdzial opisac ceny w modelu NK
+
+Korzystając z wyceny Calvo, równania wiążące ceny prezentują się następująco:
+
+\begin{align}
+    P^*_t &= \left( \frac{\psi}{\psi-1}\right)\E_t \sum_{i=0}^\infty(\beta \theta)^iMC_{t+i} \\
+    P_t &= \left( \theta P^{1-\psi}_{t-1} + (1-\theta)P_t^{*1-\psi}\right)^{\frac{1}{1-\psi}}
+\end{align}
+
+Ostatnim równaniem będzie równanie dające nam inflację:
+
+\begin{equation}
+    \pi_t = \frac{P_t}{P_{t-1}}
+\end{equation}
+
+Algorytmem prognozowania powiązanym z estymacją metodą wnioskowania bayesowskiego jest prognozowanie metodą losowych ścieżek. Zakładamy, że mamy dany model w postaci wektora autoregresji (VAR):
+%todo można rozpisać z herbsta utrate posterior 
+\begin{equation}
+    \label{eqn:varModelProg}
+    y_t = \Phi_1(\theta)y_{t-1}+\Phi_{\epsilon}(\theta)\epsilon_t.
+\end{equation}
+W tym przypadku gęstość prawdopodobieństwa $y_{T+1}, \dots, y_{T+H}$ może zostać zapisana jako:
+
+przeprowadzimy oszacowanie wartości parametrów modelu dla obecnego okresu
+
+
+posiadamy pewną historyczną estymacją dla parametrów modelu sprzed dłuższego okresu np. dane sprzed kilku dekad oraz sekwencje danych opisujących zmierzone wartości ekonomiczne modelu z okresu poprzedzającego badany(np. wartości PKB, zatrudnienia, inflacji z okresu 10 lat). Na podstawie tych danych będziemy chcieli znaleźć oszacowanie wartości parametrów modelu, do czego zostanie wykorzystana metoda opierające się o wnioskowanie bayesowskie.
+
+
+Rozpisując macierze występujące w powyższym równaniu do postaci bloków, które odpowiadają kolejno wektorom $x_t$, $y_t$, tj blok $H_{11}$ to macierz rozmiaru $n \times n$, natomiast $H_{22}$ to macierz rozmiaru $m \times m$:
+
+, przy rozwiązywaniu modelu zostanie omówione dodatkowy warunek rozwiązywalności modelu.
+
+Powyższa metoda jest aproksymacją lokalną, w związku z tym będziemy chcieli zachować niewielkie odchylenia zmiennych od stanu ustalonego, co przekłada się na narzuceniu warunku na zmienne i współczynniki modelu. Celem modeli DSGE jest znalezienie wpływu fluktuacji na model gospodarczy, zmienne makroekonomiczne nie mogą być wartościami rosnącymi eksponencjalne.
+
+Mając wektor $s_t$ zmiennych stanu oraz stan ustalony $\bar{s}$ wprowadzamy wektor odchyleń logarytmicznych $\hat{s}_t$:
+\begin{equation}
+    \hat{s}_t = \ln s_t - \ln \bar{s}.
+\end{equation}
+
+Następnie bez straty ogólności będziemy rozważać zmienną $x_t$ należącą do wektora $s_t$, zgodnie z tym mamy:
+
+
+%oryginalny stan równowagi przy założeniu braku eksponencjalnego wzrostu wartości
+
+
+Poziom cen jest średnią cen dóbr na rynku oraz jest niezbędnym równaniem do
+określenia cen na rynku. Ta część zostanie omówiona w dwóch wariantach, wariancie dla
+modeli RBC oraz w wariancie poziomu cen w modelach ekonomii nowokeynesowskiej.
+Modele RBC z uwagi na uproszczony model pojedynczego reprezentatywnego dobra
+pozwoli ustalić podstawy wyznaczania poziomu cen, co zostanie następnie wykorzystane
+w modelu nowokeynesowskim. Następnie zostanie zaprezentowany wcześniej wspomniany
+mechanizm wyceny Calvo oraz wyprowadzenie poziomu cen w modelach nowej ekonomii
+keynesowskiej.
+
+Zmienne występujące w problemie gospodarstw. tj. praca, konsumpcja lub kwota inwestycji, są ograniczone w postaci równania budżetu. Z jednej strony budżet zasilany jest przez wpływy
+%todo
+
+Równanie budżetu opisuje relację wydatków oraz wpływów gospodarstw. Gospodarstwa nie mogą wydawać więcej pieniędzy na konsumpcję niż zarabiają, natomiast zarobki powiązane są z czasem pracy. 
+
+W przypadku gospodarek otwartych
+
+W przypadku gospodarek otwartych, w których import oraz eksport pełnią znaczącą rolę na rynku, do modelu wprowadzana jest reprezentacja importu oraz eksportu. W tym przypadku dodatkowo ma znaczenia skala handlu zagranicznego względem krajowej produkcji i wymiany, ponieważ mniejsze gospodarki są bardziej podatne na wahania globalnego rynku. 
+
+% opisującym stan ustalony nominalnej stopy procentowej, natomiast $\phi_\pi > 0$ jest dodatkowym parametrem ustalającym wpływ inflacji na wartość stopy procentowej.
+
+% Banki centralne mogą posłużyć się następującą regułą ustalania stopy procentowej na podstawie modelu z pracy \cite{gali_gov_spending}:
+% \begin{equation}
+%     R^*_t = R^*_{ss} + \phi_\pi \pi_t
+% \end{equation}
+% gdzie $R^*_{ss}$ jest parametrem opisującym stan ustalony nominalnej stopy procentowej, natomiast $\phi_\pi > 0$ jest dodatkowym parametrem ustalającym wpływ inflacji na wartość stopy procentowej.
+
+% Powyższa reguła jest specjalnym przypadkiem szeroko wykorzystywanej "reguły Taylora" \cite{taylor} \cite{gali_gov_spending}, której ogólna forma prezentuje się następująco:
+% \begin{equation}
+%     \label{eq:taylor_gen}
+%     R^*_t = \theta + \beta \pi_t + \phi y^x_t
+% \end{equation}
+% gdzie wartość $y^x_t$ opisuje lukę PKB, zmienne $\beta$ i $\phi$ to parametry, natomiast $\theta = R^*_{ss} + (1-\beta)\pi^*$ z parametrem $\pi^*$ będącym docelową wartością inflacji. Gdy wartość $\beta > 0$ oraz $\phi > 0$ wtedy realna stopa procentowa dostosowuję się, zapewniając stabilizację inflacji oraz produkcji \cite{costaBook}.
+% %todo targeted inflation w nawiasie cel inflacyjny
+
+% Innym wariantem powyższej reguły znanym pod nazwą "zmodyfikowanej reguły Taylora" jest reguła wykorzystana w modelach w pracach \cite{costaBook} oraz \cite{herbst}:
+% \begin{equation}
+%  R^*_t = R_{ss} \pi^* \left( \frac{\pi_t}{\pi^*}\right)^{\psi_1} \left(\frac{y_t}{y_{ss}}\right)^{\psi_2}
+% \end{equation}
+% W celu udowodnienia związku powyżej reguły z regułą Taylora,  logarytmując powyższe równanie otrzymujemy postać:
+% \begin{equation}
+%     \log{R_t^*} = \log{\left(R_{ss} \pi^*\right)} + \psi_1\log{\frac{\pi_t}{\pi^*}} + \psi_2 \log{\frac{y_t}{y_{ss}}}
+% \end{equation}  
+% Aproksymując powyższą postać przy pomocy metody opisanej w rozdziale \ref{sec:linearize_model} możemy doprowadzić powyższą postać do aproksymowanego równania odchyleń od stanu ustalonego prezentującego postać \eqref{eq:taylor_gen}.
+
+
+
+
+. Taki sposób konkurencji został scharakteryzowany jako konkurencja monopolistyczna, występujący w gospodarce agenci mogą przejawiać zachowania monopolistyczne w celu maksymalizacji swojego zysku.
+
+W modelu nieuzasadnione wahania w zmiennych ekonomicznych zostały przypisane działaniom szoków, czyli losowych zjawisk nie objętych przez prawa ekonomiczne, które odpowiadały wzrostowi lub spadkowi poziomu produkcji \cite{prescott_kydland}. Reprezentacja szoków w postaci stochastycznych zmiennych pozwoliła na zgrabne ujęcie tych zewnętrznych procesów w obrębie ekonomicznego modelu. 
+
+% \subsection{Równanie Fishera}
+
+% W celu powiązania nominalnej stopy procentowej z inflacją posłużymy się równaniem Fishera. Równanie Fishera opisuje relacje pomiędzy realną stopą procentową, spodziewaną inflacją oraz poszukiwaną nominalną stopą procentową. Równanie Fishera prezentuje się następująco:
+% \begin{equation}
+%     i_t = \E_t\{\pi_{t+1}\} + r_t.
+% \end{equation}
+
+% \subsection{Reguła bazująca na inflacji}
+
+% Reguły polityki monetarnej 
+
+% Załóżmy że bank centralny zmienia stopy procentowe zgodnie z:
+% \begin{equation}
+%     i_t = \rho + \phi_\pi \pi_t,
+% \end{equation}
+% łącząc to równanie z poprzednim równaniem Fishera otrzymujemy:
+% \begin{equation}
+%     \phi_\pi \pi_t = \E_t\{\pi_{t+1}\} + (r_t - \rho).
+% \end{equation}
+% Zakładając
+
+% Teraz jeśli $\phi_\pi > 1$, to powyższe ma jedno rozwiązanie wokół stanu ustalonego i możemy napisać równanie równowagi inflacji:
+% \begin{equation}
+%     \pi_t = - \frac{\sigma \psi_{ya}(1-\rho_a)}{\phi_\pi - \rho_a}a_t
+% \end{equation}
+
+% Natomiast jeśli $\phi_\pi < 1$, to równanie na rozwiązania inflacji sprowadza się do:
+
+% \begin{equation}
+%     \pi_{t+1} = \phi_\pi \pi_t - \dash{r}_t + \xi_{t+1}
+% \end{equation}
+
+
+Dla porównania w środowisku cenowym modeli RBC zakładaliśmy istnienie konkurencji doskonałej -- agenci zawsze reagują na zmiany w równowadze gospodarczej dobierając swoje ceny zgodnie z rynkowymi. 
+
+%todo
+Nowa Ekonomia Keynesowska jest nazwą nurtu powstałego w latach 80. XX wieku w ekonomii. Nurt ten powstał na bazie keynesizmu, który opierał się na odejściu od klasycznej ekonomii bazującej na mikroanalizie w kierunku analizy opartej na zmiennych agregowanych, oraz przyczynił się znacząco rozwojowi makroekonomii. 
+Słowo nowe w tym kontekście odnosi się do wprowadzenia konkurencji niedoskonałej do modelowanego rynku ekonomii. Dla porównania w środowisku cenowym modeli RBC zakładaliśmy że firmy nie mają wpływu na cenę dóbr, środowisko konkurencji doskonałej zakłada znikomy wpływ pojedynczych firm na obecny stan cen - firmy w związku z tym biorą narzuconą cenę i zgodnie z nią ustalają produkcję. Konkurencja niedoskonała zakłada rozróżnialność dóbr na rynku, a co za tym idzie możliwość istnienia monopolistów, którzy będą mieli wpływ na ustalanie ceny produkowanego dobra.
+
+, opisanymi poprzez problemy decyzyjne optymalizujących podmiotów ekonomicznych tj. domostwa oraz firmy\cite{the_abc_of_rbcs}. Pod pojęciem optymalizującyh podmiotów ekonomicznych rozumiemy sytuację w której konsumenci lub producenci podejmu
+
+
+
+
+teoria modeli realnego cyklu koniunkturalnego (RBC, \emph{Real Business Cycle})  stała się jedną z dominujących podstaw makroekonomicznych modeli w latach 90. XX wieku. Modele RBC starają się łączyć teorię cykli koniunkturalnych i znane agregaty makroekonomiczne z warunkami opisującymi zachowania i decyzje podmiotów ekonomicznych, domostw oraz firm. Warunki te powstają jako warunki pierwszego rzędu rozwiązań problemów decyzyjnych odpowiednio maksymalizacji użyteczności lub zysku, łącząc fundamenty mikroekonomiczne z agregatami makroekonomicznymi. 
+
+% \subsection{Reguły polityki monetarnej}
+
+% todo sunspot shock?
+
+% Na początku rozważmy przypadek w którym stopy procentowe są efektem procesu stochastycznego. Zakładając że $i_t$ ma wartość oczekiwaną $\rho$, przepisując powyższe równanie w postać $\E_t\{\pi_{t+1}\} = i_t - r_t$, będziemy mieli że dla każdej ścieżki dla cen mamy:
+% \begin{equation}
+%     p_{t+1} = p_t + i_t - r_t + \xi_{t+1}
+% \end{equation}
+% co wskazuje, że egzogenna zmienna stopy procentowej prowadzi do nieokreślenia poziomu cen (przeniesienia procesu egzogennego).
+
+% Ten efekt jest przechodni dla kolejnych elementów zmiennych wewnętrznych modelu, gdy są określone przez równanie ze zmienną nieokreśloną jednoznacznie.
+
+
+% Czas wolny jest efektem zmniejszenia czasu pracy przez gospodarstwa domowe. Jednym z celów modelowania DSGE jest zobrazowanie skłonności konsumentów do redukcji/zwiększenia czasu pracy w wyniku fluktuacji na rynku. Czas wolny może być interpretowany jako dobro konsumpcyjne, gospodarstwa zaoszczędzony czas w wyniku redukcji pracy poświęcają na zwiększenie własnego szczęścia, np. przeznaczają go na rozwój własnego hobby.
+
+% Modele realnego cyklu koniunkturalnego starały się wyjaśnić istnienie cykli koniunkturalnych w gospodarce konkurencji doskonałej, w której siły rynkowe działają zawsze efektywnie. 
+wprowadzić  nieefektywności do działań optymalizujących agentów, w postaci niedkoskonałej konkurencji. 
+
+Równolegle z rozwojem teorii RBC rozwijała się teoria Nowej Ekonomii Keynesowskiej, skupiająca się na przedstawieniu istnienia nieefektywności na rynku. Modele keynesowskie w przeciwieństwie do modeli RBC starały się przedstawić rynek charakteryzujący się konkurencją monopolistyczną, siły rynkowe nie zawsze reagują efektywnie na zmiany i fluktuacje na rynku, przejawiając obok cech konkurencji doskonałej, także cechy monopolu. Przykładem takiego zachowania mogą być ceny na rynku, w przypadku zmian nie zawsze firmą opłaca się zaktualizować ceny zgodnie z ceną wynikającą z równowagi na rynku. Ze zmianą cen mogą wiązać się koszty zmian, ewentualnie samo wykonanie operacji w wielu filiach firmy może być nieefektowne. W związku z tym w modelach nowokeynesowskich pojawią się mechanizmy pozwalające firmom pozwalające firmom na opóźnienie aktualizacji cen. 
+Modele bazujące na ekonomii nowokeynowskiej pozwoliły zbadać wpływ polityki monetarnej na fluktuacje na rynku, stąd większość współczesnych modeli powstaje w oparciu o tą teorie.
+
+
+
+
+% Jedynym źródłem fluktuacji na rynku była produktywność, czyli stan wiedzy na temat technologii decydujący o jakości produkcji towarów na rynku. Modele RBC niestety nie wyjaśniały roli polityki monetarnej w ekonomii, ograniczając dalsze wykorzystanie modeli.
+
+
+
+
+
+% Modelowanie makroekonomii mają swoją długą historię. Od lat 80. pojawił się nowy nurt w dziedzinie ekonomii starający się wyjaśnić zachowanie cykli koniunkturalnych oraz opisać wpływ komponentów ekonomii na zachowanie zmiennych makroekonomicznych. Pracą przełomową w rozwoju dziedziny modelowania ekonomii była praca Kydlanda i Prescotta z roku 1982, która zapoczątkowała rozwój teorii RBC. Zaprezentowany w pracy model wraz z dodatkiem stochastycznych zmiennych reprezentujących zmiany w produktywności na rynku położył także fundamenty pod rozwój modeli DSGE. Modele RBC starały się wyjaśnić istnienie cykli koniunkturalnych w ekonomii konkurencji doskonałej, na której siły rynkowe działają zawsze efektywnie. Jedynym źródłem fluktuacji na rynku była produktywność, czyli stan wiedzy na temat technologii decydujący o jakości produkcji towarów na rynku. Modele RBC niestety nie wyjaśniały roli polityki monetarnej w ekonomii, ograniczając dalsze wykorzystanie modeli.
+
+% Równolegle z rozwojem teorii RBC rozwijała się teoria Nowej Ekonomii Keynesowskiej, skupiająca się na przedstawieniu istnienia nieefektywności na rynku. Modele keynesowskie w przeciwieństwie do modeli RBC starały się przedstawić rynek charakteryzujący się konkurencją monopolistyczną, siły rynkowe nie zawsze reagują efektywnie na zmiany i fluktuacje na rynku, przejawiając obok cech konkurencji doskonałej, także cechy monopolu. Przykładem takiego zachowania mogą być ceny na rynku, w przypadku zmian nie zawsze firmą opłaca się zaktualizować ceny zgodnie z ceną wynikającą z równowagi na rynku. Ze zmianą cen mogą wiązać się koszty zmian, ewentualnie samo wykonanie operacji w wielu filiach firmy może być nieefektowne. W związku z tym w modelach nowokeynesowskich pojawią się mechanizmy pozwalające firmom pozwalające firmom na opóźnienie aktualizacji cen. 
+% Modele bazujące na ekonomii nowokeynowskiej pozwoliły zbadać wpływ polityki monetarnej na fluktuacje na rynku, stąd większość współczesnych modeli powstaje w oparciu o tą teorie.
+
+
+% \begin{table}[h]
+% \begin{tabular*}{\textwidth}{c @{\extracolsep{\fill}} lllllllll }%{tabular}{@{}lllllll@{}}
+% \toprule
+% \multicolumn{9}{l}{Predykcja okresu $t$} \\ \midrule
+% \multicolumn{2}{l}{Predykcja kroku} &\multicolumn{2}{l}{} & \multicolumn{5}{l}{$\tilde{s}_{t|t-1} = \Phi_1\tilde{s}_{t-1|t-1}$}  \\
+% \multicolumn{2}{l}{$s_t|Y_{1:t-1} \sim N(\tilde{s}_{t|t-1},\tilde{P}_{t|t-1})$} & \multicolumn{2}{l}{} & \multicolumn{5}{l}{$\tilde{P}_{t|t-1} = \Phi_1\tilde{P}_{t-1|t-1}\Phi_1^T + \Phi_{\epsilon}\sum_{\epsilon}\Phi_{\epsilon}^T$}  \\ \midrule
+% \multicolumn{9}{l}{Aktualizacja rozkładów} \\ \midrule
+% \multicolumn{2}{l}{Predykcja pomiaru} &\multicolumn{2}{l}{} & \multicolumn{5}{l}{$\tilde{y}_{t|t-1} = \Psi_0 + \Psi_1 t + \Psi_2\tilde{s}_{t|t-1}$}  \\
+% \multicolumn{2}{l}{$y_t|Y_{1:t-1} \sim N(\tilde{y}_{t|t-1},F_{t|t-1})$} & \multicolumn{2}{l}{} & \multicolumn{5}{l}{$F_{t|t-1} = \Psi_2\tilde{P}_{t|t-1}\Psi_1^T + \sum_{u}$}  \\
+% % todo
+%  & & &   &  &  &  &  &  \\ 
+% \multicolumn{2}{l}{Błąd predykcji} &\multicolumn{2}{l}{} & \multicolumn{5}{l}{P_} \\
+%  & & &   &  &  &  &  &  \\ 
+% \multicolumn{2}{l}{Przyrost Kalmana} &\multicolumn{2}{l}{} & \multicolumn{5}{l}{} \\
+%  & & &   &  &  &  &  &  \\ 
+% \multicolumn{2}{l}{Poprawienie predykcji kroku} &\multicolumn{2}{l}{} & \multicolumn{5}{l}{$\tilde{s}_{t|t} = $}  \\
+% \multicolumn{2}{l}{$s_t|Y_{1:t} \sim N(\tilde{s}_{t|t},P_{t|t})$} & \multicolumn{2}{l}{} & \multicolumn{5}{l}{$P_{t|t} = $}  \\ \bottomrule
+% \end{tabular*}
+% \end{table}
+
+700 ->
+
+
+%todo opisać że w zasadzie poszukujemy rozwiązanie że x_t < m
+
+% Oznaczmy $\hat{G} = Q^T G$ oraz rozbijmy:
+
+% \begin{equation}
+% \begin{gathered}
+%     \hat{G} = H G \\
+%     \begin{bmatrix}
+%         \hat{G}_1 \\
+%         \hat{G}_2
+%     \end{bmatrix} = \hat{G}
+% \end{gathered}
+% \end{equation}
+
+% Podobnie jak w przypadku metody dla macierzy nieosobliwej rozważamy teraz niestabilną część powyższego równania. Podobnie jak w przypadku nieosobliwym $\hat{y}_t$ jest niezależne od $\hat{x}_t$ z uwagi na fakt że macierze $T$ oraz $S$ są trójkątne górne, dodatkowo macierz $S_{22}$ jest odwracalna ze względu na konstrukcje. Otrzymujemy postać:
+
+% \begin{equation}
+%     \begin{gathered}
+%         S_{22} \E_t \hat{y}_{t+1} = T_{22} \hat{y}_t + \hat{G}_2 e_t\\
+%         \E_t \hat{y}_{t+1} = S_{22}^{-1} T_{22} \hat{y}_t + \hat{G}_2 e_t
+%     \end{gathered}
+% \end{equation}
+
+% Korzystając z wyprowadzenia wcześniejszego dla powyższego problemu otrzymujemy:
+
+575 ->
+% \begin{equation}
+% \label{eqn:qzMainEq}
+%     S Z
+%     \begin{bmatrix}
+%     x_{t+1} \\
+%     \E_t y_{t+1}
+% \end{bmatrix} = T Z \begin{bmatrix}
+%     x_{t} \\
+%     y_{t}
+% \end{bmatrix} + Q^{T} G e_t
+% \end{equation}
+
+% W dalszej części pracy w celu ułatwienia
+
+% na przykład $\E_t c_{t+1}$. W związku z tym wprowadzimy sobie porządek na zmiennych, a powyższe równanie liniowych racjonalnych oczekiwań przybierze postać:
+
+
+% W tym celu ponownie zdefiniujemy wektory zmiennych modelu, oznaczmy jako $s_{t}$ zmienne występujące z indeksem $t+1$ oraz te zmienne z $s_t$, które posiadały wartość z indeksem $t-1$, analogicznie $s_{t-1}$ będzie wektorem zmiennych z $s_{t+1}$ w indeksie $t$ oraz zmiennych z $s_{t-1}$:
+
+% \begin{equation}
+%     \Gamma_1 s_{t} = \Gamma_2 s_{t-1} + \Psi \epsilon_t
+% \end{equation}
+
+
+
+
+% W powyższym wektor $x_t$ rozmiaru $n \times 1$ zbiera zmienne nazywane zmiennymi wstecznymi lub zmiennymi stanu. Są to zmienne dla których mamy daną wartość w punkcie $t$. Wektor $y_t$ rozmiaru $m \times 1$ zbiera zmienne oczekiwań, są to zmienne które pojawiają się w modelach jako oczekiwane wartości np. oczekiwana inflacja lub oczekiwana konsumpcja. Te zmienne będą niestabilnymi w naszym modelu. Wektor $\epsilon_t$ opisuje szoki modelu.
+
+% \subsection{Przykład log-linearyzacji modelu}
+
+% W celu przedstawienia log linearyzacji modelu posłużymy się przykładowym modelem RBC.
+
+% \subsubsection{Stan ustalony}
+
+% W celu policzenia stanu ustalonego przyjmujemy zerowe wartości szoku $\E(\epsilon_t) = 0$, dodatkowo z uwagi na obecność stanu ustalonego w funkcji produktywności, w literaturze definiuje się $A_{ss} = 1$. Jako stan ustalony oznaczymy następnie zmienne poprzez $\bar{A} = A_{ss}$. Nasz model w stanie ustalonym charakteryzowany jest przez równania:
+
+% \begin{gather}
+%     \bar{C}\bar{L} = \frac{\bar{W}}{\bar{P}} \\
+%     -\E_t(\frac{1}{\bar{\pi}}(\frac{\bar{C}}{\bar{C}})^\sigma) = -\E_t(\frac{\bar{r}}{\bar{\pi}}) \\
+%     \bar{K} = (1-\delta)\bar{K} + \bar{I} \\
+%     \bar{Y} = \bar{A}\bar{K}\bar{L} \\
+%     \frac{\bar{W}}{\bar{P}} = (1 - \alpha) \frac{\bar{Y}}{\bar{L}} \\
+%     \frac{\bar{R}}{\bar{P}} = \alpha \frac{\bar{Y}}{\bar{K}} \\
+%     \bar{P} = \frac{1}{A_t}(\frac{\bar{W}}{1-\alpha})^{1-\alpha}(\frac{\bar{R}}{\alpha})^\alpha\\
+%     \bar{Y} = \bar{C} + \bar{I} \\
+%     \bar{A} = (1-\rho) + \rho \bar{A} + \epsilon_{A,t}
+% \end{gather}
+
+\subsubsection{Egzogenna ścieżka dla zasobu pieniężnego}
+
+%%% równania i wyprowadzenie
+
+W przypadku w którym reprezentujemy zasób pieniężny jako zmienną egzogenną, dostajemy równanie jednoznacznie opisujące poziom cen, przy danej ścieżce dla zasobu pieniężnego. Jest to zgodne z ideą klasycznego modelu, że poziom cen reaguje na zmianę polityki monetarnej bez opóźnień (niezgodne z obserwowalnymi empirycznymi zachowaniami).
+
+\subsubsection{Optymalna polityka monetarna}
+
+Ze względu na fakt, że użyteczność gospodarstw zależy jedynie od przepracowanych godzin i konsumpcji, polityka monetarna nie wpływa na zachowania tych agentów w klasycznym modelu. Z punktu widzenia konsumenta polityka monetarna prowadząca do dużych fluktuacji w inflacji nie jest gorsza od polityki monetarnej stabilizującej ceny w obliczu szoków. Stąd brak możliwości określenia optymalnej polityki monetarnej w tym modelu, co pokrywa się ze wskazanymi podstawami modeli RBC.
+
+
+\subsection{Rozszerzony model}
+
+@book{latex:companion,
+  author = {Frank Mittelbach and Michel Gossens
+            and Johannes Braams and David Carlisle
+            and Chris Rowley},
+  year = {2004},
+  title = {The \LaTeX{} Companion},
+  publisher = {Addison-Wesley Professional},
+  edition = {2}
+}
+
+
+W całym rozdziale zakładaliśmy, że model musi być postaci:
+
+\begin{equation*}
+    A \begin{bmatrix}
+    x_{t+1} \\
+    \E_t y_{t+1}
+\end{bmatrix} = B \begin{bmatrix}
+    x_{t} \\
+    y_{t}
+\end{bmatrix} + C e_t
+\end{equation*}
+
+Model może zostać jednak rozszerzony, pozwalając na wprowadzenie dodatkowych indeksów czasowych $x_{t - j}$ dla dowolnego $j \in \mathbb{N}$ oraz zmiennych "mieszanych", które występują z indeksem czasowym $t+1$ oraz $t-j$ (zmienne będące zarazem zmiennymi stanu jak i zmiennymi kontrolnymi.
+
+Dla każdej zmiennej występującej z indeksem czasowym ujemnym, takim że $j > 0$ dodatkowo $j$ jest największym wystąpieniem zmiennej $x_{t-j}$ w równaniach modelu:
+\begin{enumerate}
+    \item Wprowadzamy nowe zmienne $z^k$, dla $k \in \{1,\dots, j\}$
+    \item Dodajemy dodatkowe równania
+    \begin{align*}
+        z^1_t &= x_{t-1} \\
+        z^k_t &= z^{k-1}_{t-1} \text{, dla } k \in \{1,\dots, j\}
+    \end{align*}
+    \item Zastępujemy wystąpienia $x_{t - j}$ nowymi transformowanymi zmiennymi $z^j_t$
+\end{enumerate}
+
+% W przypadku zmiennych kontrolnych niestety operacja wartości oczekiwanych sprawia, że musimy wykonać dodatkowe transformacje
+% \begin{itemize}
+%     \item %todo
+% \end{itemize}
+
+Zmienne mieszane rozdzielamy metodą analogiczną do zmiennych stanu, dla każdej zmiennej mieszanej $x_t$:
+\begin{itemize}
+    \item Wprowadzamy nową zmienną $v$
+    \item Rozszerzamy model równaniem:
+    \begin{equation*}
+        v_t = x_t
+    \end{equation*}
+    \item Zastępujemy wystąpienia $\E_t x_{t+1}$ poprzez nową zmienną $\E_t v_{t+1}$ 
+\end{itemize}
+
+Powyższe transformacje generują równoważny model, dla którego zbiór kontrolnych zmiennych jest rozłączny ze zmiennymi stanu. Dodatkowo każda zmienna występuje z maksymalnym indeksem czasowym $x_{t-1}$/$y_{t+1}$ pozwalając nam zastosować poprzednie metody rozwiązywania modeli liniowych racjonalnych oczekiwań.
+
+% Mając dany model DSGE w postaci linearyzowanych równań, w których występują zmienne:
+% \begin{itemize}
+%     \item Zmienne endogeniczne -- zmienne opisujące wartości makroekonomiczne naszego modelu. Zmienne endogeniczne uporządkowujemy w formie wektorów
+%         \begin{align}
+%             x_t &= [y_t, \dots, \E_t c_{t+1}, \E_t \pi_{t+1}] \\
+%             \notag x_{t-1} &= [y_{t-1}, \dots, c_t, \pi_t]
+%         \end{align}
+%         Oznaczmy jako rozmiar wektora: $|x_t| = n$
+%     \item Parametry modelu -- zmienne opisujące zachowania agentów oraz zależności między komponentami modelu, parametry modelu porządkujemy w formie wektora $\theta$
+%     \item Zmienne egzogeniczne -- zmienne zewnętrzne modelujące szoki w naszej ekonomii, oznaczane w postaci wektora szoków $\epsilon_t$. Oznaczmy jako $|\epsilon_t| = m$
+% \end{itemize}
+% Reprezentujemy nasz układ równań modelu w postaci kanonicznej:
+
+% \begin{equation}
+%     \label{eqn:canonic}
+%     \Gamma_1(\theta) x_t = \Gamma_2(\theta) x_{t-1} + \Psi(\theta) \epsilon_t
+% \end{equation}
+
+
+% W powyższym oraz w następnych reprezentacjach postaci parametryzowane przez $(\theta)$ będziemy rozumieli jako funkcję generujące macierze na bazie wartości wektora $\theta$. W powyższym funkcje $\Gamma_1$, $\Gamma_2$ są postaci $\theta \xrightarrow{} M_{n \times n}$, natomiast funkcja $\Psi$ jest postaci $\theta \xrightarrow{} M_{m \times n}$.
+
+Szeroko stosowaną metodą w kolejnych częściach będzie dekompozycja QZ. 
+
+\begin{defi}[Wiązka matryc]
+    Funkcję macierzową $P: \mathbb{C} \xrightarrow[]{} \mathbb{C}^{n \times n}$ nazywamy wiązką matryc. Zbiór uogólnionych wartości własnych $\lambda(P)$ jest zdefiniowany jako $\lambda(P) = \{ z \in \mathbb{C}: |P(z)| = 0\}$.
+\end{defi}
+
+\begin{defi}{Regularna wiązka matryc}
+    Niech $P(z)$ będzie wiązką matryc, wtedy $P$ jest regularna jeśli istnieje $z \in \mathbb{C}$ takie że $|P(z)| \neq 0$, czyli $\lambda(P) \neq \mathbb{C}$.
+\end{defi}
+
+\begin{theorem}[Uogólniona postać Schura]
+\label{theorem:schur}
+
+Niech dane będą macierze $A$ oraz $B$ rozmiaru $n \times n$, takie że istnieje $z \in \mathbb{C}$ dla którego $A z \neq B$. Niech $\lambda(A, B) = \left\{z \in \mathbb{C}\colon |A z - B| = 0\right\}$ oznacza zbiór uogólnionych wartości własnych dla $A$ i $B$. Wówczas istnieją macierze unitarne $Q$, $Z$ rozmiaru $n \times n$ takie że:
+\begin{enumerate}
+    \item istnieje macierz $S$, dla której $QSZ = A$ oraz $S$ jest macierzą trójkątną górną,
+    \item istnieje macierz $T$, dla której $QTZ = B$ oraz $T$ jest macierzą trójkątną górną,
+    \item każdą liczbę z $\lambda(A, B)$ można przedstawić jako $\frac{t_{ii}}{s_{ii}}$ takie, że przynajmniej jedna z $s_{ii}$, $t_{ii}$ nie jest równa zero,
+    \item pary $(s_{ii}$, $t_{ii})\;\forall i \in \{1,\dots, n\}$ mogą być ustawione w dowolnym porządku.
+\end{enumerate}
+
+Mając dane macierze $A$ oraz $B$ rozmiar $n \times n$ takie że $P(z) = Az - B$ jest regularną wiązką matryc, wtedy istnieją macierze ortogonalne rozmiaru $n \times n$ takie że:
+\begin{enumerate}
+    \item $QSZ = A$ oraz $S$ jest macierzą trójkątną górną
+    \item $QTZ = B$ oraz $T$ jest macierzą trójkątną górną
+    \item Dla każdego $j \in \{1,\dots, n\}$, przynajmniej jedna z wartości $s_{jj}$, $t_{jj}$ nie jest równa zero
+    \item $\lambda(A,B) = \{ \frac{t_{ii}}{s_{ii}},\; i \in \{1,\dots, n\} \}$ -- zbiór uogólnionych wartości własnych (w przypadku gdy $s_{ii} = 0$ definiujemy taką wartość jako "nieskończoność"
+    \item Pary $(s_{ii}$, $t_{ii})\;\forall i \in \{1,\dots, n\}$ mogą być ustawione w dowolnym porządku
+\end{enumerate}
+\end{theorem}
+
+
+\subsection{Wprowadzenie zjawiska sztywności płac}
+
+Celem tej części jest przedstawienie formy funkcyjnych reprezentujących sztywność płac. Formy funkcyjne reprezentujące gospodarstwa będą obrazować wpływ siły roboczej na ekonomie poprzez wpływ na płacę bazując na krańcowej stopie substytucji konsumpcji/czasu pracy.
+
+\begin{definition}{Sztywność płac}
+    
+    Problemem z jakim mierzą się firmy na rynku w przypadku prób zmniejszenia płac są umowy zawarte z siłą roboczą lub strach przed drastycznym spadkiem produktywności w przypadku niższych płac.
+    
+\end{definition}
+
+
+%%%%%%%%%%%%%%%%%%
+\subsection{Krzywa obojętności oraz krańcowa stopa substytucji}
+
+Patrząc na funkcję użyteczności możemy rozważyć dla jakich wartości konsumpcji oraz czasu pracy funkcja użyteczności ma tą samą wartość. Stosunki tych samych wartości funkcji użyteczności dla dwóch dóbr będziemy nazywali krzywą obojętności
+
+\begin{definition}{Krzywa obojętności}
+
+    Krzywą obojętności nazywa grupowanie wartości, które są obojętne dla agenta, czyli dostarczają mu tej samej użyteczności.
+
+\end{definition}
+
+Krzywa obojętności pozwala nam zdefiniować krańcową stopę substytucji MRS. Krańcowa stopa substytucji opisuje stosunek pomiędzy dobrami $X$, $Y$ w jakim agent jest gotowy poświęcić jedno dobro na rzecz drugiego.
+
+\begin{definition}{Krańcowa stopa substytucji}
+    
+    Stosunek wymiany dla krzywej obojętności dwóch dóbr X i Y jest nazywany Krańcową Stopą Substytucji(MRS) oraz oznaczany poprzez:
+    
+    \begin{equation*}
+        MRS_{X,Y} = -\left.\frac{\partial Y}{\partial X}\right|_{U = U_1} = -\left.\frac{MU_X}{MU_Y}\right|_{U = U_1}
+    \end{equation*}
+    
+    gdzie $MU_X$ oraz $MU_Y$ oznaczają odpowiednio użyteczność krańcową dla dóbr X oraz Y, natomiast $\left.\right|_{U = U_1}$ oznacza, że nachylenie jest liczone wzdłuż krzywej obojętności $U_i$.
+\end{definition}
+
+Warunki pierwszego rzędu dla \ref{eqn:firmProblem} dają nam:
+
+\begin{equation*}
+    P\frac{\partial Y}{\partial L^d} - W = 0
+\end{equation*}
+
+\begin{equation*}
+    P\frac{\partial Y}{\partial K^d} - R = 0
+\end{equation*}
+
+Powyższego mogą zostać przedstawione w następującej formie:
+
+\begin{definition}{Zapotrzebowanie na zasoby}
+    %todo dodać podpisy Costa/31 str
+    Krańcowa produktywność siły roboczej:
+    \begin{equation*}
+        \frac{\partial Y}{\partial L^d} = \frac{W}{P}
+    \end{equation*}
+    
+    Krańcowa produktywność kapitału:
+    \begin{equation*}
+        \frac{\partial Y}{\partial K^d} = \frac{R}{P}
+    \end{equation*}
+\end{definition}
+
+%todo margianl rate of technical substitution ?
+
+% \begin{equation}
+%     \Lagr = u(C_t,L_t) - \lambda(P_t C_t - W_t L_t)
+% \end{equation}
+
+% z warunkami pierwszego rzędu:
+
+% Łącząc powyższe otrzymujemy $\frac{\partial u /\partial L}{\partial u/\partial c} = -\frac{W}{P}$. Ta wartość ma interpretację ekonomiczną i jest zwana podażą pracy.
+
+% \begin{definition}{Podaż pracy}
+% \begin{equation*}
+%     %todo podpis pod lewą i prawą stroną
+%     \frac{\partial u /\partial L_t}{\partial u/\partial C_t} = -\frac{W_t}{P_t}
+% \end{equation*}
+% \end{definition}
+
+% \subsection{Równanie Eulera}
+
+% Konsumenci decydując między konsumpcją, a czasem pracy w obecnym okresie, biorą pod uwagę fakt, że podobna decyzja zostanie podjęta w kolejnym okresie czasu. Ten problem może zostać opisany jako funkcja użyteczności dla wszystkich przedziałów czasu:
+
+% \begin{equation}
+%     u(c_1, c_2, \dots )
+% \end{equation}
+
+% W celu uproszczenia powyższego problemu ekonomiści upraszczają tę funkcję zakładając addytywną rozdzielność użyteczności poprzez formę:
+
+% \begin{equation}
+%     u(c_1, c_2, \dots) = u(c_1) + \beta u(c_2) + \beta^2 u(c_3) + \dots
+% \end{equation}
+
+% Parametr $\beta$ w powyższym jest nazywany międzyokresowy czynnik dyskontujący. Przyjmuje się, że wartość $\beta < 1$, konsumenci przykładają większy nacisk na konsumpcję w obecnym okresie, niż przykładanie uwagi przyszłym okresem.
+
+% Rozważając decyzję międzyokresową następnie skupimy się na relacji w modelu, gdzie konsumenci przeżywają 2 okresy czasu, co możemy interpretować jako okres teraźniejszy(1) oraz przyszłość(2). Problem preferencji międzyokresowej upraszcza się do postaci:
+
+% \begin{equation}
+%     u(c_1, c_2) = u(c_1) + \beta u(c_2)
+% \end{equation}
+
+% W celu prezentacji problemu, dodatkowo zakładamy model w którym konsumenci mogą akumulować majątek pomiędzy okresami w celu przyszłej konsumpcji. Następnie rozważmy równanie budżetowe dla okresów $0$, $1$ oraz $2$. W naszej reprezentacji będziemy zakładali, że $A_t$ reprezentuje bogactwo w okresie $t$, zmienna $R$ jest zwrotem z bogactwa, natomiast wartość produkcji określimy jako $Y_t = W_t L_t$. 
+
+% W okresie 0 konsumenci zaczynają z pewnym bogactwem $A_0$. Równanie budżetowe w okresie 1 będzie miało następnie postać:
+
+% \begin{equation}
+%     \label{eqn:eulert1}
+%     P_1 c_1 + A_1 = R A_0 + Y_1
+% \end{equation}
+
+% Z uwagi na fakt, że rozważany konsument żyje 2 okresy, optymalnym będzie brak oszczędności w okresie 2 $A_2 = 0$. W związku z tym równanie budżetowe w okresie 2 będziemy mieli dane jako:
+
+% \begin{equation}
+%     \label{eqn:eulert2}
+%     P_2 c_2 = R A_1 + Y_2
+% \end{equation}
+
+% Następnie rozwiązujemy problem maksymalizacji użyteczności międzyokresowej:
+
+% \begin{equation}
+%     \label{eqn:eulerproblem}
+%     \max_{c_1, c_2, A_1} u(c_1) + \beta u(c_2)
+% \end{equation}
+
+% Rozwiązując powyższe metodą mnożników Lagrange z ograniczeniami danymi przez \ref{eqn:eulert1} oraz \ref{eqn:eulert2} dostajemy:
+
+% \begin{equation}
+%     \mathcal{L} = u(c_1) + \beta u(c_2) - \lambda_1(P_1 c_1 + A_1 - R A_0 - Y_1) - \lambda_2(P_2 c_2 - R A_1 - Y_2)
+% \end{equation}
+
+% Dla którego warunkami pierwszego rzędu są:
+% \begin{align}
+%     \frac{\partial \mathcal{L}}{\partial c_1} &= \frac{\partial u}{\partial c_1} - \lambda_1 P_1 = 0\\
+%     \frac{\partial \mathcal{L}}{\partial c_2} &= \frac{\partial u}{\partial c_2} - \lambda_2 P_2 = 0\\
+%     \frac{\partial \mathcal{L}}{\partial A_1} &= -\lambda_1 + \lambda_2 R = 0
+% \end{align}
+
+% Rozwiązując pierwsze równanie względem $\lambda_1$, drugie względem $\lambda_2$ oraz definiując inflację jako różnicę cen między okresami $\pi_2 = \frac{P_2}{P_1}$ dostajemy równanie Eulera:
+
+% %todo czemu z minusami
+
+% \begin{defi}{Równanie Eulera}
+
+%     Równanie Eulera wiążę krańcową użyteczność konsumpcji międzyokresową ze względną ceną miedzyokresowej konsumpcji.
+    
+%     \begin{equation}
+%     \label{eqn:euler}
+%         -\frac{\partial u / \partial c_1}{\beta \partial u / \partial c_2} = -\frac{R}{\pi_2}
+%     \end{equation}
+% \end{defi}
+
+% Równanie Eulera możemy interpretować jako ilość konsumpcji w okresie następnym, która zrównoważyłaby stratę konsumpcji dla okresu obecnego.
+
+% \subsection{Formy funkcyjne użyteczności w modelach}
+
+% W przypadku modeli z pojedynczym dobrem konsumpcyjnym bez kapitału, często stosowaną formą funkcyjną użyteczności jest:
+
+% \begin{equation}
+%     U(C_t, N_t) = \E \sum_{t=0}^{\infty} \beta^t\left(\frac{C^{1-\sigma}_{j,t}}{1-\sigma} - \frac{L^{1-\phi}_{j,t}}{1+\phi}\right)
+% \end{equation}
+
+% gdzie jako $C_{j,t}$ oznaczamy konsumpcję dobra indeksowanego przez $j$ w chwili $t$, natomiast $L_{j,t}$ oznaczamy zatrudnienie w firmie $j$ w chwili $t$. 
+
+% Powyższa forma nazywana jest funkcją użyteczności ze stałą względną awersją do ryzyka (CRRA), której podstawową postać zapisujemy następująco:
+% \begin{equation}
+%     u(c) =
+%      \begin{cases}
+%       \frac{1}{1-\theta}c^{1-\theta} & \text{jeśli } \theta > 0, \theta \neq 1\\
+%       \ln c & \text{jeśli } \theta = 1
+%      \end{cases}
+% \end{equation}
+
+% W sytuacji dwóch dóbr funkcję użyteczności możemy zapisać jako:
+
+% \begin{equation}
+%     U = u(c_1) + u(c_2)
+% \end{equation}
+
+% Pierwszą pochodną funkcji CRRA jest:
+% \begin{equation}
+%     \frac{d u}{d c} = c^{-\theta}
+% \end{equation}
+
+% Krańcowa stopa substytucji dóbr $c_1$ oraz $c_2$ może zostać wyrażona jako:
+
+% \begin{equation}
+%     \frac{d u/d c_1}{d u/d c_2} = \frac{c_1^{-\theta}}{c_2^{-\theta}} = (\frac{c_2}{c_1})^\theta
+% \end{equation}
+
+% Rozwiązując dla $\frac{c_2}{c_1}$ mamy:
+
+% \begin{equation}
+%     \frac{c_2}{c_1} = (\frac{d u/d c_1}{d u/d c_2})^{1/\theta}
+% \end{equation}
+
+% Zgodnie z powyższym parametr $1/\theta$ jest stałą opisującą elastyczność stosunku konsumowanych dóbr $c_1$ oraz $c_2$.
+
+
+% %todo dopisać więcej
+
+
+% \subsubsection{Użyteczność w modelu z pieniądzem}
+
+% W przypadku wprowadzenia pieniędzy do modelu, zmienia się sygnatura funkcji użyteczności $U(C_t, \frac{M_t}{P_t}, L_t)$, gdzie nowa wartość $M_t$ opisuje przetrzymanie pieniędzy w okresie $t$. Zakładamy, że funkcja użyteczności rośnie i jest wklęsła zgodnie z $\frac{M_t}{P_t}$. Dodatkowo przy wprowadzeniu pieniędzy zmienia się równanie budżetu:
+
+% \begin{equation}
+%     P_t C_t + Q_t B_t + M_t = B_{t-1} + M_{t-1} + W_t N_t
+% \end{equation}
+
+% Możemy oznaczyć $\mathcal{A}_t \equiv B_{t-1} + M_{t-1}$ jako całkowite bogactwo na początku okresu $t$. Wtedy powyższe przyjmuje postać:
+
+% \begin{equation}
+%     P_t C_t + Q_t \mathcal{A}_{t+1} + (1-Q_t)M_t = \mathcal{A}_t + W_t N_t
+% \end{equation}
+
+% oraz forma warunku na rozwiązywalność:
+
+% \begin{equation}
+%     \lim_{T\xrightarrow{}\infty}\E_t\{\mathcal{A}_T\} \geq 0 \text{, dla każdego } t \ge 0
+% \end{equation}
+
+% Tą reprezentację możemy interpretować jako wszystkie finansowe aktywa $\mathcal{A}_t$ dostarczają nam rentowność $Q^{-1}_t$, gdzie agenci mogą kupować usługi pieniężne w cenie jednostkowej $(1-Q_t)$.
+
+% Następnie $U(C_t, \frac{M_t}{P_t}, L_t)$ może przybierać reprezentację z separowaną użytecznością (czynniki odpowiedzialne za pracę, konsumpcję oraz realny balans są addytywne względem siebie w formie użyteczności) lub konsumpcja i realny balans są nieseparowalne(realny balans i konsumpcja nie są addytywne). Zastosowana forma zależy w dużej mierze od modelowanej ekonomii\cite{RePEc:ecb:ecbwps:2006704}. 
+
+% %todo separowalność użyteczności praca ecbwp704.pdf 
+
+% W przypadku zastosowania separowalnej formy stosowana jest forma stałej względnej awersji do ryzyka:
+
+% \begin{equation}
+%     U(C_t, \frac{M_t}{P_t}, N_t) = \frac{C^{1-\sigma}_t}{1-\sigma} + \frac{(M_t/P_t)^{1-\nu}}{1-\nu} - \frac{N_t^{1+\varphi}}{1+\varphi}
+% \end{equation}
+
+% W przypadku braku addytywnej separowalności, stosowana jest forma stałej względnej awersji do ryzyka, z dodatkowym łączonym indeksem $X_t$:
+
+% \begin{equation}
+%         U(C_t, \frac{M_t}{P_t}, N_t) = \frac{X^{1-\sigma}_t}{1-\sigma} - \frac{N_t^{1+\varphi}}{1+\varphi}
+% \end{equation}
+
+% Forma dla $X_t$ opisuje łączony indeks konsumpcji i  realnego bilansu, może przyjmować formę:
+
+% \begin{equation*}
+%     X_t \equiv [(1-\theta)C_t^{1-\nu} + \theta(\frac{M_t}{P_t})^{1-\nu}]^{\frac{1}{1-\nu}}
+% \end{equation*}
+
+% \subsection{Formy funkcyjne użyteczności w modelach Nowej Ekonomii Keynesowskiej}
+
+% W tej części zostaną omówione formy funkcyjne gospodarstw w modelach nowej ekonomii keynesowskiej. Te formy niekoniecznie muszą być wykorzystywane w takich modelach, problem rozróżnialnych dóbr oraz monopolistycznej konkurencji może zostać zawarty w reprezentacji firm w ekonomii. 
+% %todo czy te modele są faktycznie równoważne
+
+% \subsubsection{Funkcja użyteczności rozróżnialnych dóbr}
+
+% W celu wprowadzania monopolistycznej konkurencji do modelowanej ekonomii musimy wprowadzić do gospodarki rozróżnialność dóbr konsumpcyjnych. Domostwa ponownie wybierają konsumpcję oraz pracę w celu maksymalizowania $U(C_t, N_t)$, jednak konsumpcja $C_t$ reprezentowana jest poprzez złożony indeks konsumpcji agregujący konsumpcję poszczególnych dóbr $C_t(i)$ dla dóbr $i \in [0,1]$. 
+
+% Forma funkcyjną agregującą konsumpcję dóbr jest dana poprzez funkcję agregującą CES (\emph{Constant Elasticity of Substitution}):
+
+% \begin{equation*}
+%     \label{eqn:CES}
+%     C_t \equiv (\int^1_0 C_t(i)^{1-\frac{1}{\xi}}di)^{\frac{\xi}{\xi - 1}}
+% \end{equation*}
+
+% Funkcje CES są funkcjami posiadającymi właściwość stałej substytucji dóbr, proporcja zmian w cenach oraz zmiana w ilościach dóbr pozostaje zawsze stała \cite{mcFadden}. Została zaproponowana w pracy (todo:cite 4499294.pdf) jako funkcja spełniająca powyższą własność na bazie analiz rynków z monopolistyczną konkurencją.
+
+% Jako funkcję $U(C_t, N_t)$ możemy zastosować formę:
+
+% \begin{equation*}
+%     U(C_t, N_t) = \frac{C^{1-\sigma}_t}{1 - \sigma} - \frac{N_t^{1+\phi}}{1+\phi}
+% \end{equation*}
+
+% Równanie budżetowe odpowiednio jest zastąpiona w celu reprezentacji wielu dóbr(w tym modelu zakładamy istnienie obligacji oraz podatków ryczałtowych):
+
+% \begin{equation*}
+%     \int_0^1 P_t(i)C_t(i)di + Q_t B_t = B_{t-1} + W_t N_t + T_t
+% \end{equation*}
+
+% W powyższym $P_t(i)$ oznacza cenę dobra $i$.
+
+% \subsubsection{Model uwzględniający sztywność płac}
+
+% Celem tej części jest przedstawienie formy funkcyjnej reprezentującej sztywność płac. Formy funkcyjne reprezentujące gospodarstwa będą obrazować wpływ siły roboczej na ekonomie poprzez wpływ na płacę bazując na krańcowej stopie substytucji konsumpcji/czasu pracy.
+
+% \begin{definition}{Sztywność płac}
+    
+%     Problemem z jakim mierzą się firmy na rynku w przypadku prób zmniejszenia płac są umowy zawarte z siłą roboczą lub strach przed drastycznym spadkiem produktywności w przypadku niższych płac.
+    
+% \end{definition}
