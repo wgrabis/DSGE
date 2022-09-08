@@ -113,7 +113,7 @@ def run_forecast_with_estimation(file_name, is_debug):
     if is_debug:
         model.print_debug()
 
-    rounds = plot_config.time
+    rounds = plot_config.rounds
 
     covariance = model.structural_prior.get_param_covariance()
 
@@ -124,7 +124,7 @@ def run_forecast_with_estimation(file_name, is_debug):
     forecast_alg = RandomPathForecast(model, posteriors, estimations)
 
     # todo add rounds and time separate
-    forecast_data = forecast_alg.calculate(20, 60, 0)
+    forecast_data = forecast_alg.calculate(20, plot_config.time, 0)
 
     return history, posteriors, forecast_data
 
@@ -139,7 +139,7 @@ def run_estimation(file_name, is_debug, chain_run):
     if is_debug:
         model.print_debug()
 
-    rounds = plot_config.time
+    rounds = plot_config.rounds
 
     covariance = model.structural_prior.get_param_covariance()
 
@@ -206,6 +206,7 @@ if __name__ == '__main__':
     my_parser.add_argument('-m', '--mode', type=str, default='fblanchard')
     my_parser.add_argument('-d', '--debug', action='store_true')
     my_parser.add_argument('-t', '--time', type=int, default=40)
+    my_parser.add_argument('-r', '--rounds', type=int, default=100)
     my_parser.add_argument('-sp', '--singlePlot', action='store_true')
     my_parser.add_argument('-pdir', '--plotDir', type=str, default=None)
     my_parser.add_argument('-ds', '--disableShow', action='store_true')
@@ -221,7 +222,7 @@ if __name__ == '__main__':
 
     run_against = args.runAgainst
 
-    plot_config = PlotConfig.parse(args.time, args.singlePlot, args.plotDir, args.disableShow)
+    plot_config = PlotConfig.parse(args.time, args.singlePlot, args.plotDir, args.disableShow, args.rounds)
 
     data_plotter = DataPlotter(plot_config)
 
