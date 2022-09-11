@@ -14,8 +14,8 @@
 \tikzset{block/.style={rectangle split, draw, rectangle split parts=2,
 text width=14em, text centered, rounded corners, minimum height=4em},
 grnblock/.style={rectangle, draw, fill=green!20, text width=10em, text centered, rounded corners, minimum height=4em}, 
-whtblock/.style={rectangle, draw, fill=white!20, text width=16em, text centered, minimum height=3em}, 
-smallblock/.style={rectangle, draw, fill=white!20, text width=12em, text centered, minimum height=3em},   
+whtblock/.style={rectangle, draw, fill=white!20, text width=16em, text centered, minimum height=2.5em}, 
+smallblock/.style={rectangle, draw, fill=white!20, text width=12em, text centered, minimum height=2em},   
 line/.style={draw, -{Latex[length=2mm,width=1mm]}},
 cloud/.style={draw, ellipse,fill=white!20, node distance=3cm,    minimum height=4em},  
 container/.style={draw, rectangle,dashed,inner sep=0.28cm, rounded
@@ -34,11 +34,11 @@ corners,fill=yellow!20,minimum height=2cm}}
   \node [whtblock, below=of linearModel, yshift=-10mm, , xshift=40mm] (bkSolution) 
         {Proces tworzenia postaci macierzowej \emph{VAR} dla wartości parametrów $\theta$};
   \node [whtblock, left=of bkSolution, yshift=-15mm] (likelihoodFunction)
-        {Funkcja likelihood modelu \\[0.5em] Funkcja wyceny dla wektora parametrów};
+        {Funkcja wiarygodności modelu \\[0.5em] Funkcja wyceny dla wektora parametrów};
   \node [whtblock, below=of likelihoodFunction, yshift=8mm] (mhAlgorithm) 
-        {Algorytm Metropolis Hastings \\[0.5em] Algorytm próbkowania z rozkładu posterior};
+        {Algorytm Metropolisa-Hastingsa \\[0.5em] Algorytm próbkowania z rozkładu a posteriori};
   \node [whtblock, right=of mhAlgorithm, yshift=-20mm] (randomPathForecast)
-        {Prognoza modelu \\[0.5em] Iteracja układu \emph{VAR} dla wartości skalibrowanej lub \\ algorytm generowania losowych ścieżek z rozkładu a posterior};  
+        {Prognoza modelu \\[0.5em] Iteracja układu \emph{VAR} dla wartości skalibrowanej lub \\ algorytm generowania losowych ścieżek z rozkładu a posteriori};  
   \node [smallblock, below=of bkSolution, yshift=5mm] (calibrationNode)
         {Kalibracja parametrów $\theta$}; 
         
@@ -57,7 +57,7 @@ corners,fill=yellow!20,minimum height=2cm}}
   
   \coordinate (aux1) at ([yshift=3mm]likelihoodFunction.north);
   \node [container,fit=(aux1) (mhAlgorithm)] (BAYESIAN) {};
-  \node at (BAYESIAN.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] {\textbf{Wnioskowanie Bayesowskie}};
+  \node at (BAYESIAN.north) [fill=white,draw,font=\fontsize{12}{0}\selectfont] {\textbf{Estymacja parametrów}};
   
   \coordinate (aux1) at ([yshift=3mm]randomPathForecast.north);
   \node [container,fit=(aux1) (randomPathForecast)] (FORECAST) {};

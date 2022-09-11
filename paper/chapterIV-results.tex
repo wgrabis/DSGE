@@ -1,7 +1,7 @@
 
-Ten rozdział poświęcony został wynikom implementacji oraz symulacji modeli DSGE. W części \ref{sec:results:model} został wyznaczony stan ustalony oraz obczliona aproksymacja liniowa dla modelu gospodarki z rozdziału \ref{sec:sample_models}. W sekcji \ref{sec:full_linear_model_sample} przedstawiony został pełny liniowy model wraz z kalibracją parametrów niezbędną do przeprowadzenia prognozowania metodą Blancharda-Kahna. Następna część \ref{sec:implementation_result} poświęcona jest przedstawieniu solucji implementującej metody z rozdziału \ref{chapter:implementation} rozpoczynając od struktury folderów repozytorium oraz krótkiego opisu wykorzystanych bibliotek, kończąc opisem pliku modelu na podstawie modelu zaprezentowanego na początku rozdziału.
+Ten rozdział poświęcony został wynikom implementacji oraz symulacji modeli DSGE. W części \ref{sec:results:model} został wyznaczony stan ustalony oraz obczliona aproksymacja liniowa dla modelu gospodarki z rozdziału \ref{sec:sample_models}. W sekcji \ref{sec:full_linear_model_sample} przedstawiony został pełny liniowy model, wraz z kalibracją parametrów niezbędną do przeprowadzenia prognozowania metodą Blancharda-Kahna. Następna część \ref{sec:implementation_result} poświęcona jest przedstawieniu solucji implementującej metody z rozdziału \ref{chapter:implementation}, rozpoczynając od struktury folderów repozytorium oraz krótkiego opisu wykorzystanych bibliotek, kończąc opisem pliku modelu na podstawie modelu zaprezentowanego na początku rozdziału.
 
-Zakończenie rozdziału zostało poświęcone opracowaniu wyników prognozowania dla wybranych modeli oraz różnych szoków impulsowych. Jako pierwszy przedstawiono model z rozdziału \ref{sec:results:model} dla dwóch szoków: produktywności oraz polityki monetarnej. Kolejnym jest model RBC, przedstawiony w sekcji \ref{sec:rbc_model_sample} i predykcje zachowania dla szoku produktywności. Na koniec zaprezentowano model gospodarki Irlandii z 2004 roku oparty o pracę \cite{NBERw10309} z estymacją bayesowską parametrów dla sekwencji kilkudziesięciu lat danych gospodarczych.
+Zakończenie rozdziału zostało poświęcone opracowaniu wyników prognozowania dla wybranych modeli oraz różnych szoków impulsowych. Jako pierwszy przedstawiono model z rozdziału \ref{sec:results:model} dla dwóch szoków: produktywności oraz polityki monetarnej. Kolejnym jest model RBC, który został przedstawiony w sekcji \ref{sec:rbc_model_sample}, dla predykcji zachowania szoku produktywności. Na koniec zaprezentowano model gospodarki Irlandii z 2004 roku oparty o pracę \cite{NBERw10309} z estymacją bayesowską parametrów dla sekwencji kilkudziesięciu lat danych gospodarczych.
 
 \section{Linearyzacja modelu NEK}
 \label{sec:results:model}
@@ -84,7 +84,7 @@ Z tych zależności możemy następnie wyznaczyć stan ustalony dla pozostałych
 \begin{equation}
     \steady{R}^K = \frac{1}{\beta} - (1 - \delta).
 \end{equation}
-Stopa procentowa w stanie ustalonym, korzystając z \eqref{eq:steady_monetary_solve}, wynosi:
+Stopa procentowa w stanie ustalonym, korzystając z równania \eqref{eq:steady_monetary_solve}, wynosi:
 \begin{equation}
     \steady{R}^Q = \frac{1}{\beta}.
 \end{equation}
@@ -116,7 +116,7 @@ a dla czasu pracy z równania \eqref{eq:mc_worktime_solve}:
 \begin{equation}
     \steady{L} = (1-\alpha)\steady{MC}\frac{\steady{Y}}{\steady{W}}.
 \end{equation}
-Kolejnym krokiem jest podstawienie równania \eqref{eq:mc_worktime_solve} do równania \eqref{eq:mc_consumption_solve} i otrzymania:
+Kolejnym krokiem jest podstawienie równania \eqref{eq:mc_worktime_solve} do równania \eqref{eq:mc_consumption_solve}:
 \begin{equation}
     \steady{C} = \left( \steady{W} \left( \frac{\steady{W}}{\steady{Y}(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma}}.
 \end{equation}
@@ -127,7 +127,7 @@ Pozostaje w powyższych zależność od stanu ustalonego produkcji $Y$, stąd sk
 \end{align}
 z którego po uporządkowaniu otrzymujemy:
 \begin{equation}
-    \steady{Y} = \left( \steady{W} \left( \frac{\steady{W}}{(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma + \phi}} \frac{\steady{R}^K}{\steady{R}^K - \delta \alpha \steady{MC}}^{\frac{\sigma}{\sigma + \phi}}
+    \steady{Y} = \left( \steady{W} \left( \frac{\steady{W}}{(1-\alpha)\steady{MC}}\right)^\phi\right)^{\frac{1}{\sigma + \phi}} \frac{\steady{R}^K}{\steady{R}^K - \delta \alpha \steady{MC}}^{\frac{\sigma}{\sigma + \phi}}.
 \end{equation}
 Ostatecznie stan ustalony dla zmiennych modelu prezentuje się następująco:
 \begin{align}
@@ -419,7 +419,7 @@ Ostatecznie nasz model składa się z:
 \section{Opis implementacji}
 \label{sec:implementation_result}
 
-Implementacja została wykonana w języku Python 3.9. Decyzja na wykorzystanie tej technologii motywowana była dostępnością wielu bibliotek numerycznych oraz parserów równań, które ułatwią szeroko stosowane obliczenia macierzowe wykorzystywane w rozwiązaniach. Dodatkowo język pozwala na zwięzłe przedstawienie idei wykorzystanych metod. Zastosowane biblioteki zostały opisane w sekcji \ref{sec:used_libraries}. Dodatkowo w celu porównania rozwiązań została użyta platforma Dynare, udostępniająca implementacje narzędzi ekonomicznych. Do przygotowanej solucji zostały dołączone modele z rozszerzeniem \emph{.mod}, które mogą zostać uruchomione na wspomnianej platformie. 
+Implementacja została wykonana w języku Python w wersji 3.9. Decyzja na wykorzystanie tej technologii motywowana była dostępnością wielu bibliotek numerycznych oraz parserów równań, które ułatwią szeroko stosowane obliczenia macierzowe wykorzystywane w rozwiązaniach. Dodatkowo język pozwala na zwięzłe przedstawienie idei wykorzystanych metod. Zastosowane biblioteki zostały opisane w sekcji \ref{sec:used_libraries}. Dodatkowo w celu porównania rozwiązań została użyta platforma Dynare, udostępniająca implementacje narzędzi ekonomicznych. Do przygotowanej solucji zostały dołączone modele z rozszerzeniem \emph{.mod}, które mogą zostać uruchomione na wspomnianej platformie. 
 
 Repozytorium z kodem dostępne jest pod adresem \url{https://github.com/wgrabis/DSGE}. Platforma Dynare dostępna jest pod adresem \url{https://www.dynare.org/}. Uruchomienie programu odbywa się poprzez komendę:
 \begin{equation}
@@ -428,15 +428,22 @@ Repozytorium z kodem dostępne jest pod adresem \url{https://github.com/wgrabis/
 z następującymi argumentami:
 \begin{center}
     \begin{tabular}{p{0.32\textwidth}p{0.58\textwidth}}
-          \texttt{-m}/\texttt{--mode} & Tryb uruchomienia programu dopuszczalne wartości to \emph{fblanchard} lub \emph{estimate} \\
-         \texttt{-d}/\texttt{--debug} & Ustawia flagę dla logowania dodatkowych informacji\\
-         \texttt{-t}/\texttt{--time} [liczba] & Czas prognozowania modelu w postaci liczby naturalnej \\
-         \texttt{-sp}/\texttt{--singlePlot} & Opcja włączająca wyświetlanie wykresów dla wszystkich zmiennych w jednym oknie \\
-         \texttt{-pdir}/\texttt{--plotDir} [ścieżka] & Ścieżka do zapisu dla wygenerowanych wykresów w formacie \emph{.png} \\
-         \texttt{-ds}/\texttt{--disableShow}  & Wyłączenie opcji renderowania okien z wykresami \\
-         \texttt{-ra}/\texttt{--runAgainst} [ścieżka]  & Uruchamia drugi plik modelu z tymi samymi argumentami i nakłada wyniki na wykresy obecnego modelu, dostępne jedynie dla opcji \emph{fblanchard}  \\
+          \texttt{-m}/\texttt{--mode} & Tryb uruchomienia programu dopuszczalne wartości to \emph{fblanchard}, \emph{estimate} lub \emph{festimate}. \\
+         \texttt{-d}/\texttt{--debug} & Ustawia flagę dla logowania dodatkowych informacji.\\
+         \texttt{-t}/\texttt{--time} [liczba] & Czas prognozowania modelu w postaci liczby naturalnej, domyślnie $40$. \\
+         \texttt{-r}/\texttt{--rounds} [liczba] & Ilość wykonanych rund w algorytmie estymacji, domyślnie $100$. \\
+         \texttt{-sp}/\texttt{--singlePlot} & Opcja włączająca wyświetlanie wykresów dla wszystkich zmiennych w jednym oknie. \\
+         \texttt{-pdir}/\texttt{--plotDir} [ścieżka] & Ścieżka do zapisu dla wygenerowanych wykresów w formacie \emph{.png}. \\
+         \texttt{-ds}/\texttt{--disableShow}  & Wyłączenie opcji renderowania okien z wykresami. \\
+         \texttt{-ra}/\texttt{--runAgainst} [ścieżka]  & Uruchamia drugi plik modelu z tymi samymi argumentami i nakłada wyniki na wykresy obecnego modelu, dostępne jedynie dla opcji \emph{fblanchard}.  \\
     \end{tabular}
 \end{center}
+W zależności od wykorzystanej opcji \texttt{--mode} program zostanie uruchomiony jako:
+\begin{itemize}
+    \item \emph{fblanchard} - zostanie wykonana prognoza szoku impulsowego dla dostępnej kalibracji lub wartości oczekiwanych parametrów dla czasu \texttt{--time},
+    \item \emph{estimate} - zostanie przeprowadzona estymacja dla \texttt{--rounds} rund i zostaną wygenerowane wykresy dla przebiegu zaakceptowanej próbki w algorytmie Metropolisa-Hastingsa,
+    \item \emph{festimate} - zostaną wyświetlone wykresy dla estymacji jak w przypadku opcji \emph{estimate} oraz dodatkowo wykresy dla prognozy metodą ścieżek losowych dla czasu \texttt{--time}.
+\end{itemize}
 W przypadku uruchomienia bez opcji \texttt{--disableShow} program powinien zakończyć się pokazaniem wykresów dla zmiennych w kontekście odpalonego trybu (prognozy zmiennych obserwowanych lub prognozy parametrów).
 
 \subsection{Struktura repozytorium}
@@ -446,7 +453,7 @@ Repozytorium podzielone jest na następujące katalogi:
     \item \fpath{/src} -- katalog zawierający kod wykorzystywany w implementacji,
     \item \fpath{/samples} -- folder z przykładowymi modelami, wśród modeli najbardziej istotnymi są:
         \begin{itemize}
-            \item \fpath{rbcModelRe.json} -- plik z przykładowym modelem RBC,
+            \item \fpath{rbcModel.json} -- plik z przykładowym modelem RBC,
             \item \fpath{nekModel.json} -- plik z modelem ekonomii nowokeynesowskiej dla szoku produktywności,
             \item \fpath{nekModelMonetary.json} -- plik z modelem ekonomii nowokeynesowskiej dla szoku polityki monetarnej,
             \item \fpath{philipCurve.json} -- plik z modelem przedstawiającym krzywą Philipsa,
@@ -459,12 +466,14 @@ Repozytorium podzielone jest na następujące katalogi:
 Katalog zawierający kod podzielony jest na następujące części:
 \begin{itemize}
     \item \fpath{/filter} -- pakiet kodu z implementacją dla algorytmu filtru wykorzystywanego w funkcji wiarygodności,
-    \item \fpath{/forecast} -- zawiera implementację metody Blancharda Kahna, uogólnionej metody rozwiązywania modeli DSGE oraz prognozowania losowymi ścieżkami,
+    \item \fpath{/forecast} -- zawiera implementację prognozowania szoku impulsowego dla kalibracji oraz prognozowania losowymi ścieżkami,
     \item \fpath{/format} -- implementacja parsowania plików modelu oraz danych estymowania,
     \item \fpath{/helper} -- dodatkowe pomocnicze funkcjonalności m.in. wyświetlania wykresów przy pomocy biblioteki \emph{matplotlib},
     \item \fpath{/likelihood} -- pakiet zawierający implementację funkcji wiarygodności w oparciu o dostarczony algorytm filtrowania,
-    \item \fpath{/metropolis\_hastings} -- katalog zawierający implementacje algorytmu Metropolisa-Hastingsa
-    \item \fpath{/model} -- zbiór implementacji pozwalający na budowanie modelu w oparciu o sparsowane dane oraz pomocnicze klasy służące do reprezentacji funkcji pomiaru oraz funkcji macierzy.
+    \item \fpath{/metropolis\_hastings} -- katalog zawierający implementacje algorytmu Metropolisa-Hastingsa,
+    \item \fpath{/model} -- zbiór implementacji pozwalający na budowanie modelu w oparciu o sparsowane dane oraz pomocnicze klasy służące do reprezentacji funkcji pomiaru oraz funkcji macierzy,
+    \item \fpath{/solver} -- zawiera implementację metody Blancharda Kahna oraz uogólnionej metody rozwiązywania modeli,
+    \item \fpath{/util} -- pomocniczy zestaw klas dla parametrów uruchomienia programu.
 \end{itemize}
 
 % + opisać pakiety kodu
@@ -473,7 +482,7 @@ Katalog zawierający kod podzielony jest na następujące części:
 \label{sec:used_libraries}
 
 \begin{itemize}
-    \item \libname{Numpy} -- szeroko wykorzystywana biblioteka udostępniająca reprezentację wektorów i macierz oraz szereg metod numerycznych.
+    \item \libname{Numpy} -- szeroko wykorzystywana biblioteka udostępniająca reprezentację wektorów i macierzy oraz szereg metod numerycznych.
     \item \libname{Sympy} -- biblioteka wykorzystywana do:
         \begin{itemize}
             \item parsowania równań -- równania w plikach modeli są parsowane przy pomocy \emph{Sympy} do postaci macierzy zmiennych, które następnie mogą być uzupełnione wartościami w celu wygenerowania macierzy liczb rzeczywistych, przykładowo udostępnia metody tworzenia macierzy równań liniowych postaci:
@@ -483,7 +492,7 @@ Katalog zawierający kod podzielony jest na następujące części:
                     x_2 \\
                     \dots \\
                     x_n
-                \end{bmatrix} = 0
+                \end{bmatrix} = 0,
             \end{equation}
             \item dodatkowe operacje na macierzach -- implementacja macierzy w \emph{Sympy} pozwala na zmianę na odpowiednią reprezentację w \emph{Numpy}, dzięki czemu można wykorzystywać przemiennie metody z obu bibliotek w celach obliczeń macierzowych,
         \end{itemize}
@@ -495,16 +504,16 @@ Katalog zawierający kod podzielony jest na następujące części:
 
 W tej części zostanie omówiony plik modelu wykorzystywany przez solucję. Poniższa struktura przestawia model zaprezentowany w sekcji \ref{sec:full_linear_model_sample}. Plik składa się z następujących części:
 \begin{itemize}
-    \item Nazwa modelu (\emph{name}).
+    \item Nazwa modelu (\emph{name}):
     \begin{lstlisting}[language=json,firstnumber=1]
  "name": "nek model simple monetary"
     \end{lstlisting}
     
-    \item zmienne stanu (\emph{variables}) -- zmienne makroekonomiczne występujące w opisywanej gospodarce. Na tym etapie nie ma potrzeby rozdzielenia na zmienne stanu i kontrolne, ten podział odbywa się na bazie równań modelu.
+    \item Zmienne stanu (\emph{variables}) -- zmienne makroekonomiczne występujące w opisywanej gospodarce. Na tym etapie nie ma potrzeby rozdzielenia na zmienne stanu i kontrolne, ten podział odbywa się na bazie równań modelu:
     \begin{lstlisting}[language=json,firstnumber=2]
  "variables": ["YV", "IV", "CV", "RK", "KV", "WV", "LV", "MC", "PI", "AV", "RQ"]
     \end{lstlisting}
-    \item zmienne strukturalne (\emph{structural}) -- parametry występujące w równaniach modelu, które są analogicznie przedstawione w postaci listy zmiennych:
+    \item Zmienne strukturalne (\emph{structural}) -- parametry występujące w równaniach modelu, które są analogicznie przedstawione w postaci listy zmiennych:
     \begin{lstlisting}[language=json,firstnumber=3]
  "structural": ["sigmaSt", "phiSt", "alphaSt", "betaSt", "deltaSt", "rhoASt", "psiSt", "thetaSt", "phiPSt", "rhoQSt"]
     \end{lstlisting}
@@ -530,7 +539,7 @@ W tej części zostanie omówiony plik modelu wykorzystywany przez solucję. Pon
  },
     \end{lstlisting}
         \begin{itemize}
-            \item Równania opisujące stan ustalony (\emph{definitions}) -- równania opisujące dodatkowe zmienne dla stanu ustalonego, w celu uproszczenia definicji dla modelu
+            \item Równania opisujące stan ustalony (\emph{definitions}) -- równania opisujące dodatkowe zmienne dla stanu ustalonego, w celu uproszczenia definicji dla modelu:
             \begin{lstlisting}[language=json,firstnumber=6]
  "definitions": [
     "Rss = (1/betaSt)-(1-deltaSt)",
@@ -546,7 +555,7 @@ W tej części zostanie omówiony plik modelu wykorzystywany przez solucję. Pon
             \item Równania modelu (\emph{equations}) -- równania w postaci liniowej opisujące stan równowagi opisywanej gospodarki, zmienne występujące w modelu mogą mieć postać:
             \begin{itemize}
                 \item zmienne kontrolne z indeksem $(+1)$ np. $C(+1)$,
-                \item zmienne obecnego okresu bez indeksu np $C$,
+                \item zmienne obecnego okresu bez indeksu np. $C$,
                 \item zmienne poprzedniego okresu z indeksem $(-k)$ np. $A(-1), A(-3)$.
             \end{itemize}
             \begin{lstlisting}[language=json,firstnumber=16]
@@ -587,7 +596,7 @@ W tej części zostanie omówiony plik modelu wykorzystywany przez solucję. Pon
 ]
             \end{lstlisting}
         \end{itemize}
-    \item Rozkład a priori (\emph{priors}) -- rozkład prawdopodobieńśtwa dla parametrów modelu (w przypadku szoków rozkład opisuje postać szoków dla obecnego momentu)
+    \item Rozkład a priori (\emph{priors}) -- rozkład prawdopodobieńśtwa dla parametrów modelu (w przypadku szoków rozkład opisuje postać szoków dla obecnego momentu):
     \begin{lstlisting}[language=json,firstnumber=43]
  "priors": {
     "eA": {
@@ -744,7 +753,7 @@ Skutkiem szoku produktywności jest wzrost konsumpcji, produkcji, inwestycji ora
 \subsection{Wyniki prognozowania dla szoku monetarnego w modelu NEK}
 \label{sec:results_nek_mon}
 
-Dla wybranego modelu przeanalizowana również szok monetarny. Wprowadzenie go do modelu odbyło się poprzez zmianę równania polityki monetarnej \eqref{eq:monetary_nek_full_final}:
+Dla wybranego modelu przeanalizowano również szok monetarny. Wprowadzenie go do modelu odbyło się poprzez zmianę równania polityki monetarnej \eqref{eq:monetary_nek_full_final}:
 \begin{equation}
     r^q_t = (1-\rho_Q)r^{q^*}_t + \rho_Q r^q_{t-1} + \epsilon_{M,t},
 \end{equation}
@@ -851,7 +860,7 @@ Pierwszym z wniosków jaki nasuwają wyniki wpływu szoku monetarnego jest spade
 \subsection{Wyniki prognozowania dla szoku produktywności w modelu RBC}
 \label{sec:results_rbc_prod}
 
-W rozdziale \ref{sec:rbc_model_sample} przedstawiono model RBC. W tej części zostanie przytoczona pełna postać tego modelu po przeprowadzeniu linearyzacji, skalibrowane wartości parametrów odpowiadają modelowi nowokeynesowskiemu \ref{sec:full_linear_model_sample}.
+W rozdziale \ref{sec:rbc_model_sample} przedstawiono model RBC. W tej części zostanie przytoczona pełna postać tego modelu po przeprowadzeniu linearyzacji. Skalibrowane wartości parametrów odpowiadają modelowi nowokeynesowskiemu \ref{sec:full_linear_model_sample}.
 
 Model prezentuje się następująco:
 \begin{enumerate}
@@ -877,7 +886,7 @@ Model prezentuje się następująco:
         \steady{Y} y_t = \steady{C} c_t + \steady{I} i_t \\
         a_t = \rho a_{t-1} + \epsilon_{A,t}
     \end{gather}
-    \item Kalibracji parametrów:
+    \item Kalibracja parametrów:
         \begin{center}
             \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|}
                 \hline
@@ -968,7 +977,7 @@ Rezultaty prognozowania zostały wykonane ponownie dla 40 okresów. Na wykresach
       \label{fig:rbc:A}
     \end{minipage}
 \end{center}
-Możemy zauważyć podobną reakcję zmiennych modelu na wystąpienie szoku produktywności co w modelu DSGE, jednak w przypadku modelu z konkurencją doskonałą odchylenia wartości zmiennych od stanu ustalonego są mniejsze. Z czasem zjawiska sztywności modelu nowokeynesowskiego wygasają i wartości obu modeli zbiegają do podobnego poziomu przed powrotem do stanu ustalonego. Produkcja w obu gospodarkach jest niemalże identyczna z ograniczeniem do potencjalnie innej wartości stanu ustalonego w zależności od wartości parametrów modelu.
+Możemy zauważyć podobną reakcję zmiennych modelu na wystąpienie szoku produktywności co w modelu NEK, jednak w przypadku modelu z konkurencją doskonałą odchylenia wartości zmiennych od stanu ustalonego są mniejsze. Z czasem zjawiska sztywności modelu nowokeynesowskiego wygasają i wartości obu modeli zbiegają do podobnego poziomu przed powrotem do stanu ustalonego. Produkcja w obu gospodarkach jest niemalże identyczna z ograniczeniem do potencjalnie innej wartości stanu ustalonego w zależności od wartości parametrów modelu.
 
 \subsection{Wyniki estymacji bayesowskiej dla modelu gospodarki Irlandii}
 
@@ -993,7 +1002,7 @@ Model prezentuje się następująco:
         r_{obs} = \hat{r}_t,\\
         \pi_{obs} = \hat{\pi}_t.
     \end{gather}
-    \item Kalibracji parametrów:
+    \item Kalibracja parametrów:
         \begin{center}
             \begin{tabular}{|p{0.2\textwidth}|p{0.2\textwidth}|}
                 \hline
@@ -1100,9 +1109,9 @@ Przebieg zaakceptowanej przez algorytm próbki prezentuje się następująco:
 Estymacja została wykonana przy pomocy algorytmu \emph{RMWH} dla 1000 rund, ze zmiennym parametrem $c$ w czasie, tj. co 100 iteracji parametr $c$ zmniejszany jest o $75\%$. Pozwala to na zastrzeżenie wyników oraz poprawę parametrów, których duży skok prowadziłby do znaczącego spadku funkcji wiarygodności. Wynikowa kalibracja zmiennych (najlepszy wynik uzyskany w przebiegu) sugeruje spadek znaczenia zmiennych $\rho_g$ oraz $\rho_{\pi}$ odpowiadających za informację zwrotną z luki PKB oraz inflacji, dodatkowo możemy zauważyć znaczny wzrost wartości w pierwszych iteracjach. Parametr $\omega$ opisujący w modelu ocenę spadku użyteczności pracy był jednym z najbardziej niestabilnych, jego wartość pomiędzy rundami algorytmu znacznie się różniła. Parametr $\rho_A$ opisujący zwrot produktywności z poprzedniego przedziału zachowywał stałą wartość po wstępnym spadku.
 
 
-Jednym z problemów napotkanych przy przygotowaniu estymacji było wskazanie wejściowej macierzy kowariancji $\hat{\Sigma}$ dla algorytmu \emph{Random Walk MH}. Zastosowane parametry powstały na bazie rozkładu a prior wskazanego w pracy. Drugim z problemów był mały wpływ niektórych zmiennych na wartość funkcji wiarygodności, co połączone z dużą wartością macierzy kowariancji $\hat{\Sigma}$ prowadziło do dużej zmienności w wartości zaakceptowanej próbki. Ten efekt był najbardziej zauważalny dla wartości zmiennej $\omega$, która zmieniała się drastycznie w czasie działania estymacji nawet na etapie wygaszania aproksymacji, kiedy zmienna $c$ była już znacząco obniżona zgodnie ze zastosowaną wersją opisaną w \ref{sec:rwmh_algorithm}.
+Jednym z problemów napotkanych przy przygotowaniu estymacji było wskazanie wejściowej macierzy kowariancji $\hat{\Sigma}$ dla algorytmu \emph{Random Walk MH}. Zastosowane parametry powstały na bazie rozkładu a priori wskazanego w pracy. Drugim z problemów był mały wpływ niektórych zmiennych na wartość funkcji wiarygodności, co połączone z dużą wartością macierzy kowariancji $\hat{\Sigma}$ prowadziło do dużej zmienności w wartości zaakceptowanej próbki. Ten efekt był najbardziej zauważalny dla wartości zmiennej $\omega$, która zmieniała się drastycznie w czasie działania estymacji nawet na etapie wygaszania aproksymacji, kiedy zmienna $c$ była już znacząco obniżona zgodnie ze zastosowaną wersją opisaną w \ref{sec:rwmh_algorithm}.
 
-Kolejnym z problemów był brak możliwości interpretacji wartości parametrów, które opisują własności agentów oraz komponentów modelu i nie są wartościami obserwowalnymi gospodarki. Dodatkowo model opierał się o rozbudowaną teorię ekonomiczną i realne dane gospodarcze, co znacznie utrudniało zrozumienie dostarczonych danych ekonomicznych. 
+Kolejnym z problemów był brak możliwości interpretacji wartości parametrów, które opisują własności agentów oraz komponentów modelu i nie są wartościami obserwowalnymi gospodarki. Dodatkowo model opierał się o rozbudowaną teorię ekonomiczną i realne dane gospodarcze, co znacznie utrudniało zrozumienie otrzymanych wyników. 
 
 Ostatnim z napotkanych problemów było wskazanie macierzy kowariancji szoku. W przypadku wykonania estymacji przy użyciu programu \emph{Dynare}, na wyjściu analizy modelu wskazana została przeskalowana macierz kowariancji, stąd pojawiło się pytanie, czy nie jest wymagany dodatkowy algorytm pozwalający na konstrukcję i poprawę szoków wprowadzanych do filtru z informacji uzyskanych w pracy. 
 

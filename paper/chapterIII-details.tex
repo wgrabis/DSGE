@@ -2,8 +2,8 @@
 
 W tym rozdziale zostaną przedstawione metody implementacji rozwiązywania modeli DSGE. Najczęściej wynikiem analizy modelu są prognozy, jak gospodarka będzie zachowywać się w reakcji na wystąpienie pewnego konkretnego szoku lub zbioru szoków. W całym rozdziale zakładamy, że mamy dany model DSGE składający się z następujących elementów:
 \begin{itemize}
-    \item zmienne tj. parametry modelu, zmienne modelu oraz zmienne reprezentujące szoki,
-    \item równania modelu dla rozwiązanych problemów np. w postaci równań \eqref{eq:nek_sample_household_start} do \eqref{eq:nek_sample_household_end}, wiążące wystąpienia zmiennych modelu ze zmiennymi reprezentującymi szoki oraz parametrami modelu,
+    \item zmienne tj. parametry modelu, zmienne makroekonomiczne oraz zmienne reprezentujące szoki,
+    \item równania modelu dla rozwiązanych problemów np. w postaci równań \eqref{eq:nek_sample_household_start} do \eqref{eq:nek_sample_household_end}, wiążące wystąpienia zmiennych makroekonomicznych ze zmiennymi reprezentującymi szoki oraz parametrami modelu,
     \item rozkłady dla zmiennych szoku -- standardowo przyjmuje się, że zmienne szoku mają rozkłady normalne z wartością oczekiwaną $0$,
     \item kalibracja parametrów modelu -- najczęściej dokonywana na bazie historycznych wartości dla rozważanej gospodarki, często na bazie danych np. sprzed kilkunastu lat,
     \item dane gospodarcze dla pewnego okresu poprzedzającego okres prognozowany np. pomiary PKB, informacje o zatrudnieniu, wskaźniki inflacji czy wartości pieniądza.
@@ -13,9 +13,9 @@ W tym rozdziale zostaną przedstawione metody implementacji rozwiązywania model
 Następnie, w celu rozwiązania modelu DSGE będziemy wykonywali następujące czynności:
 \begin{enumerate}
     \item Linearyzacja równań -- aproksymacja układu równań modelu poprzez zamianę pierwotnych wielkości na zmienne reprezentujące odchylenie wartości od stanu ustalonego (stanu będącego niezmiennikiem modelu). Efektem tego etapu jest zlinearyzowany układ równań, który dobrze charakteryzuje zachowanie układu wokół stabilnego stanu równowagi modelu.
-    \item Rozwiązanie modelu -- aproksymacja układu liniowych równań modelu przy pomocy metody Blancharda-Kahna, na bazie skalibrowanego wektora parametrów modelu, w celu wyeliminowanie zależności modelu od zmiennych wartości oczekiwanych kolejnych przedziałów. W ramach tego etapu wykonywana jest walidacja modelu pod kątem istnienia unikalnego ograniczonego rozwiązania.
-    \item Estymacja parametrów modelu -- poszukiwania rozkładu empirycznego opisującego parametry modelu na bazie kalibracji parametrów z przeszłości oraz sekwencji danych gospodarczych. W ramach tej części skorzystamy z algorytmu rozwiązywania modelu z poprzedniego etapu, który przygotuje model dla rozważanych wektorów parametrów. Metody prognozowania opierają się o wiedzę na temat rozkładów parametrów, które pomimo braku zależności od przyjętej polityki na rynku ulegają przemianie pod wpływem zmiany zachowań i oczekiwań podmiotów gospodarczych. Estymacja pozwoli nam przygotować dane przy pomocy dostępnych kalibracji historycznych, wykorzystując metody wnioskowania bayesowskiego oraz algorytmu Metropolisa-Hastingsa.
-    \item Prognozowanie -- korzystając z rozwiązanego modelu dla znanej kalibracji lub rozkładu estymowanych kalibracji przeprowadzamy algorytm obliczający zmianę zmiennych modelu na bazie wybranej metody losowania próbek szoków. Ten etap opiera się o postać macierzową uzyskaną z rozwiązania modelu oraz kalibracje parametrów lub wyjściowy rozkład z przeprowadzenia estymacji parametrów.
+    \item Rozwiązanie modelu -- aproksymacja układu liniowych równań modelu przy pomocy metody Blancharda-Kahna, na bazie skalibrowanego wektora parametrów, w celu wyeliminowanie zależności od zmiennych wartości oczekiwanych kolejnych przedziałów. W ramach tego etapu wykonywana jest dodatkowo walidacja układu pod kątem istnienia unikalnego ograniczonego rozwiązania.
+    \item Estymacja parametrów modelu -- poszukiwanie rozkładu empirycznego opisującego parametry modelu na bazie kalibracji parametrów z przeszłości oraz sekwencji danych gospodarczych. W ramach tej części skorzystamy z algorytmu rozwiązywania modelu z poprzedniego etapu, który przygotuje model dla rozważanych wektorów parametrów. Metody prognozowania opierają się o wiedzę na temat rozkładów parametrów, które pomimo braku zależności od przyjętej polityki na rynku, ulegają przemianie pod wpływem zmiany zachowań i oczekiwań podmiotów gospodarczych. Estymacja pozwoli nam przygotować rozkład parametrów dla obecnej chwili, przy pomocy dostępnych kalibracji historycznych, wykorzystując metody wnioskowania bayesowskiego oraz algorytmu Metropolisa-Hastingsa.
+    \item Prognozowanie -- korzystając z rozwiązanego modelu dla znanej kalibracji lub rozkładu estymowanych kalibracji, przeprowadzamy algorytm obliczający zmianę zmiennych modelu na bazie wybranej metody losowania próbek szoków. Ten etap opiera się o postać macierzową uzyskaną z rozwiązania modelu oraz kalibracje parametrów lub wyjściowy rozkład z przeprowadzenia estymacji parametrów.
     
     % w przypadku gdy kalibracja parametrów obecnego okresu nie jest znana potrzebujemy będziemy potrzebowali
     
@@ -40,7 +40,7 @@ Zgodnie z wprowadzeniem poprzedniego rozdziału \ref{sec:models_intro}, zmienne 
 \begin{itemize}
     \item zmienne endogeniczne -- zmienne modelu, które opisują wartości makroekonomiczne gospodarki, w tym rozdziale będą oznaczane przez duże litery alfabetu łacińskiego,
     \item parametry modelu -- parametry opisujące zachowania agentów, w tym rozdziale zostaną opisane przez litery alfabetu greckiego,
-    \item zmienne egzogeniczne (szoki) -- zmienne losowych szoków, opisywane poprzez $\epsilon$ z odpowiednim indeksem opisującym typ danego szoku np. $\epsilon_{A,t}$ jako szok technologiczny (tj. dotyczący zmiennej $A$) w momencie $t$.
+    \item zmienne egzogeniczne (szoki) -- zmienne losowych szoków, opisywane poprzez symbol $\epsilon$ z odpowiednim indeksem opisującym typ danego szoku np. $\epsilon_{A,t}$ jako szok technologiczny (tj. dotyczący zmiennej $A$) w chwili $t$.
 \end{itemize}
 W przypadku zmiennych endogenicznych dodatkowo rozróżniamy 3 podkategorie w zależności od indeksu czasowego:
 \begin{itemize}
@@ -50,16 +50,16 @@ W przypadku zmiennych endogenicznych dodatkowo rozróżniamy 3 podkategorie w za
 \end{itemize}
 W celu ogólnej reprezentacji równań modelu, zgrupujemy zmienne w następujące wektory:
 \begin{itemize}
-    \item zmienne predykcji jako $s_{t+1} = [\E_t C_{t+1}, \dots]$.
-    \item zmienne obecnego okresu $s_t = [C_{t}, \dots]$.
-    \item zmienne poprzedniego okresu $s_{t-1} = [C_{t-1}, \dots]$.
-    \item parametry modelu $\Phi = [\beta, \dots]$.
+    \item zmienne predykcji jako $s_{t+1} = [\E_t C_{t+1}, \dots]$,
+    \item zmienne obecnego okresu $s_t = [C_{t}, \dots]$,
+    \item zmienne poprzedniego okresu $s_{t-1} = [C_{t-1}, \dots]$,
+    \item parametry modelu $\Phi = [\beta, \dots]$,
     \item szoki $\epsilon_t = [\epsilon_{A, t}, \dots]$.
 \end{itemize}
 Równania modelu są reprezentowane poprzez formy funkcyjne:
 \begin{equation}
     \label{eqn:dsgeEqnGen}
-    F(s_{t+1}, s_t, s_{t-1}, \Phi, \epsilon_t) = 0
+    F(s_{t+1}, s_t, s_{t-1}, \Phi, \epsilon_t) = 0.
 \end{equation}
 Docelowo będziemy chcieli przekształcić $F$ w postać liniową, gdzie przekształcone równania będą reprezentowały funkcje liniowe względem zmiennych endogenicznych modelu.
 
@@ -68,13 +68,15 @@ Docelowo będziemy chcieli przekształcić $F$ w postać liniową, gdzie przeksz
 
 % Linearyzacja równań jest aproksymacją modelu, która pozwala przekształcić wejściową postać w układ równań liniowy względem zmiennych ekonomicznych. Dodatkowo proces dobrze opisuje zachowanie układu wokół stabilnego stanu równowagi modelu. W przypadku teorii DSGE często stosowana jest log-linearyzacja metodą Uhliga \cite{uhlig:1995}. 
 
-Istnieje wiele technik pozwalających na rozwiązywanie równań modelu w postaci opisanej powyżej. Część z nich operuje na równaniach nieliniowych np. filtry cząsteczkowe \cite{herbst}. Jednak najpopularniejszym sposobem jest sprowadzenie do układu równań liniowych wokół stabilnego stanu równowagi. W szczególności, często jest stosowana metoda log-linearyzacji, zaproponowana przez Uhliga \cite{uhlig:1995}. Głównym etapem aproksymacji będzie zastąpienie zmiennych przez zlogarytmowane odchylenia wartości od stanu ustalonego, czyli stanu, w którym zmienne nie zmieniają się w czasie $s_{t+1} = s_{t} = s_{t-1}$. Jako alternatywne metody aproksymacji do stosowania log-linearyzacji jest szereg technik bazujących na teorii perturbacji oraz metod projekcji \cite{rubioRamirez}, \cite{FERNANDEZVILLAVERDE2016527}.
+Istnieje wiele technik pozwalających na rozwiązywanie równań modelu w postaci opisanej powyżej. Część z nich operuje na równaniach nieliniowych np. filtry cząsteczkowe \cite{herbst}. Jednak najpopularniejszym sposobem jest sprowadzenie do układu równań liniowych wokół stabilnego stanu równowagi. W szczególności, często jest stosowana metoda log-linearyzacji, zaproponowana przez Uhliga \cite{uhlig:1995}. Głównym etapem aproksymacji będzie zastąpienie zmiennych przez zlogarytmowane odchylenia wartości od stanu ustalonego, czyli stanu, w którym zmienne nie zmieniają się w czasie $s_{t+1} = s_{t} = s_{t-1}$.
 
 Na log-linearyzację równań składają się następujące etapy:
 \begin{itemize}
     \item stan ustalony -- znalezienie wartości stanu ustalonego charakteryzującego stan gospodarki przy braku udziału zewnętrznych szoków,
     \item log-linearyzacja -- wprowadzenie nowych zmiennych jako logarytmów odchylenia od stanu ustalonego, a następnie uproszczenie i modyfikacja równań przy pomocy zbioru reguł aproksymacji.
 \end{itemize}
+
+Jako alternatywne metody aproksymacji można wymienić szereg technik bazujących na teorii perturbacji oraz metod projekcji \cite{rubioRamirez}, \cite{FERNANDEZVILLAVERDE2016527}, jednak w zakresie tej pracy została zastosowana log-linearyzacja metodą Uhliga.
 
 \subsubsection{Stan ustalony}
 \label{sec:steady_state}
@@ -89,7 +91,7 @@ Stan ustalony obliczamy podstawiając powyższe do \eqref{eqn:dsgeEqnGen}. Otrzy
     \label{eqn:steadyDsgeEqnGen}
     F(\steady{s}, \steady{s}, \steady{s}, \Phi, \varepsilon_t) = 0.
 \end{equation}
-Rozwiązanie powyższego i znalezienie $\steady{s}$ pozwoli nam następnie przeprowadzić log-linearyzację. Często znalezienie stanu ustalonego wymaga dodatkowych założeń, jednym z nich jest znormalizowanie produktywności przyjmując wartość $\steady{A} = 1$, który został wykorzystany m.in. w pracy \cite{costaBook}.
+Rozwiązanie powyższego i znalezienie $\steady{s}$ pozwoli nam następnie przeprowadzić log-linearyzację. Często znalezienie stanu ustalonego wymaga dodatkowych założeń, jednym z nich jest znormalizowanie produktywności przyjmując wartość $\steady{A} = 1$, co zostało wykorzystane m.in. w pracy \cite{costaBook}.
 
 \subsubsection{Log-linearyzacja metodą Uhliga}
 
@@ -121,7 +123,7 @@ Podstawiamy aproksymowaną postać $e^{\hat{x}_t}$ otrzymując
 \end{align}
 
 Aproksymacja pozwala nam interpretować odchylenie logarytmiczne $\hat{x}_t$ jako procentowe odchylenie zmiennej $x_t$ od stanu ustalonego $\steady{x}$.
-Jest to dobre przybliżenie jedynie w sąsiedztwie stanu ustalonego, stąd aproksymacja jest lokalna. W dalszej części pracy, w sekcji poświęconej rozwiązywaniu modeli, zostaną omówione warunki narzucone na zmienne w celu ograniczenia wzrostu wartości.
+Jest to dobre przybliżenie jedynie w sąsiedztwie stanu ustalonego, stąd aproksymacja jest lokalna. W dalszej części pracy, w sekcji poświęconej rozwiązywaniu modeli \ref{sec:blanchard_kahn_method}, zostaną omówione warunki narzucone na zmienne w celu ograniczenia wzrostu wartości.
 
 Następnie możemy zastosować powyższą metodę do wyprowadzenia aproksymacji dla postaci występujących w równaniach modelu $x_t^\alpha$, gdzie $\alpha$ występuje jako pewien parametr:
 \begin{equation}
@@ -141,7 +143,7 @@ Analogiczną metodą możemy także rozwiązać log-linearyzację dla dwóch zmi
     \frac{x_t}{y_t} \simeq \frac{\steady{x}}{\steady{y}}(1 + \hat{x}_t + \hat{y}_t).
 \end{equation}
 
-Uogólniając metodę w celu aproksymacji każdą zmienną $x_t \in s_t$ zastąpimy przez $\steady{x}e^{\hat{x}_t}$, a następnie przy pomocy następujących bloków przekształcimy równania modelu do log-linearyzowanej postaci:
+Uogólniając metodę w celu aproksymacji, każdą zmienną $x_t \in s_t$ zastąpimy przez $\steady{x}e^{\hat{x}_t}$, a następnie przy pomocy następujących bloków przekształcimy równania modelu do log-linearyzowanej postaci:
 \begin{align}
     e^{\hat{x}_t + \alpha \hat{y}_t} &\approx 1 + \hat{x}_t + \alpha \hat{y}_t, \\
     \hat{x}_t \hat{y}_t &\approx 0, \\
@@ -218,16 +220,16 @@ Powyższe redukcje generują równoważny model, dla którego zbiór zmiennych w
 
 W tej części pracy zostanie omówione poszukiwanie rozwiązania modelu liniowych racjonalnych oczekiwań, przy wykorzystaniu metody Blancharda-Kahna oraz pokrewnych technik wywodzących się z tego sposobu. Sekcja została opracowana przy pomocy prac \cite{10.2307/1912186}, \cite{King1998TheSO}, \cite{RePEc:cpm:dynare:002} oraz \cite{KLEIN20001405}. Celem tego etapu jest sprawdzenie czy model, dla danej wartości parametrów $\theta$, posiada unikalne stabilne rozwiązanie oraz następnie znalezienie funkcji pozwalającej na jego wyznaczenie.
 
-Model mamy dany w postaci równania \eqref{eq:lre-model} z wyróżnionymi
+Model mamy dany w postaci równania \eqref{eq:lre-model} z następującymi kategoriami zmiennych:
 \begin{itemize}
     \item zmienne endogeniczne -- zmienne modelu charakteryzujące pewne wartości ekonomiczne, rozdzielone w wektory zmiennych: $x_t$ -- wstecznych oraz $y_t$ -- kontrolnych,
-    \item parametry modelu -- zmienne będące parametrami opisującymi zachowania agentów i własności pomiędzy komponentami rynku, zaszyte w postaci macierzy $\Gamma_1$, $\Gamma_2$ i $\Psi$,
-    \item zmienne egzogeniczne (szoki) -- źródła fluktuacji na rynku $e_t$.
+    \item parametry modelu -- parametry opisujące zachowania agentów i własności pomiędzy komponentami rynku, zaszyte w postaci macierzy $\Gamma_1$, $\Gamma_2$ i $\Psi$,
+    \item zmienne egzogeniczne (szoki) -- źródła fluktuacji na rynku $\epsilon_t$.
 \end{itemize}
 Dodatkowo zakładamy, że posiadamy następujące dane:
 \begin{itemize}
     \item kalibracje wartości parametrów -- przyjmujemy że te dane są w postaci konkretnych skalibrowanych wartości w wektorze $\theta$,
-    \item model model został przekształcony do postaci bez zmiennych mieszanych.
+    \item model został przekształcony do postaci bez zmiennych mieszanych.
 \end{itemize}
 Następnie celem jest zbadanie zachowania modelu przy zadanych wartościach parametrów. W związku z tym korzystając z wartości skalibrowanych parametrów $\theta$, obliczamy macierze z funkcji $\Gamma_1$, $\Gamma_2$ i $\Psi$, które odpowiednio oznaczamy jako $A$, $B$ oraz $C$. Problem rozwiązania modelu sprowadza się do rozwiązania następującego problemu rekurencyjnego:
 \begin{equation}
@@ -250,7 +252,7 @@ Rozwiązanie będzie miało postać funkcji przejścia, która mając dane $x_t$
 \subsection{Macierz nieosobliwa}
 \label{sec:bk_nieosobliwa}
 
-Metoda Blancharda-Kahna opisuje w jaki sposób poszukujemy rozwiązań powyższego modelu, w przypadku gdy macierz $A$ jest nieosobliwa. Wychodząc z postaci \eqref{eqn:lreEquation} wymnażamy przez $A^{-1}$, sprowadzając równanie do postaci:
+Metoda Blancharda-Kahna opisuje w jaki sposób poszukujemy rozwiązania powyższego modelu, w przypadku gdy macierz $A$ jest nieosobliwa. Wychodząc z postaci \eqref{eqn:lreEquation} wymnażamy przez $A^{-1}$, sprowadzając równanie do postaci:
 \begin{equation}
     \begin{bmatrix}
     x_{t+1} \\
@@ -340,8 +342,8 @@ Następnie definiujemy wektor transformowanych zmiennych:
     \hat{y}_{t}
     \end{bmatrix} = H \begin{bmatrix}
     x_{t} \\
-    y_{t}.
-\end{bmatrix}
+    y_{t}
+\end{bmatrix}.
 \end{equation}
 Dodatkowo w celu uproszczenia zapisu zdefiniujmy:
 \begin{equation}
@@ -366,7 +368,7 @@ Po podstawieniu zmiennych transformowanych równanie przybiera postać:
         \hat{G}_2
     \end{bmatrix} e_t.
 \end{equation}
-Korzystamy z uwagi, że macierz $\Lambda$ jest diagonalna, stąd mamy do czynienia ze zbiorem niezależnych równań. Następnie rozważamy część niestabilną modelu $y_t$:
+Korzystamy z faktu że macierz $\Lambda$ jest diagonalna, stąd mamy do czynienia ze zbiorem niezależnych równań. Następnie rozważamy część niestabilną modelu $y_t$:
 \begin{equation}
     \E_t \hat{y}_{t+1} = \Lambda_2 \hat{y}_t + \hat{G}_2 e_t.
 \end{equation}
@@ -390,13 +392,13 @@ Wracamy do równania \eqref{eqn:bk-transform}, rozwiązując dla $y_t$:
         y_t = H_{22}^{-1} \hat{y}_t - H_{22}^{-1} H_{21} x_t.
     \end{gathered}
 \end{equation}
-Po podstawieniu $\hat{y}_t$ z \eqref{eq:bk_hatyt} dostajemy:
+Po podstawieniu $\hat{y}_t$ z równania \eqref{eq:bk_hatyt} dostajemy:
 \begin{equation}
     y_t = -H_{22}^{-1} H_{21} x_t + (-H_{22}^{-1}\Lambda_2^{-1}\hat{G_2})e_t.
 \end{equation}
 W powyższej postaci odwracalność $H_{22}$ nazywamy warunkiem rzędu Blancharda-Kahna. Model posiada stabilne rozwiązanie tylko jeśli $rank(H_{22}) = n$.
 
-Kolejnym etapem jest znalezienie wzoru dla $x_{t+1}$. Podstawiając do oryginalnego równania na $x_{t+1}$ z postaci \eqref{eqn:bkFG} rozbijamy macierz $F$ analogicznie na $F_{11}, F_{12}$:
+Kolejnym etapem jest znalezienie wzoru dla $x_{t+1}$. Korzystając z oryginalnego równania \eqref{eqn:bkFG} wyznaczamy $x_{t+1}$, dodatkowo rozbijając macierz $F$ na $F_{11}, F_{12}$:
 \begin{equation}
 \begin{gathered}
     x_{t+1} = F_{11} x_t + F_{12} y_t + G_1 e_t, \\
@@ -420,7 +422,7 @@ Dostajemy poszukiwane macierze przejścia z definicji problemu \eqref{eqn:bkprob
 \subsection{Uogólnione rozwiązanie}
 \label{sec:general_bk_solution}
 
-W dużej ilości modeli niestety macierz $A$ może być osobliwa. W celu rozwiązania problemu \eqref{eqn:lreEquation} dla w takim przypadku, przeprowadzimy dodatkową aproksymację problemu. Problem prognozowania modelu DSGE sprowadza się do rozwiązania \eqref{eqn:dsgeEqnGen}. W kolejnej części przemianujemy tą postać do:
+W dużej ilości modeli macierz $A$ może być osobliwa. W celu rozwiązania problemu \eqref{eqn:lreEquation} w takim przypadku, przeprowadzimy dodatkową aproksymację problemu. Problem prognozowania modelu DSGE sprowadza się do rozwiązania \eqref{eqn:dsgeEqnGen}. W kolejnej części przemianujemy tą postać do:
 \begin{equation}
     \label{eqn:genBkProblem}
     \E_t f(y_{t+1}^+, y_t, y_{t-1}^-, \epsilon_t) = 0,
@@ -429,13 +431,13 @@ gdzie poprzez $y_t^+$ oraz $y_t^-$ będziemy oznaczali odpowiednio wektor zmienn
 
 Dodatkowo zdefiniujemy stan ustalony dla funkcji modelu $(\steady{y}, \steady{\epsilon})$, zgodnie z sekcją \ref{sec:steady_state} mamy zachowane:
 \begin{gather}
-    \steady{\epsilon} = 0 \\
+    \steady{\epsilon} = 0, \\
     f(\steady{y}^+, \steady{y}, \steady{y}^-, \steady{\epsilon}) = 0.
 \end{gather}
 Docelowym jest znalezienie reprezentacji funkcji przejścia \eqref{eqn:bkproblem}, którą w następnej części będziemy opisywali symbolem $g$:
 \begin{equation}
     \label{eq:bk_general_state_function}
-    y_t = g(y^-_{t-1}, \epsilon_t)
+    y_t = g(y^-_{t-1}, \epsilon_t).
 \end{equation}
 Następnie problem \eqref{eqn:genBkProblem} sprowadza się do:
 \begin{equation}
@@ -454,21 +456,21 @@ Powyższe pochodne bierzemy w punkcie stanu ustalonego $(\steady{y}, \steady{\ep
 \begin{equation}
     g(y_{t-1}^-, \epsilon_t) = \steady{y} + g_y \hat{y}_{t-1} + g_\epsilon \epsilon_t.
 \end{equation}
-Następnie wykorzystując tą aproksymację dla równania \eqref{eqn:genBkProblemInG}, problem przedstawia się następująco:
+Następnie wykorzystujemy tę aproksymację dla równania \eqref{eqn:genBkProblemInG}. Zgodnie z tym problem przedstawia się następująco:
 \begin{multline}
     f(\steady{y}^+, \steady{y}, \steady{y}^-, \steady{\epsilon}) + f_y^+(g_y^+(g_y^-\hat{y}_{t-1}^- + g_\epsilon^-\epsilon_t) + g_\epsilon^+\E_t[\epsilon_{t+1}]) \\ + f_y^0(g_y \hat{y}_{t-1}^- g_\epsilon \epsilon_t) + f_y^- \hat{y}_{t-1}^- + f_\epsilon \epsilon_t = 0.
 \end{multline}
-Korzystając z własności stanu ustalonego $f(\steady{y}^+, \steady{y}, \steady{y}^-, \steady{\epsilon}) = 0$ oraz $\E_t(\epsilon_{t+1}) = 0$. dostajemy po uporządkowaniu powyższego równania:
+Korzystając z własności stanu ustalonego $f(\steady{y}^+, \steady{y}, \steady{y}^-, \steady{\epsilon}) = 0$ oraz $\E_t(\epsilon_{t+1}) = 0$, dostajemy po uporządkowaniu powyższego równania:
 \begin{equation}
     \label{eqn:genericBkMainEq}
     (f_y^+ g_y^+ g_y^- + f_y^0 g_y + f_y^-) \hat{y}^-_{t-1} + (f_y^+ g_y^+ g_\epsilon^- + f_y^0 g_\epsilon + f_\epsilon) \epsilon_t = 0.
 \end{equation}
-Pierwszym krokiem będzie znalezienie rozwiązania dla $g_y$. W powyższym popatrzmy na część stojącą przy $y^-_{t-1}$, wiemy że równanie musi być spełnione dla dowolnej wartości $\epsilon_t$, stąd:
+Pierwszym krokiem będzie znalezienie rozwiązania dla $g_y$. W powyższym popatrzmy na część stojącą przy $y^-_{t-1}$. Wiemy że równanie musi być spełnione dla dowolnej wartości $\epsilon_t$, stąd:
 \begin{equation}
     \label{eq:bk_general_pre_y_equation}
     (f_y^+ g_y^+ g_y^- + f_y^0 g_y + f_y^-)\hat{y}^-_{t-1} = 0.
 \end{equation}
-Następnie korzystamy z funkcji przejścia \eqref{eq:bk_general_state_function} dla zmiennych $\hat{y}$, dostajemy:
+Następnie korzystamy z funkcji przejścia \eqref{eq:bk_general_state_function} dla zmiennych $\hat{y}$:
 \begin{gather}
     g_y^+ g_y^- \hat{y}^-_{t-1} = g_y^+\hat{y}^-_{t} = \hat{y}^+_{t+1}, \\
     g_y \hat{y}^-_{t-1} = \hat{y}_t.
@@ -496,7 +498,7 @@ W powyższym $f_y^+$, $f_y^0$ oraz $f_y^-$ są w postaci macierzowej, reorganizu
         y_{t}^+
     \end{bmatrix},
 \end{equation}
-co po uproszczeniu $A = \begin{pmatrix}f_y^{0-} & f_y^+\end{pmatrix}$, $B = \begin{pmatrix} -f_y^{-} & -f_y^{0+}\end{pmatrix}$ zapisujemy jako:
+co po uproszczeniu $A = \begin{pmatrix}f_y^{0-} & f_y^+\end{pmatrix}$ oraz $B = \begin{pmatrix} -f_y^{-} & -f_y^{0+}\end{pmatrix}$ zapisujemy jako:
 \begin{equation}
     A
     \begin{bmatrix}
@@ -509,7 +511,7 @@ co po uproszczeniu $A = \begin{pmatrix}f_y^{0-} & f_y^+\end{pmatrix}$, $B = \beg
         y_{t}^+
     \end{bmatrix}.
 \end{equation}
-Ta postać sprowadza się do aproksymowania rozwiązania problemu \eqref{eqn:lreEquation} z zastrzeżeniem jedynie dla wartości endogenicznych, bez zmiennych egzogenicznych. Stosując $g_y^+ y_t^- = y^+_{t+1}$ wyznaczamy stan $y_t^-$ poza wektor:
+Ta postać sprowadza się do aproksymowania rozwiązania problemu \eqref{eqn:lreEquation} z zastrzeżeniem jedynie dla wartości endogenicznych. Stosując $g_y^+ y_t^- = y^+_{t+1}$ wyznaczamy stan $y_t^-$ poza wektor:
 \begin{equation}
     A
     \begin{bmatrix}
@@ -520,9 +522,9 @@ Ta postać sprowadza się do aproksymowania rozwiązania problemu \eqref{eqn:lre
     \begin{bmatrix}
         I_{n^-} \\
         g_y^+
-    \end{bmatrix} y^-_{t-1}
+    \end{bmatrix} y^-_{t-1}.
 \end{equation}
-Następnie dla macierzy $A$, $B$ zastosujemy uogólnioną postać Schura zwaną również dekompozycją QZ.
+Następnie dla macierzy $A$, $B$ zastosujemy uogólnioną postać Schura, zwaną również dekompozycją QZ.
 
 \begin{theorem}[Uogólniona postać Schura]
 \label{theorem:schur}
@@ -531,7 +533,7 @@ Niech dane będą macierze $A$ oraz $B$ rozmiaru $n \times n$, takie że istniej
 \begin{enumerate}
     \item istnieje macierz $S$, dla której $QSZ = A$ oraz $S$ jest macierzą trójkątną górną,
     \item istnieje macierz $T$, dla której $QTZ = B$ oraz $T$ jest macierzą trójkątną górną,
-    \item każdą liczbę z $\lambda(A, B)$ można przedstawić jako $\frac{t_{ii}}{s_{ii}}$ takie, że przynajmniej jedna z $s_{ii}$, $t_{ii}$ nie jest równa zero,
+    \item każdą liczbę z $\lambda(A, B)$ można przedstawić jako $\frac{t_{ii}}{s_{ii}}$, takie że przynajmniej jedna z $s_{ii}$, $t_{ii}$ nie jest równa zero,
     \item pary $(s_{ii}$, $t_{ii})\;\forall i \in \{1,\dots, n\}$ mogą być ustawione w dowolnym porządku.
 \end{enumerate}
 \end{theorem}
@@ -554,7 +556,7 @@ Postać równań po dekompozycji QZ prezentuje się następująco:
         g_y^+
     \end{bmatrix} y^-_{t-1}.
 \end{equation}
-Po przemnożeniu równań poprzez $Q^T$ otrzymujemy postać:
+Po przemnożeniu równań przez $Q^T$ otrzymujemy postać:
 \begin{equation}
     S Z
     \begin{bmatrix}
@@ -567,9 +569,9 @@ Po przemnożeniu równań poprzez $Q^T$ otrzymujemy postać:
         g_y^+
     \end{bmatrix} y^-_{t-1}.
 \end{equation}
-W wariancie z wykorzystaniem dekompozycji QZ warunek porządku Blancharda-Kahna wymaga żeby liczba uogólnionych wartości własnych $|\lambda(A,B)| > 1$ była równa ilości zmiennych kontrolnych występujących w wektorze $y_t$.
+W wariancie z wykorzystaniem dekompozycji QZ warunek porządku Blancharda-Kahna wymaga, żeby liczba uogólnionych wartości własnych $|\lambda(A,B)| > 1$ była równa ilości zmiennych kontrolnych występujących w wektorze $y_t$.
 
-Zapisując równanie \eqref{eqn:qzMainEq} z uwzględnieniem rozbicia blokowego macierzy $T$, $S$ oraz $Z$ odpowiednio na bloki uwzględniające zmienne stabilne(stanu) oraz kontrolne:
+Zapisując równanie \eqref{eqn:qzMainEq} z uwzględnieniem rozbicia blokowego macierzy $T$, $S$ oraz $Z$, odpowiednio na bloki uwzględniające zmienne stabilne(stanu) oraz kontrolne:
 \begin{equation}
     \label{eqn:qzMainBlockEq}
     \begin{bmatrix}
@@ -594,7 +596,7 @@ Zapisując równanie \eqref{eqn:qzMainEq} z uwzględnieniem rozbicia blokowego m
     \begin{bmatrix}
         I_{n^-} \\
         g_y^+
-    \end{bmatrix} y^-_{t-1}
+    \end{bmatrix} y^-_{t-1}.
 \end{equation}
 Następnie wiemy że dla uogólnionych zmiennych własnych bloku niestabilnego mamy zachowane $\frac{s_{ii}}{t_{ii}} > 1$, stąd w celu wykluczenia nieograniczonych rozwiązań:
 \begin{equation}
@@ -631,7 +633,7 @@ Oznaczmy $Z' = Z^T$, z własności ortogonalności $ZZ^T = I$ mamy:
         0
     \end{bmatrix}.
 \end{equation}
-Uzyskujemy $X = (Z'_{11})^{-1}$. Następnie podstawiając \eqref{eqn:qzNoExplosiveTraj} do równania \eqref{eqn:qzMainBlockEq} otrzymujemy:
+Uzyskujemy $X = (Z'_{11})^{-1}$. Następnie podstawiając postać \eqref{eqn:qzNoExplosiveTraj} do równania \eqref{eqn:qzMainBlockEq} otrzymujemy:
 \begin{equation}
     \begin{bmatrix}
     S_{11} & S_{12} \\
@@ -676,7 +678,7 @@ Podstawiając $X = (Z'_{11})^{-1}$ dostajemy poszukiwane rozwiązanie dla $g_y^-
     \label{eq:bk_general_solve_minus}
     g_y^- = Z'_{11}T_{11}^{-1}S_{11}(Z'_{11})^{-1}.
 \end{equation}
-Ostatnim etapem jest znalezienie zastrzeżenia funkcji przejścia dla szoków $g_\epsilon$. Rozważamy część równania \eqref{eqn:genericBkMainEq} gdzie występują szoki:
+Ostatnim etapem jest znalezienie zastrzeżenia funkcji przejścia dla szoków $g_\epsilon$. Rozważamy część równania \eqref{eqn:genericBkMainEq}, gdzie występują szoki:
 \begin{equation}
 \begin{gathered}
     (f_y^+ g_y^+ g_\epsilon^- + f_y^0 g_\epsilon + f_\epsilon) \epsilon_t = 0, \\
@@ -703,17 +705,17 @@ Rozwiązując powyższe równanie dla $g_\epsilon$ otrzymujemy poszukiwane:
     \end{gathered}
 \end{equation}
 
-Zaprezentowana metoda jest aproksymacją rozwiązywania modeli DSGE. Dokładniejsza metoda stosowalna dla przypadku osobliwego została zaprezentowana w pracy \cite{KLEIN20001405}, w której zostało zastosowane podobne rozważanie zmiennych kontrolnych wprzód, jak w przypadku rozwiązania opisanego w sekcji poświęconej macierzy nieosobliwej \ref{sec:bk_nieosobliwa}.
+Zaprezentowana metoda jest aproksymacją rozwiązywania modeli DSGE. Dokładniejsza metoda stosowalna dla przypadku osobliwego została zaprezentowana w pracy \cite{KLEIN20001405}. Ta metoda opiera się o zastosowanie podobnego rozważanie zmiennych kontrolnych wprzód, jak w przypadku rozwiązania opisanego w sekcji poświęconej macierzy nieosobliwej \ref{sec:bk_nieosobliwa}.
 
 \subsection{Zmienne statyczne}
 
-Duża ilość modeli zawiera w swoich równaniach zmienne które nie są zmiennymi kontrolnymi, ani stanu(występują jedynie z indeksem czasowym $t$), takie zmienne będziemy nazywali statycznymi. Zmienne statyczne wprowadzają odpowiednią ilość kolumn zerowych do macierzy $B$, a odpowiadające im generalizowane wartości własne $S^{-1}T$ wynikające z dekompozycji QZ będą odpowiednio wynosiły 0. W związku z tym przed zastosowaniem metody z poprzedniego rozdziału wprowadzimy dodatkowy krok, pozwalający na usunięcie zmiennych statycznych z problemu szukania dekompozycji QZ, a następnie obliczenie funkcji przejścia z postaci wynikowej \eqref{eq:bk_general_solution_final}.
+Duża ilość modeli zawiera w swoich równaniach zmienne, które nie są zmiennymi kontrolnymi ani stanu(występują jedynie z indeksem czasowym $t$). Takie zmienne będziemy nazywali statycznymi. Zmienne statyczne wprowadzają odpowiednią ilość kolumn zerowych do macierzy $B$, a odpowiadające im generalizowane wartości własne $S^{-1}T$ wynikające z dekompozycji QZ będą odpowiednio wynosiły 0. W związku z tym przed zastosowaniem metody z poprzedniego rozdziału wprowadzimy dodatkowy krok, pozwalający na usunięcie zmiennych statycznych z problemu szukania dekompozycji QZ, co pozwoli nam następnie na obliczenie funkcji przejścia z postaci wynikowej \eqref{eq:bk_general_solution_final}.
 
 Na początku powrócimy do postaci \eqref{eqn:genericBkGy}:
 \begin{equation}
     f_y^+ \hat{y}^+_{t-1} + f_y^0 \hat{y}_t + f_y^- \hat{y}^-_{t-1} = 0.
 \end{equation}
-Z macierzy $f_y^0$ konstruujemy macierz $S$ składającą się z tych kolumn macierzy $f^0$, które odpowiadają kolumnom ze zmiennymi statycznymi. Następnie przeprowadzamy dekompozycję QR macierzy $S$, otrzymując macierze $Q$, $R$, dla których $S = QR$. Macierz $Q$ jest macierzą ortogonalną, natomiast macierz $R$ jest prostokątną macierzą trójkątną górną. Oznaczmy przez $n_s$ ilość zmiennych statycznych w naszym modelu.
+Z macierzy $f_y^0$ konstruujemy macierz $S$, składającą się z tych kolumn macierzy $f_y^0$, które odpowiadają kolumnom ze zmiennymi statycznymi. Następnie przeprowadzamy dekompozycję QR macierzy $S$, otrzymując macierze $Q$ i $R$, dla których $S = QR$. Macierz $Q$ jest macierzą ortogonalną, natomiast macierz $R$ jest prostokątną macierzą trójkątną górną. Oznaczmy przez $n_s$ ilość zmiennych statycznych w naszym modelu.
 
 Przemnażając macierze $f^0$, $f^-$, $f^+$ przez Q oznaczmy:
 \begin{equation}
@@ -724,9 +726,9 @@ Podstawiając dostajemy równanie:
 \label{eqn:staticQMult}
     A^+ \hat{y}^+_{t-1} + A^0 \hat{y}_t + A^- \hat{y}^-_{t-1} = 0.
 \end{equation}
-W tej reprezentacji z konstrukcji macierzy Q wiemy, że dla $n_s$ dolnych wierszach kolumny, odpowiadających za zmienne statyczne, mamy wartości zero. 
+W tej reprezentacji z konstrukcji macierzy $A^0$ wiemy, że dla kolumn odpowiadającym zmiennym statycznym w dolnych wierszach $i > n_s$ mamy wartości zero $A^0_{i,j \in \{n_s\}} = 0$. 
 
-Z macierzy $A^+$, $A^0$, $A^-$ bierzemy teraz dolne wiersze $n - n_s$, dodatkowo $A^0$ rozbijamy na część odpowiedzialną za zmienne kontrolne i zmienne wsteczne oznaczając odpowiednio macierze $\bar{A}^+$, $\bar{A}^{0+}$, $\bar{A}^{0-}$ oraz $\bar{A}^{-}$. Postać macierzową \eqref{eqn:genBkMatrixGy} zgodną z powyższymi oznaczeniami zapisujemy jako:
+Z macierzy $A^+$, $A^0$, $A^-$ bierzemy teraz dolne $n - n_s$ wierszy. Dodatkowo macierz $A^0$ rozbijamy na część odpowiedzialną za zmienne kontrolne i zmienne wsteczne, oznaczając odpowiednio macierze $\bar{A}^+$, $\bar{A}^{0+}$, $\bar{A}^{0-}$ oraz $\bar{A}^{-}$. Postać macierzową \eqref{eqn:genBkMatrixGy} zgodną z powyższymi oznaczeniami zapisujemy jako:
 \begin{equation}
     \begin{pmatrix}
         \bar{A}^{0+} & \bar{A}^+
@@ -743,20 +745,20 @@ Z macierzy $A^+$, $A^0$, $A^-$ bierzemy teraz dolne wiersze $n - n_s$, dodatkowo
         y_{t}^+
     \end{bmatrix}.
 \end{equation}
-Rozwiązując powyższe zgodnie z uogólnionym rozwiązaniem modelu, dostajemy funkcję $g_y^+$ oraz $g_y^-$. Następnie rozważmy $n_s$ górnych wierszy układu równań \eqref{eqn:staticQMult}, podstawiając rozwiązane funkcje $g_y$, rozdzielając przy tym $A^0$ na macierze odpowiadające za zmienne niestatyczne $A^{0ns}$ oraz zmienne statyczne $A^{0s}$:
+Rozwiązując powyższe, zgodnie z uogólnionym rozwiązaniem modelu, dostajemy funkcję $g_y^+$ oraz $g_y^-$. Następnie rozważmy $n_s$ górnych wierszy układu równań \eqref{eqn:staticQMult}, podstawiając rozwiązane funkcje $g_y$, rozdzielając przy tym $A^0$ na macierze odpowiadające za zmienne niestatyczne $A^{0ns}$ oraz zmienne statyczne $A^{0s}$:
 \begin{equation}
     \widetilde{A}^+ g_y^+ g_y^- \hat{y}^-_{t-1} + \widetilde{A}^{0ns} g_y^{ns}\hat{y}_{t-1} + \widetilde{A}^{0s} \hat{y}_t^s + \widetilde{A}^- \hat{y}^-_{t-1} = 0.
 \end{equation}
-Podstawiamy $\hat{y}_t^s = g_y^s \hat{y}^-_{t-1}$, oraz rozwiązujemy dla $g_y^s$ otrzymując:
+Podstawiamy $\hat{y}_t^s = g_y^s \hat{y}^-_{t-1}$ oraz rozwiązujemy dla $g_y^s$ otrzymując:
 \begin{equation}
     g_y^s = - [\widetilde{A}^{0s}](\widetilde{A}^+ g_y^+ g_y^- + \widetilde{A}^{0ns} g_y^{ns} + \widetilde{A}^-).
 \end{equation}
-Równania obliczające $g_\epsilon$ nie zmieniają się i w tym przypadku dalej dają rezultaty dla zmiennych statycznych.
+Równania obliczające $g_\epsilon$ nie zmieniają się w tym przypadku i dalej dają rezultaty dla zmiennych statycznych.
 
 \section{Estymowanie modelu DSGE}
 \label{sec:estimate_bayes_dsge}
 
-Analizując modele DSGE często spotykamy się z sytuacją braku dostępu do skalibrowanych parametrów gospodarki dla obecnego okresu czasu. Niestety analiza oraz badanie zmieniającego rynku pod kątem poszukiwania przybliżenia tych wartości może być utrudniona i wymagać wnikliwego zrozumienia stanu rynku. Zamiast tego wykorzystamy metodę opierającą się o zastosowanie twierdzenia Bayesa zwaną wnioskowaniem bayesowskim. Ideą procedury estymacji będzie wykorzystanie historycznej kalibracji parametrów sprzed dłuższego okresu czasu (np. dane sprzed kilku dekad) oraz sekwencji danych opisujących zmierzone wartości ekonomiczne gospodarki z okresu poprzedzającego badany (np. wartości PKB, zatrudnienia, inflacji z okresu 10 lat), w celu oszacowania wartości dla obecnego okresu.
+Analizując modele DSGE często spotykamy się z sytuacją braku dostępu do skalibrowanych parametrów gospodarki dla obecnego okresu $t$. Niestety analiza oraz badanie zmieniającego rynku pod kątem poszukiwania przybliżenia tych wartości może być utrudniona i wymagać wnikliwego zrozumienia stanu rynku. Zamiast tego wykorzystamy metodę opierającą się o zastosowanie twierdzenia Bayesa zwaną wnioskowaniem bayesowskim. Ideą procedury estymacji będzie wykorzystanie historycznej kalibracji parametrów sprzed dłuższego okresu czasu (np. dane sprzed kilku dekad) oraz sekwencji danych opisujących zmierzone wartości ekonomiczne gospodarki z okresu poprzedzającego badany (np. wartości PKB, zatrudnienia, inflacji z okresu 10 lat), w celu oszacowania wartości dla obecnego okresu.
 
 Formalizując procedura będzie opierała się na następujących elementach:
 \begin{itemize}
@@ -825,16 +827,16 @@ gdzie podobnie jak w przypadku postaci równań, macierze pomiaru $\Psi_0$, $\Ps
         INFL_t &= \pi^{(A)} + 400 \hat{\pi}_t \\
         INT_t &= \pi^{(A)} + r^{(A)} + 4\gamma^{(Q)} + 400 \hat{R}_t
 \end{align}
-W powyższym wartości $\pi^{(A)}$, $r^{(A)}$, $\gamma^{(Q)} $ opisują wartości stanu ustalonego gospodarki. Będziemy je traktowali jako wartości wektora $\theta$, poszukiwanych kalibracji parametrów modelu. W powyższym przykładzie utworzymy odpowiednio macierze $\Psi_0$, $\Psi_2$. Z uwagi na fakt, że w równaniach nie występuje $t$, $\Psi_1$ będzie macierzą zerową.
+W powyższym wartości $\pi^{(A)}$, $r^{(A)}$, $\gamma^{(Q)} $ opisują wartości stanu ustalonego gospodarki. Będziemy je traktowali jako wartości wektora $\theta$, czyli poszukiwanych kalibracji parametrów modelu. W powyższym przykładzie utworzymy odpowiednio macierze $\Psi_0$, $\Psi_2$. Z uwagi na fakt, że w równaniach nie występuje $t$, $\Psi_1$ będzie macierzą zerową.
 
 \subsection{Funkcja wiarygodności}
 \label{sec:likelihood}
 
-Mając zdefiniowany zbiór danych $Y$ dla naszego modelu możemy przejść  do przedstawienia funkcji wiarygodności $p(Y|\theta)$. Zakładamy że dane $Y$ są w postaci sekwencji $y_t$ dla $t \in \{1,\dots, T\}$, co będzie oznaczali jako zbiór $Y_{1:T}$, analogicznie zastrzeżenie danych do pewnego okresu $t$ będziemy opisywali jako $Y_{1:t}$. Funkcję wiarygodności możemy następnie przedstawić jako iloczyn prawdopodobieństw:
+Mając zdefiniowany zbiór danych $Y$ dla naszego modelu możemy przejść  do przedstawienia funkcji wiarygodności $p(Y|\theta)$. Zakładamy że dane $Y$ są w postaci sekwencji $y_t$ dla $t \in \{1,\dots, T\}$, co będzie oznaczali jako zbiór $Y_{1:T}$. Analogicznie zastrzeżenie danych do pewnego okresu $t$ będziemy opisywali jako $Y_{1:t}$. Funkcję wiarygodności możemy następnie przedstawić jako iloczyn prawdopodobieństw:
 \begin{equation}
     P(Y | \theta) = P(Y_{1:T} | \theta) = \prod_{t=1}^T P(y_t|Y_{1:t-1},\theta).
 \end{equation}
-Reprezentacja modelu w postaci modelu wektorowej autoregresji \eqref{eqn:varModel} wraz z reprezentacją funkcji pomiaru \eqref{eqn:measurement} tworzy niestety model z zależnością od wewnętrznego stanu tj. zmiennych endogenicznych, co opisuje łączny rozkład prawdopodobieństwa $p(Y_{1:T}, S_{1:T}|\theta)$. W celu obliczenia wartości po prawej stronie, musimy wyeliminować z module wewnętrzny stan zmiennych $S_T$. W tym celu zostanie zastosowany algorytm filtrujący za pomocą którego obliczymy predykcje wartości wewnętrznych zmiennych stanu modelu, a następnie odpowiednio zaktualizujemy rozkłady na bazie danych pomiarowych otrzymanych z wejścia. Filtr opiera się o zastosowanie macierzy przejścia z postaci autoregresji modelu oraz macierzy pomiarowych.
+Reprezentacja modelu w postaci modelu wektorowej autoregresji \eqref{eqn:varModel} wraz z reprezentacją funkcji pomiaru \eqref{eqn:measurement} tworzy niestety model z zależnością od wewnętrznego stanu tj. zmiennych endogenicznych, co opisuje łączony rozkład prawdopodobieństwa $p(Y_{1:T}, S_{1:T}|\theta)$. W celu obliczenia wartości po prawej stronie musimy wyeliminować z modelu wewnętrzny stan zmiennych $S_T$. W związku z tym zostanie zastosowany algorytm filtrujący, za pomocą którego obliczymy predykcje wartości wewnętrznych zmiennych stanu modelu, a następnie odpowiednio zaktualizujemy rozkłady na bazie danych pomiarowych otrzymanych z wejścia $Y$. Filtr opiera się o zastosowanie macierzy przejścia z postaci autoregresji modelu oraz macierzy pomiarowych.
 
 \subsection{Funkcja filtru}
 \label{sec:filter_function}
@@ -867,7 +869,7 @@ Pozostałym elementem dla algorytmu filtru jest rozkład początkowy $s_0$. Najc
 \subsubsection{Filtr Kalmana}
 \label{sec:kalman_filter}
 
-W przypadku modeli DSGE, często przyjmuje się że rozkłady zmiennych stanu oraz błędów pomiarowych są zgodne z rozkładem Gaussa. To założenie pozwoli nam wykorzystać filtr Kalmana do oszacowania oraz wyeliminowania zależności od stanu wewnętrznego. Do opisu tej procedury wykorzystane zostały opracowania oraz uwagi z prac \cite{herbst} oraz \cite{laaraiedh2012implementation}. Algorytm filtru Kalmana prezentuje się następująco:
+W przypadku modeli DSGE często przyjmuje się że rozkłady zmiennych stanu oraz błędów pomiarowych są zgodne z rozkładem Gaussa. To założenie pozwoli nam wykorzystać filtr Kalmana do oszacowania oraz wyeliminowania zależności od stanu wewnętrznego. Do opisu tej procedury wykorzystane zostały opracowania oraz uwagi z prac \cite{herbst} oraz \cite{laaraiedh2012implementation}. Algorytm filtru Kalmana prezentuje się następująco:
 \begin{algDefinition}[Filtr Kalmana]
 \begin{enumerate}
     \item Inicjalizacja w okresie $t$ danymi z kroku $t-1$ dana poprzez 
@@ -896,7 +898,7 @@ W przypadku modeli DSGE, często przyjmuje się że rozkłady zmiennych stanu or
         \end{align}
     \item Wartość funkcji logarytmicznej wiarygodności kroku:
         \begin{equation}
-            \log{(f)} = \frac{|y|}{2}\log{(2\pi)} - \frac{1}{2}\log{(det(\tilde{Y^{c}}_{t|t-1}))} - \frac{1}{2} v_t \tilde{Y^{c}}_{t|t-1}^{-1} v_t^T
+            \log{(f)} = \frac{|y|}{2}\log{(2\pi)} - \frac{1}{2}\log{(det(\tilde{Y^{c}}_{t|t-1}))} - \frac{1}{2} v_t \tilde{Y^{c}}_{t|t-1}^{-1} v_t^T.
         \end{equation}
 \end{enumerate}
 \end{algDefinition}
@@ -910,9 +912,9 @@ Dla kowariancji postać uzyskujemy korzystając z:
 \begin{align}
     \Sigma &= E \left[ (H s_t + G \epsilon_{t+1} G^T) (H s_t + G \epsilon_{t+1} G^T)^T\right]\\
     &= E \left[ H s_t s_t^T H^T + G \epsilon_{t+1} \epsilon_{t+1}^T G^T\right]\\
-    &= H \Sigma H^T + G \Sigma_{\epsilon} G^2,
+    &= H \Sigma H^T + G \Sigma_{\epsilon} G^2.
 \end{align}
-ta postać nazywana jest równaniem Lapunowa, dla którego istnieje rozwiązujący algorytm numeryczny. Następnie podstawiamy $P_0 = \Sigma$.
+Ta postać nazywana jest równaniem Lapunowa, dla którego istnieje rozwiązujący algorytm numeryczny. Następnie podstawiamy $P_0 = \Sigma$.
 
 \subsection{Algorytmy próbkowania}
 
@@ -921,9 +923,9 @@ Mając daną funkcję wiarygodności, którą otrzymujemy poprzez odpowiednie za
 \subsubsection{Algorytm Metropolisa-Hastingsa}
 \label{sec:metropolis_hastings}
 
-Popularnymi metodami próbkowania rozkładu a posteriori modelu DSGE są algorytmy Metropolisa-Hastingsa (\emph{MH}) \cite{herbst}. Istnieje wiele różnych wariantów tych algorytmów, każdy z nich oblicza łańcuch Markowa o unikalnym rozkładzie stacjonarnym równym poszukiwanemu.  Ich działanie opiera się o metodę losowania wartości w kolejnych iteracjach w celu zbudowania zbioru wartości, stąd możemy je zaklasyfikować do klasy algorytmów Monte Carlo. Wśród wariantów algorytmów MH można wymienić algorytm \emph{Random Walk Metropolis-Hastings}, algorytm \emph{Metropolis-Adjusted Langevin} \cite{herbst} lub algorytm blokowy Metropolis-Hastings \cite{NBERw15774}.
+W tej części zostanie przedstawiony algorytm Metropolisa-Hastingsa (\emph{MH}) w oparciu o pracę \cite{herbst}. Istnieje wiele różnych wariantów tych algorytmów, każdy z nich oblicza łańcuch Markowa o unikalnym rozkładzie stacjonarnym równym poszukiwanemu.  Ich działanie opiera się o metodę losowania wartości w kolejnych iteracjach w celu zbudowania zbioru wartości, stąd możemy je zaklasyfikować do klasy algorytmów Monte Carlo. Wśród wariantów algorytmów MH można wymienić algorytm \emph{Random Walk Metropolis-Hastings}, algorytm \emph{Metropolis-Adjusted Langevin} \cite{herbst} lub algorytm blokowy Metropolis-Hastings \cite{NBERw15774}.
 
-Głównym elementem przedstawionej wersji algorytmu Metropolisa-Hastingsa będzie rozkład $q(\vartheta|\theta^{i-1})$, który będzie zależał od wartości $\theta^{i-1}$ wybranej w ramach iteracji $i-1$ algorytmu. Wylosowana wartość w obecnym kroku $\theta^i$ będzie zawsze akceptowana w przypadku, gdy wartość gęstości rozkładu a posteriori rośnie w porównaniu do wartości $\theta^i$, natomiast jeśli nie jest spełniony ten warunek dopuszczamy możliwość zaakceptowania wartości $\theta^i$ z pewnym prawdopodobieństwem. W przypadku gdy wylosowana wartość nie została zaakceptowana ustawiamy $\theta^i = \theta^{i-1}$. Prawdopodobieństwo akceptacji wartości obniżającej gęstość jest dobierane w taki sposób, żeby losowane wartości były zbieżne do docelowej wartości a posteriori, szczegółowo ta część algorytmu zostanie omówiona przy wariantach algorytmu.
+Głównym elementem przedstawionej wersji algorytmu Metropolisa-Hastingsa będzie rozkład $q(\vartheta|\theta^{i-1})$, który będzie zależał od wartości $\theta^{i-1}$ wybranej w ramach iteracji $i-1$ algorytmu. Wylosowana wartość w obecnym kroku $\theta^i$ będzie zawsze akceptowana w przypadku, gdy wartość gęstości rozkładu a posteriori rośnie w porównaniu do wartości $\theta^i$. Jeśli nie jest spełniony ten warunek dopuszczamy możliwość zaakceptowania wartości $\theta^i$ z pewnym prawdopodobieństwem. W przypadku gdy wylosowana wartość nie została zaakceptowana ustawiamy $\theta^i = \theta^{i-1}$. Prawdopodobieństwo akceptacji wartości obniżającej gęstość jest dobierane w taki sposób, żeby losowane wartości były zbieżne do docelowej wartości a posteriori, szczegółowo ta część algorytmu zostanie omówiona przy wariantach algorytmu.
 
 \begin{algDefinition}[Uogólniony algorytm Metropolisa-Hastingsa]
     W iteracjach $i = 1, \dots, n$:
@@ -932,7 +934,7 @@ Głównym elementem przedstawionej wersji algorytmu Metropolisa-Hastingsa będzi
         \item Ustal $\theta^i = \nu$ z prawdopodobieństwem
             \begin{equation}
                 \label{eqn:mhalpha}
-                \alpha(\vartheta|\theta^i) = \min \{ 1, \frac{p(\vartheta|Y)/q(\vartheta|\theta^{i-1})}{p(\theta^{i-1}|Y)/q(\theta^{i-1}|\vartheta)}\}.
+                \alpha(\vartheta|\theta^i) = \min \{ 1, \frac{p(\vartheta|Y)/q(\vartheta|\theta^{i-1})}{p(\theta^{i-1}|Y)/q(\theta^{i-1}|\vartheta)}\},
             \end{equation}
             oraz $\theta^i = \theta^{i-1}$ w przeciwnym przypadku.
     \end{enumerate}
@@ -958,9 +960,9 @@ Warunkiem dla poprawnego działania powyższego algorytmu, tj. że powyższy alg
     \label{eqn:transitionKernelToProof}
     p(\theta|Y) = \int K(\theta|\widetilde{\theta})p(\widetilde{\theta}|Y)d\widetilde{\theta}.
 \end{equation}
-Powyższy warunek zapewni nam, że jeśli $\theta^{i-1}$ zostało wylosowane z rozkładu a posteriori $p(\theta|Y)$, wtedy $\theta^{i}$ też zostanie wylosowana z rozkładu a posteriori.
+Powyższy warunek zapewni nam, że jeśli $\theta^{i-1}$ zostało wylosowane z rozkładu a posteriori $p(\theta|Y)$, wtedy próbka $\theta^{i}$ też zostanie wylosowana z rozkładu a posteriori.
 
-W celu udowodnienia powyżej właściwości, jądro przejścia możemy wyrazić jako:
+W celu udowodnienia powyżej właściwości jądro przejścia możemy wyrazić jako:
 \begin{equation}
 \label{eqn:transitionKernel}
     K(\theta|\widetilde{\theta}) = u(\theta|\widetilde{\theta}) + r(\widetilde{\theta})\delta_{\widetilde{\theta}}(\theta).
@@ -1001,7 +1003,7 @@ Rozkład $\vartheta = \theta^{i-1} + \eta$ możemy wyrazić poprzez wartość oc
     \label{eqn:random-mh}
     \mu(\theta_{t}) = \theta_{t-1} \text{ oraz } \Sigma(\theta_{t}) = c^2\hat{\Sigma}.
 \end{equation}
-W tym przypadku z uwagi na symetryczną postać rozkładu $q$, mamy $q(\vartheta|\theta^{i-1}) = q(\theta^{i-1}|\vartheta)$, co możemy uprościć \eqref{eqn:mhalpha} do postaci:
+W tym przypadku z uwagi na symetryczną postać rozkładu $q$, mamy $q(\vartheta|\theta^{i-1}) = q(\theta^{i-1}|\vartheta)$, dzięki czemu możemy uprościć \eqref{eqn:mhalpha} do postaci:
 \begin{equation}
     \alpha = \min\left\{ \frac{p(\vartheta|Y)}{p(\theta^{i-1}|Y)}, 1\right\}.
 \end{equation}
@@ -1009,9 +1011,9 @@ Wylosowana wartość $\vartheta$ jest akceptowana w przypadku gdy rozkład a pos
 
 Pozostałymi elementami algorytmu są wartości $c$ oraz $\hat{\Sigma}$ ze wzoru \eqref{eqn:random-mh}. Rozkładem z którego będziemy losować wartości do spaceru losowego będzie rozkład normalny, natomiast wartość $c$ zazwyczaj dobierana jest jako parametr skalujący, który może zmieniać swoją wartość w przebiegu algorytmu lub być ustawiony jako stały. Jego wartość zostanie omówiona po wartości $\Sigma$ -- wartości kontrolującej wariancje i korelacje w generowanym rozkładzie.
 
-Wartość $\Sigma$ musi dobrze opisywać relacje w parametrach naszego modelu. W przypadku gdy wariancja opisana przez macierz $\hat{\Sigma}$ nie ujmuje zależności między zmiennymi zależnymi między sobą, może okazać się że dwie wartości $\beta$, $\delta$ są zależne między sobą w rozkładzie a posteriori, a nasze estymacje nie odwzorowują tej relacji, nadając wartości $\beta$ dużą wartość, podczas gdy wartość $\delta$ pozostanie mała. Takie wartości będą dawały małą wartość $p(\vartheta|Y)$ i będą najpewniej odrzucane, a łańcuch będzie silnie auto-skorelowany.
+Wartość $\Sigma$ musi dobrze opisywać relacje w parametrach naszego modelu. W przypadku gdy wariancja opisana przez macierz $\hat{\Sigma}$ nie ujmuje relacji między zmiennymi zależnymi, może okazać się że dwie wartości $\beta$, $\delta$ są zależne między sobą w rozkładzie a posteriori, a nasze estymacje tego nie odwzorowują. Przykładowo nadając $\beta$ dużą wartość, podczas gdy wartość $\delta$ pozostanie mała. Takie wartości będą dawały małą wartość $p(\vartheta|Y)$ i będą najpewniej odrzucane, a łańcuch będzie silnie auto-skorelowany.
 
-Zamiast tego będziemy stosowali estymację kowariancji rozkładu a posteriori w postaci wariantu \emph{RWMH-V}, gdzie wartość $\Sigma$ to pewna przygotowana wstępna estymacja kowariancji rozkładu. Metoda ta niesie ze sobą pewną niepraktyczność, gdyż wymaga znalezienia estymacji kowariancji rozkładu a posteriori, który jest docelowym szukanym rozkładem. Zamiast tego możliwe jest zastosowanie przybliżonych wartości stosując metody numeryczne, ewentualnie traktując wynik wstępnego uruchomienia algorytmu z wartościami kowariancji równymi rozkładowi a priori jako wejście do kolejnej iteracji algorytmu RWMH-V. Ta metoda może zostać zastosowana wielokrotnie, poprawiając wynik procedury.
+Zamiast tego będziemy stosowali estymację kowariancji rozkładu a posteriori w postaci wariantu \emph{RWMH-V}, gdzie wartość $\Sigma$ to pewna przygotowana wstępna estymacja kowariancji rozkładu. Metoda ta niesie ze sobą pewną niepraktyczność, gdyż wymaga znalezienia estymacji kowariancji rozkładu a posteriori, co jest docelowo szukanym rezultatem. Zamiast tego możliwe jest zastosowanie przybliżonych wartości stosując metody numeryczne, ewentualnie traktując wynik wstępnego uruchomienia algorytmu z wartościami kowariancji równymi rozkładowi a priori jako wejście do kolejnej iteracji algorytmu RWMH-V. Ta metoda może zostać zastosowana wielokrotnie, poprawiając wynik procedury.
 
 Wartość parametru $c$ najczęściej jest ustalana na stałą wartość $c = 0.234$, zgodnie z wcześniejszymi wynikami dla rozkładów normalnych wielu zmiennych \cite{herbst}. Wartość ta może również być zmienna w trakcie przebiegu algorytmu. Najczęściej stosowane są wartości z przedziału $0.2$ do $0.4$. W przypadku algorytmu wykorzystanego w pracy parametr $c$ jest skalowany o $75\%$ co 100 iteracji algorytmu. 
 
@@ -1038,7 +1040,7 @@ Często parametry występujące w modelach DSGE są ograniczone przez zależnoś
 
 \section{Prognozowanie modelu}
 
-Ostatnim etapem analizy modelu DSGE jest przeprowadzenie prognozowania na bazie dostępnej kalibracji lub rozkładu a posteriori parametrów. W przypadku wykorzystania kalibracji w postaci wektora wartości $\theta$, możemy bezpośrednio zastosować rozwiązanie modelu metodą uogólnioną \ref{sec:general_bk_solution} generując macierz przejścia. W przypadku gdy wykonujemy estymację bayesowską z sekcji \ref{sec:estimate_bayes_dsge} dostajemy rozkład w postaci zbioru zaakceptowanych wektorów w ramach algorytmu Metropolisa-Hastingsa. Dla każdego z wektorów tego zbioru, analogicznie przy pomocy uogólnionej metody \ref{sec:general_bk_solution}, generujemy rozwiązanie modelu w postaci macierzy przejścia. W związku z tym model sprowadza się do układu równań autoregresji (\emph{VAR}:
+Ostatnim etapem analizy modelu DSGE jest przeprowadzenie prognozowania na bazie dostępnej kalibracji lub rozkładu a posteriori parametrów. W przypadku wykorzystania kalibracji w postaci wektora wartości $\theta$, możemy bezpośrednio zastosować rozwiązanie modelu metodą uogólnioną \ref{sec:general_bk_solution} generując macierz przejścia. W przypadku gdy wykonujemy estymację bayesowską z sekcji \ref{sec:estimate_bayes_dsge} dostajemy rozkład w postaci zbioru zaakceptowanych wektorów w ramach algorytmu Metropolisa-Hastingsa. Dla każdego z wektorów tego zbioru, analogicznie przy pomocy uogólnionej metody \ref{sec:general_bk_solution}, generujemy rozwiązanie modelu w postaci macierzy przejścia. W związku z tym model sprowadza się do układu równań autoregresji (\emph{VAR}):
 \begin{equation}
     \label{eqn:varModelProg}
     y_t = \Phi_1 y_{t-1}+\Phi_{\epsilon} \epsilon_t,
@@ -1055,7 +1057,7 @@ W tej części zostanie opisany proces prognozowania wykorzystywany głównie w 
             0 & \text{dla $t > 1$.}
         \end{cases}
     \end{gather}
-Powyższa sytuacja ma głównie sens przy analizie modeli z dostępną kalibracją jako badanie reakcji gospodarki na prosty szok. Najczęściej w przypadku opisu gospodarki z wieloma szokami, procedura jest przeprowadzona niezależnie dla każdego z nich (dla pozostałych szoków ustawiamy wartość zero). Algorytm prognozowania opiera się na zastosowaniu postaci \emph{VAR} i iterowaniu zmiennej wprzód:
+Powyższa sytuacja ma głównie sens przy analizie modeli z dostępną kalibracją, jako badanie reakcji gospodarki na prosty szok. Najczęściej w przypadku opisu gospodarki z wieloma szokami, procedura jest przeprowadzona niezależnie dla każdego z nich (dla pozostałych szoków ustawiamy wartość zero). Algorytm prognozowania opiera się na zastosowaniu postaci \emph{VAR} i iterowaniu zmiennej wprzód:
 
 \begin{algDefinition}
 
@@ -1068,7 +1070,7 @@ Wykonaj następujący krok dla t = 1,...,T:
 
 \end{algDefinition}
 
-Wyjściem algorytmu jest sekwencja wartości zmiennych $y_t$ dla $t \in [1,T]$. W przypadku wykorzystania powyższego dla rozkładu a posteriori możemy zastosować iteracje dla każdego z wektora osobno i następnie obliczyć średnią wartość zmiennych w czasie lub przedstawić przedziały możliwych wartości ze średnią. Wektor startowy $y_0$ przyjmuje wartość $\vec{0}$ ze względu na założenie, że model przed działaniem szoku znajduje się w stanie ustalonym, stąd w postaci liniowej logarytmicznych odchyleń od stanu ustalonego wynosi zero.
+Wyjściem algorytmu jest sekwencja wartości zmiennych $y_t$ dla $t \in [1,T]$. W przypadku wykorzystania powyższego dla rozkładu a posteriori możemy zastosować iteracje dla każdego z wektora osobno i następnie obliczyć średnią wartość zmiennych w czasie lub przedstawić przedziały możliwych wartości ze średnią. Wektor startowy $y_0$ przyjmuje wartość $\vec{0}$ ze względu na założenie, że model przed działaniem szoku znajduje się w stanie ustalonym, stąd w postaci logarytmicznych odchyleń od stanu ustalonego wynosi zero.
 
 \subsection{Prognozowanie metodą losowych ścieżek}
 
@@ -1087,8 +1089,8 @@ Wykonaj następujące kroki dla $i = 1, \dots, M_2$:
     \item Wykonaj następujące kroki $M_1$ razy dla wektora $\theta_i$:
     \begin{enumerate}
         \item wylosuj wartości stanu w momencie $T$ z rozkładu $\xi_T \sim N(\xi_{T|T}, P_{T|T})$, gdzie $\xi_{T|T}$ oraz $P_{T|T}$ otrzymujemy jako wyjście z algorytmu filtrowania w trakcie estymacji na bazie wektora $\theta_i$ oraz danych $Y_{1:T}$,
-        \item Przeprowadź symulację ścieżki za pomocą równania modelu VAR \ref{eqn:varModelProg} z wartościami stanu startowymi $\xi_T$ próbkując sekwencję szoków $\epsilon_{T+1}, \dots, \epsilon_{T+H}$ z rozkładu szoków $N(0, \Sigma_\epsilon)$,
-        \item Wylosuj sekwencję błędów pomiarowych $\eta_{T+1}, \dots, \eta_{T+H}$ z rozkładu dla błędów pomiarowych $N(0, \Sigma_\eta)$, następnie obliczając sekwencję wartości obserwowalnych $y_{T+1}, \dots, y_{T+H}$ zgodnie z równaniem pomiarowym \eqref{eqn:measurement}.
+        \item przeprowadź symulację ścieżki za pomocą równania modelu VAR \ref{eqn:varModelProg} z wartością startową $\xi_T$, próbkując sekwencję szoków $\epsilon_{T+1}, \dots, \epsilon_{T+H}$ z rozkładu szoków $N(0, \Sigma_\epsilon)$,
+        \item wylosuj sekwencję błędów pomiarowych $\eta_{T+1}, \dots, \eta_{T+H}$ z rozkładu dla błędów pomiarowych $N(0, \Sigma_\eta)$, obliczając następnie sekwencję wartości obserwowalnych $y_{T+1}, \dots, y_{T+H}$ zgodnie z równaniem pomiarowym \eqref{eqn:measurement}.
     \end{enumerate}
     \item Zwróć $M = M_1 M_2$ wygenerowanych ścieżek dla wartości obserwowalnych.
 \end{enumerate}

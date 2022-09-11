@@ -1,87 +1,67 @@
 {
-  "name": "rbc model",
-  "variables": ["L", "W", "K", "Y", "A", "IV", "CV", "RV"],
-  "structural": ["alphaSt", "betaSt", "deltaSt", "sigmaSt", "phiSt", "rhoSt"],
-  "shocks": ["e"],
+  "name": "rbc model final version",
+  "variables": ["YV", "IV", "CV", "RK", "KV", "WV", "LV", "AV"],
+  "structural": ["sigmaSt", "phiSt", "alphaSt", "betaSt", "deltaSt", "rhoASt"],
+  "shocks": ["eA"],
   "model": {
     "definitions": [
-      "Pss = 1",
-      "Rss = Pss*((1/betaSt)-(1-deltaSt))",
-      "Wss = (1-alphaSt)*(Pss^(1/(1-alphaSt)))*((alphaSt/Rss)^(alphaSt/(1-alphaSt)))",
-      "Yss = ((Rss/(Rss-deltaSt*alphaSt))^(sigmaSt/(sigmaSt+phiSt)))*(((1-alphaSt)^(-phiSt))*((Wss/Pss)^(1+phiSt)))^(1/(sigmaSt+phiSt))",
-      "Kss = alphaSt*(Yss/Rss/Pss)",
+      "Rss = (1/betaSt)-(1-deltaSt)",
+      "Wss = (1-alphaSt)*(alphaSt/Rss)^(alphaSt/(1-alphaSt))",
+      "Yss = ((Rss/(Rss-deltaSt*alphaSt))^(sigmaSt/(sigmaSt+phiSt)))*(Wss*(Wss/(1-alphaSt))^phiSt)^(1/(sigmaSt+phiSt))",
+      "Kss = alphaSt*(Yss/Rss)",
       "Iss = deltaSt*Kss",
       "Css = Yss - Iss",
-      "Lss = (1-alphaSt)*(Yss/Wss/Pss)"
+      "Lss = (1-alphaSt)*(Yss/Wss)"
     ],
     "equations": [
-      "sigmaSt * CV(-1) + phiSt * L = W",
-      "(sigmaSt/betaSt)*(CV-CV(-1))=Rss*RV",
-      "K = (1 - deltaSt) * K(-1) + deltaSt * IV",
-      "Y = A + alphaSt * K(-1) + (1 - alphaSt) * L",
-      "RV(-1) = Y - K(-1)",
-      "W = Y - L",
-      "Yss * Y = Css * CV(-1) + Iss*IV",
-      "A = rhoSt * A(-1) + e"
+      "sigmaSt*CV + phiSt*LV = WV",
+      "(sigmaSt/betaSt)*(CV(+1)-CV)=Rss*RK(+1)",
+      "KV = (1-deltaSt)*KV(-1) + deltaSt * IV",
+      "YV = AV + alphaSt*KV(-1) + (1-alphaSt)*LV",
+      "WV = YV - LV",
+      "RK = YV - KV(-1)",
+      "AV = rhoASt*AV(-1) + eA",
+      "Yss*YV = Css*CV + Iss*IV"
     ],
     "observables": [
-      "YL = 1000*L",
-      "YW = W",
-      "YK = K",
-      "YY = Y",
-      "YA = A",
-      "YIV = IV",
-      "YCV = 1000*CV",
-      "YRV = RV"
+      "L = LV",
+      "C = CV",
+      "K = KV",
+      "Y = YV",
+      "I = IV",
+      "W = WV",
+      "RK = RK",
+      "A = AV"
     ]
   },
   "priors": {
-    "e": {
-      "type": "shock",
-      "distribution": "normal",
-      "mean": 0.01,
-      "variance": 0.1
-    },
-    "alphaSt": {
-      "type": "structural",
-      "distribution": "normal",
-      "mean": 0.35,
-      "variance": 0.01
-    },
-    "betaSt": {
-      "type": "structural",
-      "distribution": "normal",
-      "mean": 0.985,
-      "variance": 0.01
-    },
-    "deltaSt": {
-      "type": "structural",
-      "distribution": "normal",
-      "mean": 0.025,
-      "variance": 0.0012
-    },
     "sigmaSt": {
-      "type": "structural",
-      "distribution": "normal",
-      "mean": 2,
-      "variance": 0.01
+      "distribution": "calibration",
+      "value": 2
     },
     "phiSt": {
-      "type": "structural",
-      "distribution": "normal",
-      "mean": 1.5,
-      "variance": 0.01
+      "distribution": "calibration",
+      "value": 1.5
     },
-    "rhoSt": {
-      "type": "structural",
-      "distribution": "normal",
-      "mean": 0.95,
-      "variance": 0.01
+    "alphaSt": {
+      "distribution": "calibration",
+      "value": 0.35
+    },
+    "betaSt": {
+      "distribution": "calibration",
+      "value": 0.985
+    },
+    "deltaSt": {
+      "distribution": "calibration",
+      "value": 0.035
+    },
+    "rhoASt": {
+      "distribution": "calibration",
+      "value": 0.95
+    },
+    "eA": {
+      "distribution": "calibration",
+      "value": 0.1
     }
-  },
-  "estimations": {
-    "data": [
-      [4, 0.04, 2]
-    ]
   }
 }
